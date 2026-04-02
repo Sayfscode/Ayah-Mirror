@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Ayah Mirror — Find Quran Verses for Your Heart</title>
+  <meta name="description" content="An Islamic reflection app that matches Quran verses to your emotional state." />
+  <meta name="theme-color" content="#0f1419" />
+
+  <!-- ══════════════════════════════════════════════════════════
+       STYLES
+       A dark, calming theme with gold/amber accents inspired
+       by Islamic geometric art. Mobile-first responsive design.
+       ══════════════════════════════════════════════════════════ -->
+  <style>
+    /* ── Reset ────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Design tokens (CSS custom properties) ────────────────── */
+    :root {
+      --bg:         #0f1419;
+      --bg-card:    #1a2028;
+      --bg-hover:   #222c36;
+      --border:     #2a3540;
+      --gold:       #d4a853;
+      --gold-dim:   #a07d3a;
+      --gold-glow:  rgba(212, 168, 83, 0.15);
+      --teal:       #5ba8a0;
+      --text:       #dce4ec;
+      --text-muted: #7a8a98;
+      --text-dim:   #4d5b68;
+      --danger:     #e06c6c;
+      --success:    #6bbd7b;
+      --radius:     12px;
+      --radius-sm:  8px;
+      --font:       'Segoe UI', system-ui, -apple-system, sans-serif;
+      --font-arabic: 'Traditional Arabic', 'Scheherazade New', 'Noto Naskh Arabic', serif;
+      --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      --nav-height: 64px;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-tap-highlight-color: transparent;
+      overflow: hidden;
+    }
+
+    /* ── Subtle background pattern (geometric hint) ───────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(212,168,83,0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(91,168,160,0.03) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── App shell ────────────────────────────────────────────── */
+    .app {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ───────────────────────────────────────────────── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .header-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.04em;
+    }
+
+    .header-title span {
+      color: var(--text-muted);
+      font-weight: 400;
+      font-size: 13px;
+      margin-left: 8px;
+    }
+
+    /* ── Screen container (holds all pages, only one visible) ── */
+    .screens {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      overflow-y: auto;
+      padding: 20px;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity var(--transition), transform var(--transition);
+      pointer-events: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* When a screen is active, fade it in and slide up */
+    .screen.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* ── Bottom navigation bar ────────────────────────────────── */
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      height: var(--nav-height);
+      border-top: 1px solid var(--border);
+      background: var(--bg-card);
+      flex-shrink: 0;
+    }
+
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font);
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      transition: color var(--transition), background var(--transition);
+    }
+
+    .nav-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke-width: 1.8;
+      fill: none;
+      stroke: currentColor;
+    }
+
+    .nav-btn.active {
+      color: var(--gold);
+    }
+
+    .nav-btn:hover {
+      color: var(--gold);
+      background: var(--gold-glow);
+    }
+
+    /* ── Cards ────────────────────────────────────────────────── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    /* ── Section titles ───────────────────────────────────────── */
+    .section-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    /* ── Emotion chips ────────────────────────────────────────── */
+    .emotion-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .emotion-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all var(--transition);
+      user-select: none;
+    }
+
+    .emotion-chip:hover {
+      border-color: var(--gold-dim);
+      background: var(--gold-glow);
+    }
+
+    .emotion-chip.selected {
+      border-color: var(--gold);
+      background: rgba(212, 168, 83, 0.12);
+      color: var(--gold);
+      box-shadow: 0 0 16px rgba(212, 168, 83, 0.1);
+    }
+
+    .emotion-chip .emoji {
+      font-size: 18px;
+    }
+
+    /* ── Custom text input ────────────────────────────────────── */
+    .text-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      outline: none;
+      transition: border-color var(--transition);
+    }
+
+    .text-input:focus {
+      border-color: var(--gold-dim);
+    }
+
+    .text-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    /* ── Primary button ───────────────────────────────────────── */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px 24px;
+      background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+      border: none;
+      border-radius: var(--radius-sm);
+      color: #0f1419;
+      font-family: var(--font);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all var(--transition);
+      letter-spacing: 0.02em;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 4px 20px rgba(212, 168, 83, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* ── Secondary / ghost button ─────────────────────────────── */
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 18px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-family: var(--font);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--gold-dim);
+      color: var(--gold);
+    }
+
+    /* ── Arabic text styling ──────────────────────────────────── */
+    .arabic {
+      font-family: var(--font-arabic);
+      font-size: 26px;
+      line-height: 2;
+      text-align: right;
+      direction: rtl;
+      color: var(--gold);
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 14px;
+    }
+
+    /* ── Verse reference ──────────────────────────────────────── */
+    .verse-ref {
+      font-size: 12px;
+      color: var(--teal);
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+
+    /* ── Translation text ─────────────────────────────────────── */
+    .translation {
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 12px;
+      font-style: italic;
+    }
+
+    /* ── Explanation ───────────────────────────────────────────── */
+    .explanation {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      padding: 12px;
+      background: rgba(91, 168, 160, 0.06);
+      border-left: 3px solid var(--teal);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+
+    .explanation strong {
+      color: var(--teal);
+      font-weight: 600;
+    }
+
+    /* ── Textarea (reflection) ────────────────────────────────── */
+    textarea.text-input {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* ── Divider ──────────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    /* ── History list ─────────────────────────────────────────── */
+    .history-item {
+      padding: 14px;
+      border-bottom: 1px solid var(--border);
+      transition: background var(--transition);
+      cursor: pointer;
+    }
+
+    .history-item:last-child { border-bottom: none; }
+
+    .history-item:hover { background: var(--bg-hover); }
+
+    .history-date {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .history-emotion {
+      font-size: 14px;
+      color: var(--gold);
+      margin: 4px 0;
+    }
+
+    .history-verse {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .history-reflection {
+      font-size: 12px;
+      color: var(--teal);
+      margin-top: 4px;
+    }
+
+    /* ── Empty state ──────────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-dim);
+    }
+
+    .empty-state .icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    /* ── Daily ayah banner ────────────────────────────────────── */
+    .daily-banner {
+      text-align: center;
+      padding: 8px;
+      margin-bottom: 12px;
+      font-size: 11px;
+      color: var(--gold-dim);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* ── Fade-in animation for results ────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-up {
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    .fade-up-delay-1 { animation-delay: 0.15s; opacity: 0; }
+    .fade-up-delay-2 { animation-delay: 0.3s;  opacity: 0; }
+    .fade-up-delay-3 { animation-delay: 0.45s; opacity: 0; }
+
+    /* ── Saved confirmation ───────────────────────────────────── */
+    .save-toast {
+      position: fixed;
+      bottom: calc(var(--nav-height) + 20px);
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--success);
+      color: #0f1419;
+      padding: 10px 24px;
+      border-radius: 24px;
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .save-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Clear history button ─────────────────────────────────── */
+    .btn-danger {
+      color: var(--danger);
+      border-color: rgba(224, 108, 108, 0.3);
+    }
+
+    .btn-danger:hover {
+      border-color: var(--danger);
+      color: var(--danger);
+      background: rgba(224, 108, 108, 0.08);
+    }
+
+    /* ── Scrollbar ────────────────────────────────────────────── */
+    .screen::-webkit-scrollbar { width: 4px; }
+    .screen::-webkit-scrollbar-track { background: transparent; }
+    .screen::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* ── Bismillah intro ──────────────────────────────────────── */
+    .bismillah {
+      text-align: center;
+      font-family: var(--font-arabic);
+      font-size: 24px;
+      color: var(--gold-dim);
+      padding: 12px 0 4px;
+      opacity: 0.7;
+    }
+
+    .intro-text {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-bottom: 24px;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ═══ HEADER ════════════════════════════════════════════════ -->
+  <header class="header">
+    <div class="header-title">
+      Ayah Mirror <span>— reflect &amp; heal</span>
+    </div>
+  </header>
+
+  <!-- ═══ SCREEN CONTAINER ══════════════════════════════════════ -->
+  <div class="screens">
+
+    <!-- ─── HOME SCREEN ──────────────────────────────────────── -->
+    <div class="screen active" id="screen-home">
+
+      <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
+      <p class="intro-text">
+        How are you feeling right now?<br />
+        Select what resonates, and let the Quran speak to your heart.
+      </p>
+
+      <!-- Emotion selection chips -->
+      <div class="section-title">Choose your feeling</div>
+      <div class="emotion-grid" id="emotionGrid">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Free-text input for custom feelings -->
+      <div style="margin-top:16px;">
+        <input
+          type="text"
+          class="text-input"
+          id="customEmotion"
+          placeholder="Or type how you feel..."
+          autocomplete="off"
+        />
+      </div>
+
+      <!-- Find Ayah button -->
+      <div style="margin-top:20px;">
+        <button class="btn-primary" id="findAyahBtn" disabled>
+          Find My Ayah
+        </button>
+      </div>
+    </div>
+
+    <!-- ─── RESULT SCREEN ────────────────────────────────────── -->
+    <div class="screen" id="screen-result">
+      <div id="resultContent">
+        <!-- Populated dynamically by JS -->
+      </div>
+    </div>
+
+    <!-- ─── DAILY AYAH SCREEN ────────────────────────────────── -->
+    <div class="screen" id="screen-daily">
+      <div class="daily-banner">Your Daily Ayah</div>
+      <div id="dailyContent">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- ─── HISTORY SCREEN ───────────────────────────────────── -->
+    <div class="screen" id="screen-history">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div class="section-title" style="margin-bottom:0;">Your History</div>
+        <button class="btn-ghost btn-danger" id="clearHistoryBtn" style="font-size:11px;padding:6px 12px;">
+          Clear All
+        </button>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden;" id="historyList">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ BOTTOM NAVIGATION ═════════════════════════════════════ -->
+  <nav class="nav">
+    <!-- Home -->
+    <button class="nav-btn active" data-screen="home">
+      <svg viewBox="0 0 24 24"><path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z"/></svg>
+      Home
+    </button>
+    <!-- Daily -->
+    <button class="nav-btn" data-screen="daily">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      Daily
+    </button>
+    <!-- History -->
+    <button class="nav-btn" data-screen="history">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      History
+    </button>
+  </nav>
+
+  <!-- Toast notification -->
+  <div class="save-toast" id="toast">Saved!</div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     JAVASCRIPT
+     All app logic: data, navigation, matching, storage.
+     Well-commented for learning purposes.
+     ══════════════════════════════════════════════════════════════ -->
+<script>
+/* ────────────────────────────────────────────────────────────────
+   1. AYAH DATABASE
+   Each entry maps an emotion to one or more Quran verses.
+   Fields:
+     - emotion:     the feeling name (matches chip labels)
+     - emoji:       visual icon for the chip
+     - arabic:      the verse in Arabic script
+     - reference:   surah name and ayah number
+     - translation: English meaning
+     - explanation: short tafsir-style note
+     - relevance:   why this verse speaks to that emotion
+   ──────────────────────────────────────────────────────────────── */
+
+const AYAH_DATA = [
+  {
+    emotion: "Anxiety",
+    emoji: "😰",
+    entries: [
+      {
+        arabic: "أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ",
+        reference: "Surah Ar-Ra'd (13:28)",
+        translation: "Verily, in the remembrance of Allah do hearts find rest.",
+        explanation: "This verse reminds us that lasting tranquillity comes not from controlling every outcome, but from turning our hearts to Allah.",
+        relevance: "When anxiety grips you, it often stems from trying to control what you cannot. This ayah gently redirects your focus — peace is found not in certainty about the future, but in remembrance of the One who holds it all."
+      },
+      {
+        arabic: "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ",
+        reference: "Surah At-Talaq (65:3)",
+        translation: "And whoever relies upon Allah — then He is sufficient for him.",
+        explanation: "Tawakkul (trust in Allah) does not mean inaction — it means doing your part and leaving the outcome to Him.",
+        relevance: "Anxiety often comes from feeling alone with your burdens. This verse assures you that when you place your trust in Allah, He is enough — you are never carrying the weight alone."
+      }
+    ]
+  },
+  {
+    emotion: "Sadness",
+    emoji: "😢",
+    entries: [
+      {
+        arabic: "وَلَسَوْفَ يُعْطِيكَ رَبُّكَ فَتَرْضَىٰ",
+        reference: "Surah Ad-Duha (93:5)",
+        translation: "And your Lord is going to give you, and you will be satisfied.",
+        explanation: "Revealed when the Prophet ﷺ was going through a period of sadness. Allah promised that ease and contentment were coming.",
+        relevance: "When sadness feels heavy and unending, this ayah is Allah's direct promise — what is coming for you is better than what has passed. Your current pain is not your final chapter."
+      }
+    ]
+  },
+  {
+    emotion: "Lack of Motivation",
+    emoji: "😔",
+    entries: [
+      {
+        arabic: "فَإِنَّ مَعَ الْعُسْرِ يُسْرًا ۝ إِنَّ مَعَ الْعُسْرِ يُسْرًا",
+        reference: "Surah Al-Inshirah (94:5-6)",
+        translation: "For indeed, with hardship will be ease. Indeed, with hardship will be ease.",
+        explanation: "Allah repeats the promise twice for emphasis — the difficulty you face right now already contains the seed of its own relief.",
+        relevance: "When you feel stuck and unmotivated, remember that struggle is not a sign of failure. Allah is telling you that ease is literally woven into the hardship, not just waiting after it."
+      }
+    ]
+  },
+  {
+    emotion: "Gratitude",
+    emoji: "🤲",
+    entries: [
+      {
+        arabic: "لَئِن شَكَرْتُمْ لَأَزِيدَنَّكُمْ",
+        reference: "Surah Ibrahim (14:7)",
+        translation: "If you are grateful, I will surely increase you [in favour].",
+        explanation: "Gratitude (shukr) is not just a feeling — it is a practice that opens the door to more blessings.",
+        relevance: "You are in a beautiful state right now. This ayah affirms that gratitude is not just good character — it is a spiritual law. The more you recognise Allah's gifts, the more He gives."
+      }
+    ]
+  },
+  {
+    emotion: "Anger",
+    emoji: "😠",
+    entries: [
+      {
+        arabic: "وَالْكَاظِمِينَ الْغَيْظَ وَالْعَافِينَ عَنِ النَّاسِ ۗ وَاللَّهُ يُحِبُّ الْمُحْسِنِينَ",
+        reference: "Surah Aal-Imran (3:134)",
+        translation: "Who restrain their anger and pardon the people — and Allah loves the doers of good.",
+        explanation: "Controlling anger is listed as a quality of the people of Jannah. It is strength, not weakness.",
+        relevance: "Anger is natural, but this verse shows that mastering it is one of the highest forms of ihsan (excellence). Restraining your anger when you have the power to act on it — that is the strength Allah loves."
+      }
+    ]
+  },
+  {
+    emotion: "Feeling Lost",
+    emoji: "🌫️",
+    entries: [
+      {
+        arabic: "وَوَجَدَكَ ضَالًّا فَهَدَىٰ",
+        reference: "Surah Ad-Duha (93:7)",
+        translation: "And He found you lost and guided [you].",
+        explanation: "Allah addressed the Prophet ﷺ directly — even he was once searching for direction, and Allah guided him.",
+        relevance: "If you feel directionless, know that being 'lost' is not a permanent state — it is the starting point of every guidance story. Allah found His most beloved servant in that same state, and guided him. He will guide you too."
+      }
+    ]
+  },
+  {
+    emotion: "Fear",
+    emoji: "😨",
+    entries: [
+      {
+        arabic: "لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا وُسْعَهَا",
+        reference: "Surah Al-Baqarah (2:286)",
+        translation: "Allah does not burden a soul beyond that it can bear.",
+        explanation: "Whatever trial you face, Allah has already measured your capacity to handle it — and He deemed you strong enough.",
+        relevance: "Fear often whispers 'you can't handle this.' But Allah, who knows you better than you know yourself, says otherwise. If this challenge is in your life, you already have what it takes to face it."
+      }
+    ]
+  },
+  {
+    emotion: "Loneliness",
+    emoji: "🥀",
+    entries: [
+      {
+        arabic: "وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌ ۖ أُجِيبُ دَعْوَةَ الدَّاعِ إِذَا دَعَانِ",
+        reference: "Surah Al-Baqarah (2:186)",
+        translation: "And when My servants ask you about Me — indeed I am near. I respond to the call of the caller when he calls upon Me.",
+        explanation: "Unlike every other 'ask the Prophet' verse, Allah answers this one directly — without an intermediary — to emphasise His closeness.",
+        relevance: "You may feel alone, but notice something remarkable: Allah did not say 'tell them I am near.' He said 'I am near' — directly, personally. In your loneliest moment, He is closer to you than anyone."
+      }
+    ]
+  },
+  {
+    emotion: "Grief",
+    emoji: "💔",
+    entries: [
+      {
+        arabic: "إِنَّمَا أَشْكُو بَثِّي وَحُزْنِي إِلَى اللَّهِ",
+        reference: "Surah Yusuf (12:86)",
+        translation: "I only complain of my suffering and my grief to Allah.",
+        explanation: "Prophet Yaqub (AS) said this after decades of separation from his son Yusuf. His grief was immense, but he directed it only to Allah.",
+        relevance: "Grief is not a sign of weak faith — even prophets grieved deeply. This verse gives you permission to feel your pain fully, while showing you where to pour it: into du'a, into sajdah, into conversation with your Lord."
+      }
+    ]
+  },
+  {
+    emotion: "Hopelessness",
+    emoji: "🕳️",
+    entries: [
+      {
+        arabic: "لَا تَقْنَطُوا مِن رَّحْمَةِ اللَّهِ ۚ إِنَّ اللَّهَ يَغْفِرُ الذُّنُوبَ جَمِيعًا",
+        reference: "Surah Az-Zumar (39:53)",
+        translation: "Do not despair of the mercy of Allah. Indeed, Allah forgives all sins.",
+        explanation: "No matter how far you feel you have fallen, Allah's mercy is greater. This is one of the most hope-giving verses in the entire Quran.",
+        relevance: "Hopelessness says 'it's too late for me.' But Allah says the opposite — His mercy has no limit, no expiry, no condition you have broken beyond repair. This verse exists precisely for the moment you feel most undeserving."
+      }
+    ]
+  },
+  {
+    emotion: "Impatience",
+    emoji: "⏳",
+    entries: [
+      {
+        arabic: "إِنَّ اللَّهَ مَعَ الصَّابِرِينَ",
+        reference: "Surah Al-Baqarah (2:153)",
+        translation: "Indeed, Allah is with the patient.",
+        explanation: "Sabr is not passive waiting — it is active perseverance while maintaining trust in Allah's timing.",
+        relevance: "When you feel impatient for things to change, this short but powerful verse reminds you: patience is not just rewarded — it earns you Allah's companionship. He is WITH the patient, not just watching them."
+      }
+    ]
+  },
+  {
+    emotion: "Self-Doubt",
+    emoji: "🪞",
+    entries: [
+      {
+        arabic: "لَقَدْ خَلَقْنَا الْإِنسَانَ فِي أَحْسَنِ تَقْوِيمٍ",
+        reference: "Surah At-Tin (95:4)",
+        translation: "We have certainly created man in the best of stature.",
+        explanation: "Allah created you in the finest form — physically, spiritually, and in potential. You are not an accident or an afterthought.",
+        relevance: "When you doubt your worth or ability, remember that the Creator of the universe designed you with intention and called the result 'the best of stature.' Your self-doubt contradicts His assessment of you."
+      }
+    ]
+  },
+  {
+    emotion: "Overwhelmed",
+    emoji: "🌊",
+    entries: [
+      {
+        arabic: "لَا يُكَلِّفُ اللَّهُ نَفْسًا إِلَّا مَا آتَاهَا ۚ سَيَجْعَلُ اللَّهُ بَعْدَ عُسْرٍ يُسْرًا",
+        reference: "Surah At-Talaq (65:7)",
+        translation: "Allah does not charge a soul except according to what He has given it. Allah will bring about, after hardship, ease.",
+        explanation: "You are never asked to give more than you have been given. And the hardship is temporary — ease is already on its way.",
+        relevance: "Feeling overwhelmed means you are carrying a lot — but Allah calibrated this moment to your specific capacity. He is not testing you beyond what He equipped you for. And He promises: this heaviness will lift."
+      }
+    ]
+  },
+  {
+    emotion: "Jealousy",
+    emoji: "👁️",
+    entries: [
+      {
+        arabic: "وَلَا تَتَمَنَّوْا مَا فَضَّلَ اللَّهُ بِهِ بَعْضَكُمْ عَلَىٰ بَعْضٍ",
+        reference: "Surah An-Nisa (4:32)",
+        translation: "And do not wish for that by which Allah has made some of you exceed others.",
+        explanation: "Comparing yourself to others ignores the unique blessings and path Allah has written specifically for you.",
+        relevance: "Jealousy compares your behind-the-scenes to someone else's highlight reel. This verse redirects you: what Allah gave someone else was never meant for you, and what He has planned for you was never meant for them."
+      }
+    ]
+  },
+  {
+    emotion: "Guilt",
+    emoji: "😞",
+    entries: [
+      {
+        arabic: "وَاسْتَغْفِرُوا رَبَّكُمْ ثُمَّ تُوبُوا إِلَيْهِ ۚ إِنَّ رَبِّي رَحِيمٌ وَدُودٌ",
+        reference: "Surah Hud (11:90)",
+        translation: "Ask forgiveness of your Lord and then repent to Him. Indeed, my Lord is Merciful and Loving.",
+        explanation: "Allah is not just merciful — He is Al-Wadud, the Loving. He does not merely tolerate your return; He loves that you came back.",
+        relevance: "Guilt can paralyse you into thinking you are too far gone. But this verse pairs mercy with love — Allah does not just forgive reluctantly. He is Wadud: He loves you as you repent. Your guilt is actually a sign that your heart is alive."
+      }
+    ]
+  },
+  {
+    emotion: "Confusion",
+    emoji: "🤔",
+    entries: [
+      {
+        arabic: "إِن تَتَّقُوا اللَّهَ يَجْعَل لَّكُمْ فُرْقَانًا",
+        reference: "Surah Al-Anfal (8:29)",
+        translation: "If you are mindful of Allah, He will grant you a criterion [to judge between right and wrong].",
+        explanation: "Taqwa (God-consciousness) is not just about worship — it sharpens your inner clarity and moral compass.",
+        relevance: "When you cannot see the right path, this verse offers a practical answer: draw closer to Allah, and He will give you the very ability to distinguish truth from falsehood. Clarity is a gift He grants to those who seek Him."
+      }
+    ]
+  },
+  {
+    emotion: "Heartbreak",
+    emoji: "💫",
+    entries: [
+      {
+        arabic: "عَسَىٰ أَن تَكْرَهُوا شَيْئًا وَهُوَ خَيْرٌ لَّكُمْ",
+        reference: "Surah Al-Baqarah (2:216)",
+        translation: "Perhaps you dislike a thing and it is good for you.",
+        explanation: "Our limited perspective cannot see what Allah sees. What feels like loss may be divine redirection.",
+        relevance: "Heartbreak makes the loss feel absolute. But this verse asks you to consider: what if this pain is protecting you from something worse, or steering you toward something far better than what you lost?"
+      }
+    ]
+  },
+  {
+    emotion: "Thankfulness",
+    emoji: "✨",
+    entries: [
+      {
+        arabic: "فَاذْكُرُونِي أَذْكُرْكُمْ وَاشْكُرُوا لِي وَلَا تَكْفُرُونِ",
+        reference: "Surah Al-Baqarah (2:152)",
+        translation: "So remember Me; I will remember you. And be grateful to Me and do not deny Me.",
+        explanation: "A remarkable exchange: you remember Allah, and He — the Lord of all creation — remembers you in return.",
+        relevance: "In your moment of thankfulness, this verse elevates it further: your gratitude is not a one-way act. When you turn to Allah in thanks, He turns to you. You are in a conversation with your Creator right now."
+      }
+    ]
+  }
+];
+
+
+/* ────────────────────────────────────────────────────────────────
+   2. STATE
+   We track which emotion is selected and manage local storage
+   for history and reflections.
+   ──────────────────────────────────────────────────────────────── */
+
+let selectedEmotion = null;       // currently selected emotion string
+let currentEntry    = null;       // the ayah entry being displayed
+
+/* Keys for localStorage */
+const STORAGE_KEY = 'ayah_mirror_history';
+
+
+/* ────────────────────────────────────────────────────────────────
+   3. LOCAL STORAGE HELPERS
+   We store history as a JSON array of objects:
+   { date, emotion, reference, translation, learnedText, actionText }
+   ──────────────────────────────────────────────────────────────── */
+
+/**
+ * Load history from localStorage.
+ * Returns an array (newest first).
+ */
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Save a new entry to the front of the history array. */
+function saveToHistory(entry) {
+  const history = loadHistory();
+  history.unshift(entry);
+  // Keep a maximum of 100 entries to avoid filling storage
+  if (history.length > 100) history.length = 100;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+}
+
+/** Clear all history. */
+function clearHistory() {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+
+/* ────────────────────────────────────────────────────────────────
+   4. NAVIGATION
+   Switch between screens by toggling the 'active' class.
+   ──────────────────────────────────────────────────────────────── */
+
+const navButtons = document.querySelectorAll('.nav-btn');
+const screens    = document.querySelectorAll('.screen');
+
+/**
+ * Navigate to a screen by name (e.g., 'home', 'result', 'daily', 'history').
+ * Updates nav button highlighting and runs screen-specific setup.
+ */
+function navigateTo(screenName) {
+  // Hide all screens, show the target
+  screens.forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(`screen-${screenName}`);
+  if (target) target.classList.add('active');
+
+  // Highlight the correct nav button
+  navButtons.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.screen === screenName);
+  });
+
+  // Run per-screen setup
+  if (screenName === 'history') renderHistory();
+  if (screenName === 'daily')   renderDaily();
+}
+
+// Wire up nav button clicks
+navButtons.forEach(btn => {
+  btn.addEventListener('click', () => navigateTo(btn.dataset.screen));
+});
+
+
+/* ────────────────────────────────────────────────────────────────
+   5. EMOTION GRID
+   Render the clickable emotion chips on the home screen.
+   ──────────────────────────────────────────────────────────────── */
+
+const emotionGrid   = document.getElementById('emotionGrid');
+const customInput   = document.getElementById('customEmotion');
+const findBtn       = document.getElementById('findAyahBtn');
+
+/** Build the emotion chips from AYAH_DATA. */
+function renderEmotionGrid() {
+  emotionGrid.innerHTML = AYAH_DATA.map(a => `
+    <button class="emotion-chip" data-emotion="${a.emotion}">
+      <span class="emoji">${a.emoji}</span>
+      ${a.emotion}
+    </button>
+  `).join('');
+
+  // Attach click handlers to each chip
+  emotionGrid.querySelectorAll('.emotion-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      // Deselect all, select this one
+      emotionGrid.querySelectorAll('.emotion-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      selectedEmotion = chip.dataset.emotion;
+      customInput.value = '';           // clear text input when chip is selected
+      findBtn.disabled = false;         // enable the button
+    });
+  });
+}
+
+renderEmotionGrid();
+
+// If user types a custom emotion, deselect chips
+customInput.addEventListener('input', () => {
+  if (customInput.value.trim()) {
+    emotionGrid.querySelectorAll('.emotion-chip').forEach(c => c.classList.remove('selected'));
+    selectedEmotion = null;
+    findBtn.disabled = false;
+  } else {
+    findBtn.disabled = !selectedEmotion;
+  }
+});
+
+
+/* ────────────────────────────────────────────────────────────────
+   6. AYAH MATCHING
+   Given an emotion string, find the best matching AYAH_DATA entry.
+   For typed emotions, we do a simple fuzzy keyword match.
+   ──────────────────────────────────────────────────────────────── */
+
+/**
+ * Find the best AYAH_DATA group for a given emotion string.
+ * Returns { emotion, emoji, entry } or null.
+ */
+function matchEmotion(emotionStr) {
+  const lower = emotionStr.toLowerCase().trim();
+
+  // Exact match first
+  const exact = AYAH_DATA.find(a => a.emotion.toLowerCase() === lower);
+  if (exact) {
+    const entry = exact.entries[Math.floor(Math.random() * exact.entries.length)];
+    return { emotion: exact.emotion, emoji: exact.emoji, entry };
+  }
+
+  // Keyword / fuzzy match: score each entry by how many words overlap
+  const keywords = lower.split(/\s+/);
+
+  // Extended keyword mapping for common synonyms
+  const synonyms = {
+    anxious: 'anxiety', worried: 'anxiety', nervous: 'anxiety', stressed: 'anxiety', stress: 'anxiety', panic: 'anxiety',
+    sad: 'sadness', depressed: 'sadness', down: 'sadness', unhappy: 'sadness', miserable: 'sadness', blue: 'sadness',
+    unmotivated: 'lack of motivation', lazy: 'lack of motivation', tired: 'lack of motivation', exhausted: 'lack of motivation', burnout: 'lack of motivation',
+    grateful: 'gratitude', thankful: 'thankfulness', blessed: 'thankfulness', appreciative: 'gratitude',
+    angry: 'anger', furious: 'anger', frustrated: 'anger', mad: 'anger', irritated: 'anger', rage: 'anger',
+    lost: 'feeling lost', confused: 'confusion', directionless: 'feeling lost', aimless: 'feeling lost', stuck: 'feeling lost',
+    afraid: 'fear', scared: 'fear', terrified: 'fear', frightened: 'fear',
+    alone: 'loneliness', lonely: 'loneliness', isolated: 'loneliness',
+    grieving: 'grief', mourning: 'grief', loss: 'grief', bereaved: 'grief',
+    hopeless: 'hopelessness', despair: 'hopelessness', desperate: 'hopelessness', worthless: 'hopelessness',
+    impatient: 'impatience', restless: 'impatience', waiting: 'impatience',
+    insecure: 'self-doubt', unworthy: 'self-doubt', inadequate: 'self-doubt', 'not enough': 'self-doubt', 'imposter': 'self-doubt',
+    overwhelmed: 'overwhelmed', drowning: 'overwhelmed', 'too much': 'overwhelmed',
+    jealous: 'jealousy', envious: 'jealousy', envy: 'jealousy',
+    guilty: 'guilt', ashamed: 'guilt', shame: 'guilt', regret: 'guilt', remorse: 'guilt',
+    heartbroken: 'heartbreak', rejected: 'heartbreak', betrayed: 'heartbreak', hurt: 'heartbreak', broken: 'heartbreak',
+    happy: 'thankfulness', joyful: 'thankfulness', content: 'thankfulness',
+  };
+
+  // Check synonyms
+  for (const kw of keywords) {
+    if (synonyms[kw]) {
+      const mapped = AYAH_DATA.find(a => a.emotion.toLowerCase() === synonyms[kw]);
+      if (mapped) {
+        const entry = mapped.entries[Math.floor(Math.random() * mapped.entries.length)];
+        return { emotion: mapped.emotion, emoji: mapped.emoji, entry };
+      }
+    }
+  }
+
+  // Partial match: check if any keyword appears in emotion names
+  for (const a of AYAH_DATA) {
+    const emotionLower = a.emotion.toLowerCase();
+    for (const kw of keywords) {
+      if (emotionLower.includes(kw) || kw.includes(emotionLower)) {
+        const entry = a.entries[Math.floor(Math.random() * a.entries.length)];
+        return { emotion: a.emotion, emoji: a.emoji, entry };
+      }
+    }
+  }
+
+  // Fallback: return a random entry
+  const fallback = AYAH_DATA[Math.floor(Math.random() * AYAH_DATA.length)];
+  const entry = fallback.entries[Math.floor(Math.random() * fallback.entries.length)];
+  return { emotion: fallback.emotion, emoji: fallback.emoji, entry };
+}
+
+
+/* ────────────────────────────────────────────────────────────────
+   7. RESULT SCREEN
+   Display the matched ayah with reflection prompts.
+   ──────────────────────────────────────────────────────────────── */
+
+const resultContent = document.getElementById('resultContent');
+
+function showResult(emotionStr) {
+  const match = matchEmotion(emotionStr);
+  if (!match) return;
+
+  currentEntry = match;
+  const { emotion, emoji, entry } = match;
+
+  resultContent.innerHTML = `
+    <!-- Matched emotion label -->
+    <div class="daily-banner fade-up">
+      ${emoji} Showing ayah for: <strong>${emotion}</strong>
+    </div>
+
+    <!-- The ayah card -->
+    <div class="card fade-up fade-up-delay-1">
+      <div class="arabic">${entry.arabic}</div>
+      <div class="verse-ref">${entry.reference}</div>
+      <p class="translation">"${entry.translation}"</p>
+      <div class="explanation">
+        <strong>Why this ayah speaks to you:</strong><br />
+        ${entry.relevance}
+      </div>
+      <div class="divider"></div>
+      <p style="font-size:12px;color:var(--text-muted);">${entry.explanation}</p>
+    </div>
+
+    <!-- Reflection section -->
+    <div class="card fade-up fade-up-delay-2">
+      <div class="section-title">Reflect</div>
+      <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px;">
+        What did you learn from this ayah?
+      </label>
+      <textarea class="text-input" id="learnedInput" placeholder="Write your thoughts..." rows="3"></textarea>
+
+      <label style="font-size:13px;color:var(--text-muted);display:block;margin:14px 0 6px;">
+        What action will you take?
+      </label>
+      <textarea class="text-input" id="actionInput" placeholder="One small step..." rows="2"></textarea>
+
+      <div style="margin-top:16px;display:flex;gap:10px;">
+        <button class="btn-primary" id="saveReflectionBtn" style="flex:1;">
+          Save Reflection
+        </button>
+        <button class="btn-ghost" id="skipSaveBtn">
+          Skip
+        </button>
+      </div>
+    </div>
+
+    <!-- Another ayah button -->
+    <div class="fade-up fade-up-delay-3" style="text-align:center;margin-top:8px;">
+      <button class="btn-ghost" id="anotherAyahBtn" style="margin-right:8px;">
+        Show Another Ayah
+      </button>
+      <button class="btn-ghost" id="backHomeBtn">
+        Back to Home
+      </button>
+    </div>
+  `;
+
+  // Wire up Save button
+  document.getElementById('saveReflectionBtn').addEventListener('click', () => {
+    const learned = document.getElementById('learnedInput').value.trim();
+    const action  = document.getElementById('actionInput').value.trim();
+    saveToHistory({
+      date: new Date().toISOString(),
+      emotion,
+      reference: entry.reference,
+      translation: entry.translation,
+      learnedText: learned || '',
+      actionText: action || ''
+    });
+    showToast('Reflection saved!');
+    setTimeout(() => navigateTo('home'), 800);
+    resetHomeSelection();
+  });
+
+  // Wire up Skip button — still save to history but without reflection
+  document.getElementById('skipSaveBtn').addEventListener('click', () => {
+    saveToHistory({
+      date: new Date().toISOString(),
+      emotion,
+      reference: entry.reference,
+      translation: entry.translation,
+      learnedText: '',
+      actionText: ''
+    });
+    navigateTo('home');
+    resetHomeSelection();
+  });
+
+  // Wire up Another Ayah
+  document.getElementById('anotherAyahBtn').addEventListener('click', () => {
+    showResult(emotionStr);
+  });
+
+  // Wire up Back to Home
+  document.getElementById('backHomeBtn').addEventListener('click', () => {
+    navigateTo('home');
+    resetHomeSelection();
+  });
+
+  navigateTo('result');
+}
+
+/** Clear the home screen selection state. */
+function resetHomeSelection() {
+  selectedEmotion = null;
+  customInput.value = '';
+  findBtn.disabled = true;
+  emotionGrid.querySelectorAll('.emotion-chip').forEach(c => c.classList.remove('selected'));
+}
+
+// Find Ayah button click
+findBtn.addEventListener('click', () => {
+  const emotion = selectedEmotion || customInput.value.trim();
+  if (emotion) showResult(emotion);
+});
+
+// Allow pressing Enter in the custom input
+customInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && customInput.value.trim()) {
+    showResult(customInput.value.trim());
+  }
+});
+
+
+/* ────────────────────────────────────────────────────────────────
+   8. HISTORY SCREEN
+   Show all past interactions from localStorage.
+   ──────────────────────────────────────────────────────────────── */
+
+function renderHistory() {
+  const list    = document.getElementById('historyList');
+  const history = loadHistory();
+
+  if (history.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">📖</div>
+        <p>No reflections yet.</p>
+        <p style="font-size:12px;margin-top:4px;">Your journey begins on the home screen.</p>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = history.map((h, i) => {
+    const date = new Date(h.date);
+    const dateStr = date.toLocaleDateString('en-US', {
+      weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+    const hasReflection = h.learnedText || h.actionText;
+    return `
+      <div class="history-item">
+        <div class="history-date">${dateStr}</div>
+        <div class="history-emotion">${h.emotion}</div>
+        <div class="history-verse">"${h.translation}" — ${h.reference}</div>
+        ${hasReflection ? `<div class="history-reflection">
+          ${h.learnedText ? `Learned: ${h.learnedText}` : ''}
+          ${h.actionText ? `<br/>Action: ${h.actionText}` : ''}
+        </div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+// Clear history button
+document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+  if (confirm('Clear all history? This cannot be undone.')) {
+    clearHistory();
+    renderHistory();
+    showToast('History cleared');
+  }
+});
+
+
+/* ────────────────────────────────────────────────────────────────
+   9. DAILY AYAH
+   Picks a personalised ayah based on the user's most frequent
+   emotion. If no history, shows a random verse.
+   ──────────────────────────────────────────────────────────────── */
+
+function renderDaily() {
+  const content = document.getElementById('dailyContent');
+  const history = loadHistory();
+
+  // Find the most frequent emotion in history
+  let topEmotion = null;
+  if (history.length > 0) {
+    const freq = {};
+    history.forEach(h => {
+      freq[h.emotion] = (freq[h.emotion] || 0) + 1;
+    });
+    topEmotion = Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
+  }
+
+  // Use a date-based seed so the "daily" ayah stays stable for the day
+  // but changes each calendar day
+  const today     = new Date();
+  const daySeed   = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+
+  let group, entry;
+
+  if (topEmotion) {
+    // Find the AYAH_DATA group for the top emotion
+    group = AYAH_DATA.find(a => a.emotion.toLowerCase() === topEmotion.toLowerCase());
+  }
+
+  if (!group) {
+    // Fallback: pick a group based on day
+    group = AYAH_DATA[daySeed % AYAH_DATA.length];
+  }
+
+  entry = group.entries[daySeed % group.entries.length];
+
+  content.innerHTML = `
+    ${topEmotion ? `<p style="text-align:center;font-size:12px;color:var(--text-muted);margin-bottom:16px;">
+      Based on your reflections, you often feel <strong style="color:var(--gold);">${topEmotion.toLowerCase()}</strong>.<br/>
+      Here is today's ayah chosen for you.
+    </p>` : `<p style="text-align:center;font-size:12px;color:var(--text-muted);margin-bottom:16px;">
+      Start reflecting on the home screen to get personalised daily ayat.
+    </p>`}
+
+    <div class="card fade-up">
+      <div class="arabic">${entry.arabic}</div>
+      <div class="verse-ref">${entry.reference}</div>
+      <p class="translation">"${entry.translation}"</p>
+      <div class="divider"></div>
+      <p style="font-size:13px;color:var(--text-muted);">${entry.explanation}</p>
+    </div>
+
+    <div class="card fade-up fade-up-delay-1">
+      <div class="explanation">
+        <strong>Reflection prompt:</strong><br />
+        ${entry.relevance}
+      </div>
+    </div>
+  `;
+}
+
+
+/* ────────────────────────────────────────────────────────────────
+   10. TOAST NOTIFICATION
+   A small popup that confirms saves.
+   ──────────────────────────────────────────────────────────────── */
+
+const toast = document.getElementById('toast');
+
+function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+
+/* ────────────────────────────────────────────────────────────────
+   11. INITIALISATION
+   ──────────────────────────────────────────────────────────────── */
+
+// Load daily ayah data on first render
+renderDaily();
+
+</script>
+</body>
+</html>
