@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en" dir="ltr" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -9,24 +9,24 @@
 
   <!-- ══════════════════════════════════════════════════════════
        STYLES
-       Clean white/green Islamic-inspired theme.
-       Mobile-first responsive design.
+       Light + Dark theme system with CSS custom properties.
+       Mobile-first responsive design. Premium polish.
        ══════════════════════════════════════════════════════════ -->
   <style>
     /* ── Reset ────────────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── Design tokens ────────────────────────────────────────── */
+    /* ── LIGHT THEME tokens ──────────────────────────────────── */
     :root {
-      --bg:         #f9fdfb;          /* soft off-white with a green tint */
+      --bg:         #f9fdfb;
       --bg-card:    #ffffff;
       --bg-hover:   #f0f7f2;
       --border:     #e0ebe4;
-      --green:      #1f7a4d;          /* deep green — primary */
-      --green-light:#4caf50;          /* accent green */
+      --green:      #1f7a4d;
+      --green-light:#4caf50;
       --green-glow: rgba(31,122,77,0.08);
       --green-soft: rgba(76,175,80,0.10);
-      --text:       #1a1a1a;          /* near-black for readability */
+      --text:       #1a1a1a;
       --text-muted: #5a6b5e;
       --text-dim:   #8a9b8e;
       --danger:     #c0392b;
@@ -39,6 +39,37 @@
       --nav-height: 64px;
       --shadow-sm:  0 1px 3px rgba(0,0,0,0.06);
       --shadow-md:  0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg:  0 8px 24px rgba(0,0,0,0.12);
+    }
+
+    /* ── DARK THEME tokens ───────────────────────────────────── */
+    [data-theme="dark"] {
+      --bg:         #0f1412;
+      --bg-card:    #1b2a23;
+      --bg-hover:   #243a2e;
+      --border:     #2d4a3a;
+      --green:      #4caf50;
+      --green-light:#81c784;
+      --green-glow: rgba(76,175,80,0.12);
+      --green-soft: rgba(129,199,132,0.12);
+      --text:       #e8f5e9;
+      --text-muted: #a5c4ae;
+      --text-dim:   #6d8a76;
+      --danger:     #ef5350;
+      --success:    #66bb6a;
+      --shadow-sm:  0 1px 3px rgba(0,0,0,0.2);
+      --shadow-md:  0 4px 12px rgba(0,0,0,0.3);
+      --shadow-lg:  0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    /* ── Smooth theme transition on all themed elements ──────── */
+    html, body, .header, .nav, .card, .ayah-card, .emotion-chip,
+    .text-input, textarea.text-input, .btn-primary, .btn-ghost,
+    .history-item, .history-reflection, .explanation, .save-toast,
+    .streak-badge, .focus-overlay, .journal-tab, .note-item,
+    .passcode-overlay {
+      transition: background-color 0.3s ease, color 0.3s ease,
+                  border-color 0.3s ease, box-shadow 0.3s ease;
     }
 
     html, body {
@@ -79,7 +110,7 @@
     .header {
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       padding: 16px 20px 12px;
       border-bottom: 1px solid var(--border);
       background: var(--bg-card);
@@ -98,6 +129,31 @@
       font-weight: 400;
       font-size: 13px;
       margin-left: 8px;
+    }
+
+    /* ── Theme toggle button ──────────────────────────────────── */
+    .theme-toggle {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      background: var(--green-glow);
+      border-color: var(--green-light);
+    }
+
+    .theme-toggle:active {
+      transform: scale(0.9);
     }
 
     /* ── Screen container ─────────────────────────────────────── */
@@ -149,7 +205,7 @@
       font-size: 10px;
       letter-spacing: 0.04em;
       cursor: pointer;
-      padding: 6px 14px;
+      padding: 6px 12px;
       border-radius: var(--radius-sm);
       transition: color var(--transition), background var(--transition), transform 0.15s ease;
     }
@@ -162,19 +218,9 @@
       stroke: currentColor;
     }
 
-    .nav-btn.active {
-      color: var(--green);
-    }
-
-    .nav-btn:hover {
-      color: var(--green);
-      background: var(--green-glow);
-    }
-
-    /* Tap animation on nav buttons */
-    .nav-btn:active {
-      transform: scale(0.93);
-    }
+    .nav-btn.active { color: var(--green); }
+    .nav-btn:hover { color: var(--green); background: var(--green-glow); }
+    .nav-btn:active { transform: scale(0.93); }
 
     /* ── Cards ────────────────────────────────────────────────── */
     .card {
@@ -224,10 +270,7 @@
       background: var(--green-glow);
     }
 
-    /* Tap animation on chips */
-    .emotion-chip:active {
-      transform: scale(0.95);
-    }
+    .emotion-chip:active { transform: scale(0.95); }
 
     .emotion-chip.selected {
       border-color: var(--green);
@@ -236,9 +279,7 @@
       box-shadow: 0 0 0 2px rgba(31,122,77,0.15);
     }
 
-    .emotion-chip .emoji {
-      font-size: 18px;
-    }
+    .emotion-chip .emoji { font-size: 18px; }
 
     /* ── Custom text input ────────────────────────────────────── */
     .text-input {
@@ -259,9 +300,7 @@
       box-shadow: 0 0 0 3px rgba(76,175,80,0.12);
     }
 
-    .text-input::placeholder {
-      color: var(--text-dim);
-    }
+    .text-input::placeholder { color: var(--text-dim); }
 
     /* ── Primary button ───────────────────────────────────────── */
     .btn-primary {
@@ -288,11 +327,7 @@
       transform: translateY(-1px);
     }
 
-    /* Tap animation */
-    .btn-primary:active {
-      transform: scale(0.97);
-      box-shadow: none;
-    }
+    .btn-primary:active { transform: scale(0.97); box-shadow: none; }
 
     .btn-primary:disabled {
       opacity: 0.4;
@@ -324,10 +359,7 @@
       background: var(--green-glow);
     }
 
-    /* Tap animation */
-    .btn-ghost:active {
-      transform: scale(0.95);
-    }
+    .btn-ghost:active { transform: scale(0.95); }
 
     /* ── Arabic text styling ──────────────────────────────────── */
     .arabic {
@@ -360,7 +392,7 @@
       font-style: italic;
     }
 
-    /* ── Explanation block — green left border ─────────────────── */
+    /* ── Explanation block — green left border ────────────────── */
     .explanation {
       font-size: 13px;
       color: var(--text-muted);
@@ -376,7 +408,7 @@
       font-weight: 600;
     }
 
-    /* ── Ayah card — the main verse display card ──────────────── */
+    /* ── Ayah card ────────────────────────────────────────────── */
     .ayah-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -409,13 +441,9 @@
     }
 
     .history-item:last-child { border-bottom: none; }
-
     .history-item:hover { background: var(--bg-hover); }
 
-    .history-date {
-      font-size: 11px;
-      color: var(--text-dim);
-    }
+    .history-date { font-size: 11px; color: var(--text-dim); }
 
     .history-emotion {
       font-size: 14px;
@@ -464,29 +492,366 @@
       font-weight: 600;
     }
 
+    /* ── Streak badge ─────────────────────────────────────────── */
+    .streak-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 16px;
+      margin-bottom: 16px;
+      background: var(--green-glow);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      font-size: 13px;
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    .streak-badge .streak-fire { font-size: 18px; }
+
+    .streak-badge .streak-msg {
+      font-weight: 400;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    /* ── Action step card ─────────────────────────────────────── */
+    .action-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--green-glow), var(--green-soft));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+    }
+
+    .action-step-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .action-step-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--green);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .action-step-text {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    /* ── Progression badge ────────────────────────────────────── */
+    .progression-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .progression-badge.comfort {
+      background: rgba(76,175,80,0.12);
+      color: var(--green);
+    }
+
+    .progression-badge.patience {
+      background: rgba(255,183,77,0.15);
+      color: #f57c00;
+    }
+
+    .progression-badge.action {
+      background: rgba(66,165,245,0.15);
+      color: #1e88e5;
+    }
+
+    /* ── Focus / Deep Mode overlay ────────────────────────────── */
+    .focus-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .focus-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .focus-timer {
+      font-size: 48px;
+      font-weight: 200;
+      color: var(--green);
+      margin-bottom: 32px;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.05em;
+    }
+
+    .focus-ayah {
+      max-width: 400px;
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .focus-ayah .arabic {
+      text-align: center;
+      font-size: 28px;
+      border-bottom: none;
+      margin-bottom: 16px;
+      padding-bottom: 0;
+    }
+
+    .focus-ayah .translation {
+      text-align: center;
+      font-size: 17px;
+      color: var(--text-muted);
+    }
+
+    .focus-ayah .verse-ref {
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    .focus-exit {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 10px 24px;
+      border-radius: 24px;
+      font-family: var(--font);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 16px;
+    }
+
+    .focus-exit:hover {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    .focus-prompt {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 24px;
+      text-align: center;
+      font-style: italic;
+    }
+
+    /* ── Journal tabs ─────────────────────────────────────────── */
+    .journal-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    .journal-tab {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--bg);
+      border: none;
+      color: var(--text-muted);
+      transition: all 0.3s ease;
+    }
+
+    .journal-tab.active {
+      background: var(--green);
+      color: #ffffff;
+    }
+
+    .journal-tab:not(.active):hover {
+      background: var(--green-glow);
+      color: var(--green);
+    }
+
+    .journal-panel {
+      display: none;
+    }
+
+    .journal-panel.active {
+      display: block;
+    }
+
+    /* ── Private notes ────────────────────────────────────────── */
+    .note-item {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+    }
+
+    .note-item:last-child { border-bottom: none; }
+
+    .note-date {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .note-text {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.6;
+      margin-top: 4px;
+      white-space: pre-wrap;
+    }
+
+    .note-delete {
+      font-size: 11px;
+      color: var(--danger);
+      background: none;
+      border: none;
+      cursor: pointer;
+      margin-top: 6px;
+      padding: 2px 0;
+      font-family: var(--font);
+    }
+
+    .note-delete:hover { text-decoration: underline; }
+
+    /* ── Passcode overlay ─────────────────────────────────────── */
+    .passcode-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .passcode-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .passcode-title {
+      font-size: 16px;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .passcode-dots {
+      display: flex;
+      gap: 12px;
+    }
+
+    .passcode-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      transition: all 0.2s ease;
+    }
+
+    .passcode-dot.filled {
+      background: var(--green);
+      border-color: var(--green);
+    }
+
+    .passcode-keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 64px);
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .passcode-key {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 22px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .passcode-key:hover {
+      background: var(--green-glow);
+      border-color: var(--green);
+    }
+
+    .passcode-key:active { transform: scale(0.9); }
+
+    .passcode-key.action-key {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .passcode-error {
+      font-size: 13px;
+      color: var(--danger);
+      height: 20px;
+    }
+
+    .passcode-cancel {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font);
+      font-size: 14px;
+      cursor: pointer;
+      padding: 8px 16px;
+      margin-top: 8px;
+    }
+
+    .passcode-cancel:hover { color: var(--green); }
+
     /* ── Fade-in animation ────────────────────────────────────── */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(16px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .fade-up {
-      animation: fadeUp 0.5s ease forwards;
-    }
-
+    .fade-up { animation: fadeUp 0.5s ease forwards; }
     .fade-up-delay-1 { animation-delay: 0.15s; opacity: 0; }
     .fade-up-delay-2 { animation-delay: 0.3s;  opacity: 0; }
     .fade-up-delay-3 { animation-delay: 0.45s; opacity: 0; }
 
-    /* ── Ayah swap transition (fade out then fade in) ─────────── */
+    /* ── Ayah swap transition ─────────────────────────────────── */
     @keyframes ayahFadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .ayah-swap {
-      animation: ayahFadeIn 0.4s ease forwards;
-    }
+    .ayah-swap { animation: ayahFadeIn 0.4s ease forwards; }
 
     /* ── Toast notification ───────────────────────────────────── */
     .save-toast {
@@ -512,7 +877,7 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* ── Clear history / danger button ────────────────────────── */
+    /* ── Danger button ────────────────────────────────────────── */
     .btn-danger {
       color: var(--danger);
       border-color: rgba(192,57,43,0.25);
@@ -554,6 +919,71 @@
       color: var(--text-dim);
       margin-top: 8px;
     }
+
+    /* ── Focus screen start card ──────────────────────────────── */
+    .focus-start-card {
+      text-align: center;
+      padding: 40px 24px;
+    }
+
+    .focus-start-card .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .focus-start-card h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--green);
+      margin-bottom: 8px;
+    }
+
+    .focus-start-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+
+    /* ── Lock toggle row ──────────────────────────────────────── */
+    .lock-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .lock-toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: var(--border);
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .lock-toggle.on { background: var(--green); }
+
+    .lock-toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ffffff;
+      transition: transform 0.3s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .lock-toggle.on::after {
+      transform: translateX(20px);
+    }
   </style>
 </head>
 <body>
@@ -565,6 +995,9 @@
     <div class="header-title">
       Ayah Mirror <span>— reflect &amp; heal</span>
     </div>
+    <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+      ☀️
+    </button>
   </header>
 
   <!-- ═══ SCREEN CONTAINER ══════════════════════════════════════ -->
@@ -574,6 +1007,10 @@
     <div class="screen active" id="screen-home">
 
       <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
+
+      <!-- Streak display — filled dynamically -->
+      <div id="streakDisplay"></div>
+
       <p class="intro-text">
         How are you feeling right now?<br />
         Select what resonates, and let the Quran speak to your heart.
@@ -610,15 +1047,62 @@
       <div id="dailyContent"></div>
     </div>
 
-    <!-- ─── HISTORY SCREEN ───────────────────────────────────── -->
-    <div class="screen" id="screen-history">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <div class="section-title" style="margin-bottom:0;">Your History</div>
-        <button class="btn-ghost btn-danger" id="clearHistoryBtn" style="font-size:11px;padding:6px 12px;">
-          Clear All
+    <!-- ─── FOCUS / DEEP MODE SCREEN ─────────────────────────── -->
+    <div class="screen" id="screen-focus">
+      <div class="focus-start-card">
+        <div class="icon">🕌</div>
+        <h2>1-Minute Deep Mode</h2>
+        <p>
+          Step away from distractions.<br />
+          One ayah. One minute. Just you and the words of Allah.
+        </p>
+        <button class="btn-primary" id="startFocusBtn" style="max-width:240px;margin:0 auto;">
+          Begin Deep Reflection
         </button>
       </div>
-      <div class="card" style="padding:0;overflow:hidden;" id="historyList"></div>
+    </div>
+
+    <!-- ─── JOURNAL SCREEN (History + Notes) ─────────────────── -->
+    <div class="screen" id="screen-journal">
+      <!-- Tabs to switch between History and Notes -->
+      <div class="journal-tabs">
+        <button class="journal-tab active" data-panel="history">History</button>
+        <button class="journal-tab" data-panel="notes">Private Notes</button>
+      </div>
+
+      <!-- History panel -->
+      <div class="journal-panel active" id="panel-history">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div class="section-title" style="margin-bottom:0;">Your Reflections</div>
+          <button class="btn-ghost btn-danger" id="clearHistoryBtn" style="font-size:11px;padding:6px 12px;">
+            Clear All
+          </button>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden;" id="historyList"></div>
+      </div>
+
+      <!-- Notes panel -->
+      <div class="journal-panel" id="panel-notes">
+        <!-- Lock toggle -->
+        <div class="card" style="margin-bottom:12px;">
+          <div class="lock-row">
+            <span>🔒 Lock notes with passcode</span>
+            <button class="lock-toggle" id="lockToggle"></button>
+          </div>
+        </div>
+
+        <!-- New note input -->
+        <div class="card">
+          <div class="section-title">New Private Note</div>
+          <textarea class="text-input" id="noteInput" placeholder="Write a private reflection..." rows="3"></textarea>
+          <button class="btn-primary" id="saveNoteBtn" style="margin-top:12px;">
+            Save Note
+          </button>
+        </div>
+
+        <!-- Notes list -->
+        <div class="card" style="padding:0;overflow:hidden;margin-top:12px;" id="notesList"></div>
+      </div>
     </div>
 
   </div>
@@ -633,9 +1117,13 @@
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
       Daily
     </button>
-    <button class="nav-btn" data-screen="history">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      History
+    <button class="nav-btn" data-screen="focus">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+      Focus
+    </button>
+    <button class="nav-btn" data-screen="journal">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+      Journal
     </button>
   </nav>
 
@@ -644,21 +1132,54 @@
 
 </div>
 
+<!-- ═══ FOCUS MODE OVERLAY (fullscreen when active) ════════════ -->
+<div class="focus-overlay" id="focusOverlay">
+  <div class="focus-timer" id="focusTimer">1:00</div>
+  <div class="focus-ayah" id="focusAyah"></div>
+  <div class="focus-prompt" id="focusPrompt">Breathe. Reflect. Let the words settle in your heart.</div>
+  <button class="focus-exit" id="focusExit">End Reflection</button>
+</div>
+
+<!-- ═══ PASSCODE OVERLAY ══════════════════════════════════════ -->
+<div class="passcode-overlay" id="passcodeOverlay">
+  <div class="passcode-title" id="passcodeTitle">Enter Passcode</div>
+  <div class="passcode-dots" id="passcodeDots">
+    <div class="passcode-dot"></div>
+    <div class="passcode-dot"></div>
+    <div class="passcode-dot"></div>
+    <div class="passcode-dot"></div>
+  </div>
+  <div class="passcode-error" id="passcodeError"></div>
+  <div class="passcode-keypad" id="passcodeKeypad">
+    <button class="passcode-key" data-val="1">1</button>
+    <button class="passcode-key" data-val="2">2</button>
+    <button class="passcode-key" data-val="3">3</button>
+    <button class="passcode-key" data-val="4">4</button>
+    <button class="passcode-key" data-val="5">5</button>
+    <button class="passcode-key" data-val="6">6</button>
+    <button class="passcode-key" data-val="7">7</button>
+    <button class="passcode-key" data-val="8">8</button>
+    <button class="passcode-key" data-val="9">9</button>
+    <button class="passcode-key action-key" data-val="clear">C</button>
+    <button class="passcode-key" data-val="0">0</button>
+    <button class="passcode-key action-key" data-val="back">←</button>
+  </div>
+  <button class="passcode-cancel" id="passcodeCancel">Cancel</button>
+</div>
+
 <!-- ══════════════════════════════════════════════════════════════
      JAVASCRIPT
-     All app logic: data, navigation, matching, storage.
-     Well-commented for learning purposes.
+     All app logic: data, navigation, matching, storage, themes,
+     focus mode, streak, notes, passcode.
      ══════════════════════════════════════════════════════════════ -->
 <script>
 /* ────────────────────────────────────────────────────────────────
    1. AYAH DATABASE
-   Each entry maps an emotion to MULTIPLE Quran verses (min 3).
-   Fields per entry:
-     - ayah:        the verse in Arabic script
-     - reference:   surah name and ayah number
-     - translation: English meaning
-     - explanation: short tafsir-style note
-     - reason:      why this verse speaks to that emotion
+   Each emotion has 3 entries ordered as a PROGRESSION:
+     [0] = Comfort   — soothing, reassuring verse
+     [1] = Patience  — encouraging steadfastness
+     [2] = Action    — calling to take a step forward
+   Fields: ayah, reference, translation, explanation, reason
    ──────────────────────────────────────────────────────────────── */
 
 const AYAH_DATA = [
@@ -671,21 +1192,24 @@ const AYAH_DATA = [
         reference: "Surah Ar-Ra'd (13:28)",
         translation: "Verily, in the remembrance of Allah do hearts find rest.",
         explanation: "This verse reminds us that lasting tranquillity comes not from controlling every outcome, but from turning our hearts to Allah.",
-        reason: "When anxiety grips you, it often stems from trying to control what you cannot. This ayah gently redirects your focus — peace is found not in certainty about the future, but in remembrance of the One who holds it all."
+        reason: "When anxiety grips you, it often stems from trying to control what you cannot. This ayah gently redirects your focus — peace is found not in certainty about the future, but in remembrance of the One who holds it all.",
+        phase: "comfort"
       },
       {
         ayah: "وَمَن يَتَوَكَّلْ عَلَى اللَّهِ فَهُوَ حَسْبُهُ",
         reference: "Surah At-Talaq (65:3)",
         translation: "And whoever relies upon Allah — then He is sufficient for him.",
         explanation: "Tawakkul (trust in Allah) does not mean inaction — it means doing your part and leaving the outcome to Him.",
-        reason: "Anxiety often comes from feeling alone with your burdens. This verse assures you that when you place your trust in Allah, He is enough — you are never carrying the weight alone."
+        reason: "Anxiety often comes from feeling alone with your burdens. This verse assures you that when you place your trust in Allah, He is enough — you are never carrying the weight alone.",
+        phase: "patience"
       },
       {
         ayah: "فَاصْبِرْ إِنَّ وَعْدَ اللَّهِ حَقٌّ وَلَا يَسْتَخِفَّنَّكَ الَّذِينَ لَا يُوقِنُونَ",
         reference: "Surah Ar-Rum (30:60)",
         translation: "So be patient. Indeed, the promise of Allah is truth. And let not those who have no certainty discourage you.",
         explanation: "Allah commands steadfastness and reminds us that His promises are guaranteed — even when the world around us creates doubt.",
-        reason: "Anxiety feeds on uncertainty and the fear that things will go wrong. This verse anchors you: Allah's promise is true. Whatever you are anxious about, He already has a plan for it."
+        reason: "Anxiety feeds on uncertainty and the fear that things will go wrong. This verse anchors you: Allah's promise is true. Whatever you are anxious about, He already has a plan for it.",
+        phase: "action"
       }
     ]
   },
@@ -698,21 +1222,24 @@ const AYAH_DATA = [
         reference: "Surah Ad-Duha (93:5)",
         translation: "And your Lord is going to give you, and you will be satisfied.",
         explanation: "Revealed when the Prophet ﷺ was going through a period of sadness. Allah promised that ease and contentment were coming.",
-        reason: "When sadness feels heavy and unending, this ayah is Allah's direct promise — what is coming for you is better than what has passed. Your current pain is not your final chapter."
+        reason: "When sadness feels heavy and unending, this ayah is Allah's direct promise — what is coming for you is better than what has passed. Your current pain is not your final chapter.",
+        phase: "comfort"
       },
       {
         ayah: "مَا وَدَّعَكَ رَبُّكَ وَمَا قَلَىٰ",
         reference: "Surah Ad-Duha (93:3)",
         translation: "Your Lord has not taken leave of you, nor has He detested [you].",
         explanation: "The Prophet ﷺ feared Allah had abandoned him when revelation paused. Allah reassured him personally — He had not left.",
-        reason: "Sadness can whisper that you are forgotten, that Allah is distant. This verse is a direct rebuttal: He has not left you, He has not turned away. You are still on His mind."
+        reason: "Sadness can whisper that you are forgotten, that Allah is distant. This verse is a direct rebuttal: He has not left you, He has not turned away. You are still on His mind.",
+        phase: "patience"
       },
       {
         ayah: "وَبَشِّرِ الصَّابِرِينَ ۝ الَّذِينَ إِذَا أَصَابَتْهُم مُّصِيبَةٌ قَالُوا إِنَّا لِلَّهِ وَإِنَّا إِلَيْهِ رَاجِعُونَ",
         reference: "Surah Al-Baqarah (2:155-156)",
         translation: "And give good tidings to the patient — who, when disaster strikes them, say: 'Indeed we belong to Allah, and indeed to Him we will return.'",
         explanation: "Inna lillahi wa inna ilayhi raji'un is not only for death — it is for every loss and trial that touches your life.",
-        reason: "Your sadness is valid, and this verse does not ask you to suppress it. Instead, it offers you the most powerful words to say in the middle of it — words that connect your pain back to the One who can heal it."
+        reason: "Your sadness is valid, and this verse does not ask you to suppress it. Instead, it offers you the most powerful words to say in the middle of it — words that connect your pain back to the One who can heal it.",
+        phase: "action"
       }
     ]
   },
@@ -725,21 +1252,24 @@ const AYAH_DATA = [
         reference: "Surah Al-Inshirah (94:5-6)",
         translation: "For indeed, with hardship will be ease. Indeed, with hardship will be ease.",
         explanation: "Allah repeats the promise twice for emphasis — the difficulty you face right now already contains the seed of its own relief.",
-        reason: "When you feel stuck and unmotivated, remember that struggle is not a sign of failure. Allah is telling you that ease is literally woven into the hardship, not just waiting after it."
+        reason: "When you feel stuck and unmotivated, remember that struggle is not a sign of failure. Allah is telling you that ease is literally woven into the hardship, not just waiting after it.",
+        phase: "comfort"
       },
       {
         ayah: "فَإِذَا فَرَغْتَ فَانصَبْ ۝ وَإِلَىٰ رَبِّكَ فَارْغَب",
         reference: "Surah Al-Inshirah (94:7-8)",
         translation: "So when you have finished [your duties], then stand up [for worship]. And to your Lord direct [your] longing.",
         explanation: "After promising ease, Allah gives practical guidance: when one task is done, rise for the next. Keep moving.",
-        reason: "Motivation often stalls because we feel the whole mountain at once. This verse says: finish one thing, then start the next. Small, faithful steps — and always direct your heart back to Allah."
+        reason: "Motivation often stalls because we feel the whole mountain at once. This verse says: finish one thing, then start the next. Small, faithful steps — and always direct your heart back to Allah.",
+        phase: "patience"
       },
       {
         ayah: "إِنَّ اللَّهَ لَا يُضِيعُ أَجْرَ الْمُحْسِنِينَ",
         reference: "Surah Hud (11:115)",
         translation: "Indeed, Allah does not allow to be lost the reward of those who do good.",
         explanation: "Every effort you make, no matter how small it seems, is recorded and valued by Allah. Nothing is wasted.",
-        reason: "A lack of motivation often comes from feeling like your effort does not matter. This verse guarantees the opposite — every good deed, every small push forward, Allah sees it and will never let it go to waste."
+        reason: "A lack of motivation often comes from feeling like your effort does not matter. This verse guarantees the opposite — every good deed, every small push forward, Allah sees it and will never let it go to waste.",
+        phase: "action"
       }
     ]
   },
@@ -752,21 +1282,24 @@ const AYAH_DATA = [
         reference: "Surah Ibrahim (14:7)",
         translation: "If you are grateful, I will surely increase you [in favour].",
         explanation: "Gratitude (shukr) is not just a feeling — it is a practice that opens the door to more blessings.",
-        reason: "You are in a beautiful state right now. This ayah affirms that gratitude is not just good character — it is a spiritual law. The more you recognise Allah's gifts, the more He gives."
+        reason: "You are in a beautiful state right now. This ayah affirms that gratitude is not just good character — it is a spiritual law. The more you recognise Allah's gifts, the more He gives.",
+        phase: "comfort"
       },
       {
         ayah: "وَإِن تَعُدُّوا نِعْمَةَ اللَّهِ لَا تُحْصُوهَا",
         reference: "Surah An-Nahl (16:18)",
         translation: "And if you should count the favours of Allah, you could not enumerate them.",
         explanation: "Allah's blessings are so numerous and constant that even trying to count them all is impossible.",
-        reason: "Your gratitude right now touches only a fraction of what Allah has given you. This verse deepens that awareness — the blessings you haven't even noticed yet are countless."
+        reason: "Your gratitude right now touches only a fraction of what Allah has given you. This verse deepens that awareness — the blessings you haven't even noticed yet are countless.",
+        phase: "patience"
       },
       {
         ayah: "وَأَمَّا بِنِعْمَةِ رَبِّكَ فَحَدِّثْ",
         reference: "Surah Ad-Duha (93:11)",
         translation: "But as for the favour of your Lord, proclaim it.",
         explanation: "Gratitude is not just internal — Allah asks us to speak about His blessings openly, to share and celebrate them.",
-        reason: "Your grateful heart is beautiful. This verse encourages you to go further — speak your blessings out loud, share them, let them strengthen others. Gratitude spoken multiplies."
+        reason: "Your grateful heart is beautiful. This verse encourages you to go further — speak your blessings out loud, share them, let them strengthen others. Gratitude spoken multiplies.",
+        phase: "action"
       }
     ]
   },
@@ -779,21 +1312,24 @@ const AYAH_DATA = [
         reference: "Surah Aal-Imran (3:134)",
         translation: "Who restrain their anger and pardon the people — and Allah loves the doers of good.",
         explanation: "Controlling anger is listed as a quality of the people of Jannah. It is strength, not weakness.",
-        reason: "Anger is natural, but this verse shows that mastering it is one of the highest forms of ihsan (excellence). Restraining your anger when you have the power to act on it — that is the strength Allah loves."
+        reason: "Anger is natural, but this verse shows that mastering it is one of the highest forms of ihsan (excellence). Restraining your anger when you have the power to act on it — that is the strength Allah loves.",
+        phase: "comfort"
       },
       {
         ayah: "وَلَمَن صَبَرَ وَغَفَرَ إِنَّ ذَٰلِكَ لَمِنْ عَزْمِ الْأُمُورِ",
         reference: "Surah Ash-Shura (42:43)",
         translation: "And whoever is patient and forgives — indeed, that is of the matters requiring determination.",
         explanation: "Forgiving when you are angry is not weakness — Allah calls it one of the greatest acts of resolve and willpower.",
-        reason: "Your anger may feel justified — and it might be. But this verse honours those who choose patience and forgiveness anyway, calling it one of the hardest and noblest things a person can do."
+        reason: "Your anger may feel justified — and it might be. But this verse honours those who choose patience and forgiveness anyway, calling it one of the hardest and noblest things a person can do.",
+        phase: "patience"
       },
       {
         ayah: "خُذِ الْعَفْوَ وَأْمُرْ بِالْعُرْفِ وَأَعْرِضْ عَنِ الْجَاهِلِينَ",
         reference: "Surah Al-A'raf (7:199)",
         translation: "Take what is given freely, enjoin what is good, and turn away from the ignorant.",
         explanation: "Allah gives the Prophet ﷺ a three-part formula for handling difficult people: accept, encourage good, and walk away from foolishness.",
-        reason: "When anger rises because of someone's behaviour, this verse offers a practical exit: you do not have to engage with every provocation. Sometimes the strongest response is to simply walk away."
+        reason: "When anger rises because of someone's behaviour, this verse offers a practical exit: you do not have to engage with every provocation. Sometimes the strongest response is to simply walk away.",
+        phase: "action"
       }
     ]
   },
@@ -806,21 +1342,24 @@ const AYAH_DATA = [
         reference: "Surah Ad-Duha (93:7)",
         translation: "And He found you lost and guided [you].",
         explanation: "Allah addressed the Prophet ﷺ directly — even he was once searching for direction, and Allah guided him.",
-        reason: "If you feel directionless, know that being 'lost' is not a permanent state — it is the starting point of every guidance story. Allah found His most beloved servant in that same state, and guided him. He will guide you too."
+        reason: "If you feel directionless, know that being 'lost' is not a permanent state — it is the starting point of every guidance story. Allah found His most beloved servant in that same state, and guided him. He will guide you too.",
+        phase: "comfort"
       },
       {
         ayah: "وَالَّذِينَ جَاهَدُوا فِينَا لَنَهْدِيَنَّهُمْ سُبُلَنَا",
         reference: "Surah Al-Ankabut (29:69)",
         translation: "And those who strive for Us — We will surely guide them to Our ways.",
         explanation: "Guidance is not passive. Allah promises direction to those who actively seek it, even imperfectly.",
-        reason: "Feeling lost does not mean you are failing — the fact that you are searching is itself the effort Allah rewards. He promises: keep striving toward Me, and I will show you the way."
+        reason: "Feeling lost does not mean you are failing — the fact that you are searching is itself the effort Allah rewards. He promises: keep striving toward Me, and I will show you the way.",
+        phase: "patience"
       },
       {
         ayah: "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ",
         reference: "Surah Al-Fatiha (1:6)",
         translation: "Guide us to the straight path.",
         explanation: "We recite this in every rak'ah of every prayer — it is the most repeated du'a in Islam, a constant plea for guidance.",
-        reason: "You already have the most powerful tool for finding your way: this du'a. Every Muslim who ever felt lost has said these exact words. You are not alone in this search — and Allah placed the answer in the prayer you make every day."
+        reason: "You already have the most powerful tool for finding your way: this du'a. Every Muslim who ever felt lost has said these exact words. You are not alone in this search — and Allah placed the answer in the prayer you make every day.",
+        phase: "action"
       }
     ]
   },
@@ -833,21 +1372,24 @@ const AYAH_DATA = [
         reference: "Surah Al-Baqarah (2:286)",
         translation: "Allah does not burden a soul beyond that it can bear.",
         explanation: "Whatever trial you face, Allah has already measured your capacity to handle it — and He deemed you strong enough.",
-        reason: "Fear often whispers 'you can't handle this.' But Allah, who knows you better than you know yourself, says otherwise. If this challenge is in your life, you already have what it takes to face it."
+        reason: "Fear often whispers 'you can't handle this.' But Allah, who knows you better than you know yourself, says otherwise. If this challenge is in your life, you already have what it takes to face it.",
+        phase: "comfort"
       },
       {
         ayah: "إِنَّ اللَّهَ مَعَ الَّذِينَ اتَّقَوا وَّالَّذِينَ هُم مُّحْسِنُونَ",
         reference: "Surah An-Nahl (16:128)",
         translation: "Indeed, Allah is with those who fear Him and those who are doers of good.",
         explanation: "Ma'iyyah — Allah's special companionship — is granted to those who are mindful of Him. He is not a distant observer; He is with you.",
-        reason: "When fear makes you feel small, remember who is on your side. Allah is not watching from afar — He is with you, actively, personally. What can truly harm you when the Creator of everything stands with you?"
+        reason: "When fear makes you feel small, remember who is on your side. Allah is not watching from afar — He is with you, actively, personally. What can truly harm you when the Creator of everything stands with you?",
+        phase: "patience"
       },
       {
         ayah: "قُل لَّن يُصِيبَنَا إِلَّا مَا كَتَبَ اللَّهُ لَنَا هُوَ مَوْلَانَا",
         reference: "Surah At-Tawbah (9:51)",
         translation: "Say: 'Nothing will happen to us except what Allah has decreed for us. He is our protector.'",
         explanation: "Nothing reaches you without Allah's knowledge and permission. This is not fatalism — it is the ultimate source of courage.",
-        reason: "Fear of the unknown shrinks when you realise: nothing 'just happens.' Every event in your life passes through Allah's will first. He is your Mawla — your protector, guardian, and ally."
+        reason: "Fear of the unknown shrinks when you realise: nothing 'just happens.' Every event in your life passes through Allah's will first. He is your Mawla — your protector, guardian, and ally.",
+        phase: "action"
       }
     ]
   },
@@ -860,21 +1402,24 @@ const AYAH_DATA = [
         reference: "Surah Al-Baqarah (2:186)",
         translation: "And when My servants ask you about Me — indeed I am near. I respond to the call of the caller when he calls upon Me.",
         explanation: "Unlike every other 'ask the Prophet' verse, Allah answers this one directly — without an intermediary — to emphasise His closeness.",
-        reason: "You may feel alone, but notice something remarkable: Allah did not say 'tell them I am near.' He said 'I am near' — directly, personally. In your loneliest moment, He is closer to you than anyone."
+        reason: "You may feel alone, but notice something remarkable: Allah did not say 'tell them I am near.' He said 'I am near' — directly, personally. In your loneliest moment, He is closer to you than anyone.",
+        phase: "comfort"
       },
       {
         ayah: "وَنَحْنُ أَقْرَبُ إِلَيْهِ مِنْ حَبْلِ الْوَرِيدِ",
         reference: "Surah Qaf (50:16)",
         translation: "And We are closer to him than [his] jugular vein.",
         explanation: "Allah describes His closeness in the most intimate physical terms possible — closer than the vein in your own neck.",
-        reason: "Loneliness says no one is close enough to understand. But Allah is closer to you than your own body. He knows your thoughts before you speak them. You are never truly alone — not even for a heartbeat."
+        reason: "Loneliness says no one is close enough to understand. But Allah is closer to you than your own body. He knows your thoughts before you speak them. You are never truly alone — not even for a heartbeat.",
+        phase: "patience"
       },
       {
         ayah: "لَا تَحْزَنْ إِنَّ اللَّهَ مَعَنَا",
         reference: "Surah At-Tawbah (9:40)",
         translation: "Do not grieve; indeed Allah is with us.",
         explanation: "The Prophet ﷺ said this to Abu Bakr in the cave during the Hijrah, when they were hiding from enemies — just two men, seemingly alone and outnumbered.",
-        reason: "Even in a cave, hunted and hidden, the Prophet ﷺ felt no loneliness because he knew Allah was there. Your isolation may feel real, but this verse reminds you: 'Allah is with us' is always true, in every room, in every silence."
+        reason: "Even in a cave, hunted and hidden, the Prophet ﷺ felt no loneliness because he knew Allah was there. Your isolation may feel real, but this verse reminds you: 'Allah is with us' is always true, in every room, in every silence.",
+        phase: "action"
       }
     ]
   },
@@ -887,21 +1432,24 @@ const AYAH_DATA = [
         reference: "Surah Yusuf (12:86)",
         translation: "I only complain of my suffering and my grief to Allah.",
         explanation: "Prophet Yaqub (AS) said this after decades of separation from his son Yusuf. His grief was immense, but he directed it only to Allah.",
-        reason: "Grief is not a sign of weak faith — even prophets grieved deeply. This verse gives you permission to feel your pain fully, while showing you where to pour it: into du'a, into sajdah, into conversation with your Lord."
+        reason: "Grief is not a sign of weak faith — even prophets grieved deeply. This verse gives you permission to feel your pain fully, while showing you where to pour it: into du'a, into sajdah, into conversation with your Lord.",
+        phase: "comfort"
       },
       {
         ayah: "وَلَنَبْلُوَنَّكُم بِشَيْءٍ مِّنَ الْخَوْفِ وَالْجُوعِ وَنَقْصٍ مِّنَ الْأَمْوَالِ وَالْأَنفُسِ وَالثَّمَرَاتِ",
         reference: "Surah Al-Baqarah (2:155)",
         translation: "And We will surely test you with something of fear and hunger and a loss of wealth and lives and fruits.",
         explanation: "Allah openly tells us that loss is part of the plan. He does not hide it — He prepares us for it.",
-        reason: "Grief can feel like a punishment, like something went wrong. This verse says: loss was always part of the journey. It is not a mistake in your story — it is a chapter Allah wrote with purpose."
+        reason: "Grief can feel like a punishment, like something went wrong. This verse says: loss was always part of the journey. It is not a mistake in your story — it is a chapter Allah wrote with purpose.",
+        phase: "patience"
       },
       {
         ayah: "وَعَسَىٰ أَن تَكْرَهُوا شَيْئًا وَيَجْعَلَ اللَّهُ فِيهِ خَيْرًا كَثِيرًا",
         reference: "Surah An-Nisa (4:19)",
         translation: "And perhaps you dislike a thing and Allah makes therein much good.",
         explanation: "Even in what we grieve, there may be a hidden good that only Allah can see from His vantage point.",
-        reason: "This does not erase your grief — but it opens a door of hope within it. The loss that hurts you now may carry a good that you cannot yet see. Trust that Allah's view is wider than yours."
+        reason: "This does not erase your grief — but it opens a door of hope within it. The loss that hurts you now may carry a good that you cannot yet see. Trust that Allah's view is wider than yours.",
+        phase: "action"
       }
     ]
   },
@@ -914,21 +1462,24 @@ const AYAH_DATA = [
         reference: "Surah Az-Zumar (39:53)",
         translation: "Do not despair of the mercy of Allah. Indeed, Allah forgives all sins.",
         explanation: "No matter how far you feel you have fallen, Allah's mercy is greater. This is one of the most hope-giving verses in the entire Quran.",
-        reason: "Hopelessness says 'it's too late for me.' But Allah says the opposite — His mercy has no limit, no expiry, no condition you have broken beyond repair. This verse exists precisely for the moment you feel most undeserving."
+        reason: "Hopelessness says 'it's too late for me.' But Allah says the opposite — His mercy has no limit, no expiry, no condition you have broken beyond repair. This verse exists precisely for the moment you feel most undeserving.",
+        phase: "comfort"
       },
       {
         ayah: "وَلَا تَيْأَسُوا مِن رَّوْحِ اللَّهِ ۖ إِنَّهُ لَا يَيْأَسُ مِن رَّوْحِ اللَّهِ إِلَّا الْقَوْمُ الْكَافِرُونَ",
         reference: "Surah Yusuf (12:87)",
         translation: "And do not despair of relief from Allah. Indeed, no one despairs of relief from Allah except the disbelieving people.",
         explanation: "Prophet Yaqub said this to his sons after years of loss — he had every worldly reason to lose hope, yet his faith kept him anchored.",
-        reason: "If Yaqub (AS), who lost his son for decades, still told his family not to lose hope in Allah — then no situation you face is beyond hope either. Despair contradicts faith. While you breathe, there is relief ahead."
+        reason: "If Yaqub (AS), who lost his son for decades, still told his family not to lose hope in Allah — then no situation you face is beyond hope either. Despair contradicts faith. While you breathe, there is relief ahead.",
+        phase: "patience"
       },
       {
         ayah: "إِنَّ مَعَ الْعُسْرِ يُسْرًا",
         reference: "Surah Al-Inshirah (94:6)",
         translation: "Indeed, with hardship will be ease.",
         explanation: "The Arabic uses 'ma'a' (with), not 'ba'da' (after). The ease is not just coming later — it exists alongside the hardship right now.",
-        reason: "Hopelessness sees only the darkness. But this verse reveals something hidden: even in your darkest moment, ease is already present within it. You may not see it yet, but Allah placed it there."
+        reason: "Hopelessness sees only the darkness. But this verse reveals something hidden: even in your darkest moment, ease is already present within it. You may not see it yet, but Allah placed it there.",
+        phase: "action"
       }
     ]
   },
@@ -941,21 +1492,24 @@ const AYAH_DATA = [
         reference: "Surah Al-Baqarah (2:153)",
         translation: "Indeed, Allah is with the patient.",
         explanation: "Sabr is not passive waiting — it is active perseverance while maintaining trust in Allah's timing.",
-        reason: "When you feel impatient for things to change, this short but powerful verse reminds you: patience is not just rewarded — it earns you Allah's companionship. He is WITH the patient, not just watching them."
+        reason: "When you feel impatient for things to change, this short but powerful verse reminds you: patience is not just rewarded — it earns you Allah's companionship. He is WITH the patient, not just watching them.",
+        phase: "comfort"
       },
       {
         ayah: "وَاصْبِرْ وَمَا صَبْرُكَ إِلَّا بِاللَّهِ",
         reference: "Surah An-Nahl (16:127)",
         translation: "And be patient, and your patience is not but through Allah.",
         explanation: "Even the ability to be patient is a gift from Allah — you are not expected to find it within yourself alone.",
-        reason: "If patience feels impossible right now, this verse reveals why: sabr is not something you generate on your own. Ask Allah for it. The strength to wait comes from Him, not from your willpower."
+        reason: "If patience feels impossible right now, this verse reveals why: sabr is not something you generate on your own. Ask Allah for it. The strength to wait comes from Him, not from your willpower.",
+        phase: "patience"
       },
       {
         ayah: "وَلَنَجْزِيَنَّ الَّذِينَ صَبَرُوا أَجْرَهُم بِأَحْسَنِ مَا كَانُوا يَعْمَلُونَ",
         reference: "Surah An-Nahl (16:96)",
         translation: "And We will surely give those who were patient their reward according to the best of what they used to do.",
         explanation: "The reward for patience is not average — Allah promises it will match the best of your deeds.",
-        reason: "Impatience whispers that waiting is wasted time. But Allah says your patience will be rewarded at the highest rate — not your average, but your best. Every moment you endure is being credited at premium value."
+        reason: "Impatience whispers that waiting is wasted time. But Allah says your patience will be rewarded at the highest rate — not your average, but your best. Every moment you endure is being credited at premium value.",
+        phase: "action"
       }
     ]
   },
@@ -968,21 +1522,24 @@ const AYAH_DATA = [
         reference: "Surah At-Tin (95:4)",
         translation: "We have certainly created man in the best of stature.",
         explanation: "Allah created you in the finest form — physically, spiritually, and in potential. You are not an accident or an afterthought.",
-        reason: "When you doubt your worth or ability, remember that the Creator of the universe designed you with intention and called the result 'the best of stature.' Your self-doubt contradicts His assessment of you."
+        reason: "When you doubt your worth or ability, remember that the Creator of the universe designed you with intention and called the result 'the best of stature.' Your self-doubt contradicts His assessment of you.",
+        phase: "comfort"
       },
       {
         ayah: "وَلَقَدْ كَرَّمْنَا بَنِي آدَمَ",
         reference: "Surah Al-Isra (17:70)",
         translation: "And We have certainly honoured the children of Adam.",
         explanation: "Allah did not say 'some' children of Adam. Every human being is honoured — including you, right now, as you are.",
-        reason: "Self-doubt tells you that you are not enough. But Allah has already decided: He honoured you. Not because of your achievements, not because you earned it — but because He chose to. That honour is not yours to revoke."
+        reason: "Self-doubt tells you that you are not enough. But Allah has already decided: He honoured you. Not because of your achievements, not because you earned it — but because He chose to. That honour is not yours to revoke.",
+        phase: "patience"
       },
       {
         ayah: "وَلَا تَهِنُوا وَلَا تَحْزَنُوا وَأَنتُمُ الْأَعْلَوْنَ إِن كُنتُم مُّؤْمِنِينَ",
         reference: "Surah Aal-Imran (3:139)",
         translation: "So do not weaken and do not grieve, and you will be superior if you are [true] believers.",
         explanation: "This was revealed after the defeat at Uhud, when the Muslims felt broken. Allah told them: your setback does not define you.",
-        reason: "Self-doubt often comes after a failure or setback. This verse was spoken to people who had just lost a battle. Allah did not say 'you failed.' He said 'do not weaken.' Your stumble is not your identity."
+        reason: "Self-doubt often comes after a failure or setback. This verse was spoken to people who had just lost a battle. Allah did not say 'you failed.' He said 'do not weaken.' Your stumble is not your identity.",
+        phase: "action"
       }
     ]
   },
@@ -995,21 +1552,24 @@ const AYAH_DATA = [
         reference: "Surah At-Talaq (65:7)",
         translation: "Allah does not charge a soul except according to what He has given it. Allah will bring about, after hardship, ease.",
         explanation: "You are never asked to give more than you have been given. And the hardship is temporary — ease is already on its way.",
-        reason: "Feeling overwhelmed means you are carrying a lot — but Allah calibrated this moment to your specific capacity. He is not testing you beyond what He equipped you for. And He promises: this heaviness will lift."
+        reason: "Feeling overwhelmed means you are carrying a lot — but Allah calibrated this moment to your specific capacity. He is not testing you beyond what He equipped you for. And He promises: this heaviness will lift.",
+        phase: "comfort"
       },
       {
         ayah: "وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا",
         reference: "Surah At-Talaq (65:2)",
         translation: "And whoever fears Allah — He will make for him a way out.",
         explanation: "Taqwa (mindfulness of Allah) is presented as the key that unlocks exits from situations that feel inescapable.",
-        reason: "When everything piles up and you see no way through, this verse promises a makhraj — an exit, an opening. It may not be the exit you expect, but Allah will create one specifically for you."
+        reason: "When everything piles up and you see no way through, this verse promises a makhraj — an exit, an opening. It may not be the exit you expect, but Allah will create one specifically for you.",
+        phase: "patience"
       },
       {
         ayah: "رَبَّنَا وَلَا تُحَمِّلْنَا مَا لَا طَاقَةَ لَنَا بِهِ",
         reference: "Surah Al-Baqarah (2:286)",
         translation: "Our Lord, and burden us not with that which we have no ability to bear.",
         explanation: "Allah Himself taught us this du'a — He gave us the words to ask for relief when the load feels too heavy.",
-        reason: "When you feel crushed under the weight of everything, know that Allah gave you permission to say: 'This is too much for me — help me.' This is not weakness; it is a du'a He Himself wrote for you."
+        reason: "When you feel crushed under the weight of everything, know that Allah gave you permission to say: 'This is too much for me — help me.' This is not weakness; it is a du'a He Himself wrote for you.",
+        phase: "action"
       }
     ]
   },
@@ -1022,21 +1582,24 @@ const AYAH_DATA = [
         reference: "Surah An-Nisa (4:32)",
         translation: "And do not wish for that by which Allah has made some of you exceed others.",
         explanation: "Comparing yourself to others ignores the unique blessings and path Allah has written specifically for you.",
-        reason: "Jealousy compares your behind-the-scenes to someone else's highlight reel. This verse redirects you: what Allah gave someone else was never meant for you, and what He has planned for you was never meant for them."
+        reason: "Jealousy compares your behind-the-scenes to someone else's highlight reel. This verse redirects you: what Allah gave someone else was never meant for you, and what He has planned for you was never meant for them.",
+        phase: "comfort"
       },
       {
         ayah: "نَحْنُ قَسَمْنَا بَيْنَهُم مَّعِيشَتَهُمْ فِي الْحَيَاةِ الدُّنْيَا",
         reference: "Surah Az-Zukhruf (43:32)",
         translation: "We have distributed among them their livelihood in the life of this world.",
         explanation: "The distribution of worldly provision is Allah's decision, not random chance. Each person's portion is deliberate.",
-        reason: "Jealousy assumes that someone else got what was 'supposed' to be yours. But this verse clarifies: Allah Himself divided the portions. What they have was always theirs, and what is yours is being prepared for you."
+        reason: "Jealousy assumes that someone else got what was 'supposed' to be yours. But this verse clarifies: Allah Himself divided the portions. What they have was always theirs, and what is yours is being prepared for you.",
+        phase: "patience"
       },
       {
         ayah: "وَلَا تَمُدَّنَّ عَيْنَيْكَ إِلَىٰ مَا مَتَّعْنَا بِهِ أَزْوَاجًا مِّنْهُمْ",
         reference: "Surah Ta-Ha (20:131)",
         translation: "And do not extend your eyes toward that by which We have given enjoyment to [some] categories of them.",
         explanation: "Allah tells His Prophet ﷺ not to gaze longingly at what others have been given — even he was reminded.",
-        reason: "If the Prophet ﷺ himself was told not to compare, it shows how natural this feeling is — and how important it is to redirect it. Lower your gaze from what others have, and raise it to what Allah has written for you."
+        reason: "If the Prophet ﷺ himself was told not to compare, it shows how natural this feeling is — and how important it is to redirect it. Lower your gaze from what others have, and raise it to what Allah has written for you.",
+        phase: "action"
       }
     ]
   },
@@ -1049,21 +1612,24 @@ const AYAH_DATA = [
         reference: "Surah Hud (11:90)",
         translation: "Ask forgiveness of your Lord and then repent to Him. Indeed, my Lord is Merciful and Loving.",
         explanation: "Allah is not just merciful — He is Al-Wadud, the Loving. He does not merely tolerate your return; He loves that you came back.",
-        reason: "Guilt can paralyse you into thinking you are too far gone. But this verse pairs mercy with love — Allah does not just forgive reluctantly. He is Wadud: He loves you as you repent. Your guilt is actually a sign that your heart is alive."
+        reason: "Guilt can paralyse you into thinking you are too far gone. But this verse pairs mercy with love — Allah does not just forgive reluctantly. He is Wadud: He loves you as you repent. Your guilt is actually a sign that your heart is alive.",
+        phase: "comfort"
       },
       {
         ayah: "وَالَّذِينَ إِذَا فَعَلُوا فَاحِشَةً أَوْ ظَلَمُوا أَنفُسَهُمْ ذَكَرُوا اللَّهَ فَاسْتَغْفَرُوا لِذُنُوبِهِمْ",
         reference: "Surah Aal-Imran (3:135)",
         translation: "And those who, when they commit an immorality or wrong themselves, remember Allah and ask forgiveness for their sins.",
         explanation: "Allah describes the righteous not as people who never sin, but as people who return to Him when they do.",
-        reason: "You may feel guilty because you did something wrong — and this verse says: that guilt is the first step of the righteous. The people of taqwa are not perfect. They fall. But then they remember Allah, and they come back. That is exactly what you are doing right now."
+        reason: "You may feel guilty because you did something wrong — and this verse says: that guilt is the first step of the righteous. The people of taqwa are not perfect. They fall. But then they remember Allah, and they come back. That is exactly what you are doing right now.",
+        phase: "patience"
       },
       {
         ayah: "إِنَّ اللَّهَ يُحِبُّ التَّوَّابِينَ وَيُحِبُّ الْمُتَطَهِّرِينَ",
         reference: "Surah Al-Baqarah (2:222)",
         translation: "Indeed, Allah loves those who are constantly repenting and loves those who purify themselves.",
         explanation: "Allah did not say He 'accepts' the repentant — He said He loves them. Repentance makes you beloved to Him.",
-        reason: "Guilt makes you feel unlovable. This verse says the exact opposite: the act of turning back to Allah after a mistake does not just earn forgiveness — it earns His love. You are more beloved to Him now, in your repentance, than you realise."
+        reason: "Guilt makes you feel unlovable. This verse says the exact opposite: the act of turning back to Allah after a mistake does not just earn forgiveness — it earns His love. You are more beloved to Him now, in your repentance, than you realise.",
+        phase: "action"
       }
     ]
   },
@@ -1076,21 +1642,24 @@ const AYAH_DATA = [
         reference: "Surah Al-Anfal (8:29)",
         translation: "If you are mindful of Allah, He will grant you a criterion [to judge between right and wrong].",
         explanation: "Taqwa (God-consciousness) is not just about worship — it sharpens your inner clarity and moral compass.",
-        reason: "When you cannot see the right path, this verse offers a practical answer: draw closer to Allah, and He will give you the very ability to distinguish truth from falsehood. Clarity is a gift He grants to those who seek Him."
+        reason: "When you cannot see the right path, this verse offers a practical answer: draw closer to Allah, and He will give you the very ability to distinguish truth from falsehood. Clarity is a gift He grants to those who seek Him.",
+        phase: "comfort"
       },
       {
         ayah: "وَقُل رَّبِّ زِدْنِي عِلْمًا",
         reference: "Surah Ta-Ha (20:114)",
         translation: "And say: 'My Lord, increase me in knowledge.'",
         explanation: "This is the only thing Allah told the Prophet ﷺ to ask for more of — not wealth, not power, but knowledge.",
-        reason: "Confusion is not ignorance — it is the space before understanding. This du'a transforms your confusion into a request: Ya Allah, I do not understand yet, but You can teach me. Turn your fog into a prayer."
+        reason: "Confusion is not ignorance — it is the space before understanding. This du'a transforms your confusion into a request: Ya Allah, I do not understand yet, but You can teach me. Turn your fog into a prayer.",
+        phase: "patience"
       },
       {
         ayah: "فَإِنَّ ذِكْرَىٰ تَنفَعُ الْمُؤْمِنِينَ",
         reference: "Surah Adh-Dhariyat (51:55)",
         translation: "And remind, for indeed, the reminder benefits the believers.",
         explanation: "Sometimes clarity comes not from new knowledge, but from being reminded of what you already know deep down.",
-        reason: "When you feel confused, you may already have the answer inside you — buried under noise and overthinking. This verse suggests: go back to what you know. Read Quran, sit in dhikr, let the reminder clear the fog."
+        reason: "When you feel confused, you may already have the answer inside you — buried under noise and overthinking. This verse suggests: go back to what you know. Read Quran, sit in dhikr, let the reminder clear the fog.",
+        phase: "action"
       }
     ]
   },
@@ -1103,21 +1672,24 @@ const AYAH_DATA = [
         reference: "Surah Al-Baqarah (2:216)",
         translation: "Perhaps you dislike a thing and it is good for you.",
         explanation: "Our limited perspective cannot see what Allah sees. What feels like loss may be divine redirection.",
-        reason: "Heartbreak makes the loss feel absolute. But this verse asks you to consider: what if this pain is protecting you from something worse, or steering you toward something far better than what you lost?"
+        reason: "Heartbreak makes the loss feel absolute. But this verse asks you to consider: what if this pain is protecting you from something worse, or steering you toward something far better than what you lost?",
+        phase: "comfort"
       },
       {
         ayah: "وَعَسَىٰ أَن تُحِبُّوا شَيْئًا وَهُوَ شَرٌّ لَّكُمْ ۗ وَاللَّهُ يَعْلَمُ وَأَنتُمْ لَا تَعْلَمُونَ",
         reference: "Surah Al-Baqarah (2:216)",
         translation: "And perhaps you love a thing and it is bad for you. And Allah knows, while you know not.",
         explanation: "The continuation of the previous verse — not only can hardship contain hidden good, but what we cling to may actually contain hidden harm.",
-        reason: "Heartbreak hurts because you loved something deeply. This verse gently says: your love does not always see clearly. What you are mourning might have been something Allah is protecting you from. Trust His knowledge over your pain."
+        reason: "Heartbreak hurts because you loved something deeply. This verse gently says: your love does not always see clearly. What you are mourning might have been something Allah is protecting you from. Trust His knowledge over your pain.",
+        phase: "patience"
       },
       {
         ayah: "وَبَشِّرِ الصَّابِرِينَ",
         reference: "Surah Al-Baqarah (2:155)",
         translation: "And give good tidings to the patient.",
         explanation: "In the middle of describing trials and loss, Allah pauses to deliver good news specifically to those who endure.",
-        reason: "Heartbreak demands patience — and this verse says those who endure it receive bushra (glad tidings) from Allah Himself. Your broken heart, if held with patience, earns you a promise directly from Him."
+        reason: "Heartbreak demands patience — and this verse says those who endure it receive bushra (glad tidings) from Allah Himself. Your broken heart, if held with patience, earns you a promise directly from Him.",
+        phase: "action"
       }
     ]
   },
@@ -1130,21 +1702,24 @@ const AYAH_DATA = [
         reference: "Surah Al-Baqarah (2:152)",
         translation: "So remember Me; I will remember you. And be grateful to Me and do not deny Me.",
         explanation: "A remarkable exchange: you remember Allah, and He — the Lord of all creation — remembers you in return.",
-        reason: "In your moment of thankfulness, this verse elevates it further: your gratitude is not a one-way act. When you turn to Allah in thanks, He turns to you. You are in a conversation with your Creator right now."
+        reason: "In your moment of thankfulness, this verse elevates it further: your gratitude is not a one-way act. When you turn to Allah in thanks, He turns to you. You are in a conversation with your Creator right now.",
+        phase: "comfort"
       },
       {
         ayah: "لَئِن شَكَرْتُمْ لَأَزِيدَنَّكُمْ",
         reference: "Surah Ibrahim (14:7)",
         translation: "If you are grateful, I will surely increase you.",
         explanation: "Gratitude is a door to increase — in blessings, in peace, in closeness to Allah.",
-        reason: "Your thankfulness is already opening doors. This verse promises that the cycle of shukr and blessing is self-reinforcing: the more you thank, the more He gives, and the more you find to thank Him for."
+        reason: "Your thankfulness is already opening doors. This verse promises that the cycle of shukr and blessing is self-reinforcing: the more you thank, the more He gives, and the more you find to thank Him for.",
+        phase: "patience"
       },
       {
         ayah: "وَإِذْ تَأَذَّنَ رَبُّكُمْ",
         reference: "Surah Ibrahim (14:7)",
         translation: "And [remember] when your Lord proclaimed...",
         explanation: "The word ta'adhdhana means Allah announced it publicly, like a royal decree. His promise of increase for the grateful is not a quiet suggestion — it is a cosmic declaration.",
-        reason: "Your gratitude activates a promise that Allah proclaimed to all of creation. This is not a minor reward — it is a law of the universe. Thank Him, and watch what He opens for you."
+        reason: "Your gratitude activates a promise that Allah proclaimed to all of creation. This is not a minor reward — it is a law of the universe. Thank Him, and watch what He opens for you.",
+        phase: "action"
       }
     ]
   }
@@ -1152,25 +1727,126 @@ const AYAH_DATA = [
 
 
 /* ────────────────────────────────────────────────────────────────
-   2. STATE
-   Track selected emotion, shown ayah indexes (to prevent
-   repeats), and manage local storage for history.
+   1b. ACTION STEPS
+   Each emotion has 3 real-life actions aligned with the
+   progression phases: comfort, patience, action.
+   Shown after each ayah to encourage immediate practice.
    ──────────────────────────────────────────────────────────────── */
 
-let selectedEmotion = null;       // currently selected emotion string
-let currentEntry    = null;       // the ayah entry being displayed
+const ACTION_STEPS = {
+  "Anxiety": [
+    "Close your eyes and say 'HasbiyAllahu wa ni'mal wakeel' 3 times",
+    "Make wudu slowly and mindfully — let the water wash away your worries",
+    "Pray 2 rakah salat al-hajah and ask Allah for peace of heart"
+  ],
+  "Sadness": [
+    "Place your hand on your chest and make a quiet dua right now",
+    "Read Surah Ad-Duha slowly, feeling each word as if spoken to you",
+    "Say 'Inna lillahi wa inna ilayhi raji'un' and sit in silence for 1 minute"
+  ],
+  "Lack of Motivation": [
+    "Say 'La hawla wa la quwwata illa billah' — all strength comes from Allah",
+    "Pick one small task you have been avoiding and do it right now",
+    "Make istighfar 10 times — it opens doors you didn't know existed"
+  ],
+  "Gratitude": [
+    "Name 3 blessings out loud that you usually take for granted",
+    "Send a message to someone who has helped you — thank them",
+    "Pray 2 rakah shukr and prostrate in gratitude to Allah"
+  ],
+  "Anger": [
+    "Say 'A'udhu billahi min ash-shaytan ir-rajeem' and take 3 deep breaths",
+    "Make wudu — the Prophet ﷺ said water extinguishes anger",
+    "Walk away from the situation for 5 minutes and do dhikr"
+  ],
+  "Feeling Lost": [
+    "Recite Surah Al-Fatiha slowly and ask Allah for guidance after it",
+    "Write down one thing you know for certain — build from there",
+    "Pray salat al-istikhara before your next decision"
+  ],
+  "Fear": [
+    "Say 'HasbunAllahu wa ni'mal wakeel' — Allah is sufficient for me",
+    "Remind yourself of one past fear that Allah safely brought you through",
+    "Make du'a naming your specific fear — give it to Allah directly"
+  ],
+  "Loneliness": [
+    "Talk to Allah right now — out loud if you can, He is listening",
+    "Reach out to one person today, even with a simple salam",
+    "Pray 2 rakah and sit in sajdah longer than usual — feel His nearness"
+  ],
+  "Grief": [
+    "Let yourself cry if you need to — even the Prophet ﷺ wept",
+    "Say 'Inna lillahi wa inna ilayhi raji'un' for what you have lost",
+    "Make dua for the one you grieve — your love can still reach them"
+  ],
+  "Hopelessness": [
+    "Make istighfar 33 times — every single one opens a door",
+    "Read Surah Yusuf — the story of hope after decades of patience",
+    "Stand up and pray 2 rakah, even if your heart feels empty"
+  ],
+  "Impatience": [
+    "Say 'SubhanAllah' 33 times slowly — let each one slow your heart",
+    "Remind yourself of one thing you waited for that turned out better than expected",
+    "Write down what you are waiting for and hand it to Allah in du'a"
+  ],
+  "Self-Doubt": [
+    "Say 'Alhamdulillah' for who Allah made you — exactly as you are",
+    "Write down one thing you did well recently, no matter how small",
+    "Ask Allah for confidence: 'Rabbi shrahli sadri wa yassir li amri'"
+  ],
+  "Overwhelmed": [
+    "Stop everything and take 5 slow breaths — you are safe right now",
+    "Write down everything on your mind, then pick just ONE to focus on",
+    "Make the du'a: 'Allahumma la sahla illa ma ja'altahu sahla' (O Allah, nothing is easy except what You make easy)"
+  ],
+  "Jealousy": [
+    "Say 'Allahumma barik' for the person you envy — it protects you both",
+    "List 3 blessings in YOUR life that someone else might wish for",
+    "Make du'a asking Allah for what you want — directly, not through comparison"
+  ],
+  "Guilt": [
+    "Make istighfar right now: 'Astaghfirullah wa atubu ilayh' — 3 times with your heart",
+    "Promise yourself one small good deed today to begin turning the page",
+    "Pray 2 rakah tawbah and talk to Allah about what weighs on you"
+  ],
+  "Confusion": [
+    "Say 'Rabbi zidni ilma' (My Lord, increase me in knowledge) 3 times",
+    "Step away from the decision for 10 minutes — clarity comes in stillness",
+    "Pray salat al-istikhara and trust that Allah will guide your heart"
+  ],
+  "Heartbreak": [
+    "Let yourself feel the pain — suppressing it only delays healing",
+    "Make du'a: 'Allahumma ajirni fi musibati wakhluf li khayran minha'",
+    "Do something kind for someone else today — healing begins in giving"
+  ],
+  "Thankfulness": [
+    "Say 'Alhamdulillah' 33 times, thinking of a different blessing each time",
+    "Share one blessing with someone who needs to hear good news",
+    "Pray 2 rakah shukr — let your forehead touch the ground in gratitude"
+  ]
+};
+
+
+/* ────────────────────────────────────────────────────────────────
+   2. STATE
+   ──────────────────────────────────────────────────────────────── */
+
+let selectedEmotion = null;
+let currentEntry    = null;
 
 /*
- * Non-repeating tracker: keeps track of which ayah indexes
- * have been shown for each emotion. Once all are shown,
- * the list resets so the cycle starts fresh.
- *
- * Structure: { "Anxiety": [0, 2], "Sadness": [1] }
- * Meaning: for Anxiety, indexes 0 and 2 have been shown already.
+ * Non-repeating tracker (now SEQUENTIAL for progression).
+ * Structure: { "Anxiety": 0, "Sadness": 1 }
+ * Meaning: next ayah for Anxiety is index 0, for Sadness index 1.
  */
-const shownIndexes = {};
+const progressionIndex = {};
 
-const STORAGE_KEY = 'ayah_mirror_history';
+/* localStorage keys */
+const STORAGE_KEY       = 'ayah_mirror_history';
+const STREAK_KEY        = 'ayah_mirror_streak';
+const THEME_KEY         = 'ayah_mirror_theme';
+const NOTES_KEY         = 'ayah_mirror_notes';
+const PASSCODE_KEY      = 'ayah_mirror_passcode';
 
 
 /* ────────────────────────────────────────────────────────────────
@@ -1179,11 +1855,8 @@ const STORAGE_KEY = 'ayah_mirror_history';
 
 function loadHistory() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch { return []; }
 }
 
 function saveToHistory(entry) {
@@ -1197,9 +1870,133 @@ function clearHistory() {
   localStorage.removeItem(STORAGE_KEY);
 }
 
+function loadNotes() {
+  try {
+    return JSON.parse(localStorage.getItem(NOTES_KEY)) || [];
+  } catch { return []; }
+}
+
+function saveNote(text) {
+  const notes = loadNotes();
+  notes.unshift({ date: new Date().toISOString(), text });
+  if (notes.length > 200) notes.length = 200;
+  localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+}
+
+function deleteNote(index) {
+  const notes = loadNotes();
+  notes.splice(index, 1);
+  localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+}
+
+function getPasscode()  { return localStorage.getItem(PASSCODE_KEY); }
+function setPasscode(p) { localStorage.setItem(PASSCODE_KEY, p); }
+function removePasscode(){ localStorage.removeItem(PASSCODE_KEY); }
+
 
 /* ────────────────────────────────────────────────────────────────
-   4. NAVIGATION
+   4. THEME SYSTEM
+   Reads saved preference or defaults to light.
+   Toggle switches between light/dark and saves to localStorage.
+   ──────────────────────────────────────────────────────────────── */
+
+const themeToggleBtn = document.getElementById('themeToggle');
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  themeToggleBtn.textContent = theme === 'dark' ? '☀️' : '🌙';
+  /* Update meta theme-color for mobile browsers */
+  document.querySelector('meta[name="theme-color"]')
+    .setAttribute('content', theme === 'dark' ? '#0f1412' : '#f9fdfb');
+  localStorage.setItem(THEME_KEY, theme);
+}
+
+/* Load saved theme on startup */
+const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
+applyTheme(savedTheme);
+
+themeToggleBtn.addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme');
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+});
+
+
+/* ────────────────────────────────────────────────────────────────
+   5. STREAK SYSTEM
+   Tracks consecutive days the user opens the app and interacts.
+   Stored as { count, lastDate } in localStorage.
+   ──────────────────────────────────────────────────────────────── */
+
+function todayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function loadStreak() {
+  try {
+    return JSON.parse(localStorage.getItem(STREAK_KEY)) || { count: 0, lastDate: '' };
+  } catch { return { count: 0, lastDate: '' }; }
+}
+
+function updateStreak() {
+  const streak = loadStreak();
+  const today  = todayStr();
+
+  if (streak.lastDate === today) return streak; // already counted today
+
+  /* Calculate difference in days */
+  const last = streak.lastDate ? new Date(streak.lastDate) : null;
+  const now  = new Date(today);
+
+  if (last) {
+    const diffMs  = now - last;
+    const diffDay = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDay === 1) {
+      streak.count += 1; // consecutive day
+    } else {
+      streak.count = 1;  // gap — reset streak
+    }
+  } else {
+    streak.count = 1;    // first ever visit
+  }
+
+  streak.lastDate = today;
+  localStorage.setItem(STREAK_KEY, JSON.stringify(streak));
+  return streak;
+}
+
+function renderStreak() {
+  const streak  = updateStreak();
+  const display = document.getElementById('streakDisplay');
+
+  if (streak.count < 1) {
+    display.innerHTML = '';
+    return;
+  }
+
+  const messages = [
+    "You've returned to the Qur'an today",                     // 1 day
+    `${streak.count} days with the Qur'an — keep it going`,   // 2-6
+    `${streak.count}-day streak — MashaAllah, stay consistent`, // 7+
+  ];
+
+  let msg;
+  if (streak.count === 1) msg = messages[0];
+  else if (streak.count < 7) msg = messages[1];
+  else msg = messages[2];
+
+  display.innerHTML = `
+    <div class="streak-badge fade-up">
+      <span class="streak-fire">🔥</span>
+      <span class="streak-msg">${msg}</span>
+    </div>
+  `;
+}
+
+
+/* ────────────────────────────────────────────────────────────────
+   6. NAVIGATION
    ──────────────────────────────────────────────────────────────── */
 
 const navButtons = document.querySelectorAll('.nav-btn');
@@ -1214,17 +2011,32 @@ function navigateTo(screenName) {
     btn.classList.toggle('active', btn.dataset.screen === screenName);
   });
 
-  if (screenName === 'history') renderHistory();
-  if (screenName === 'daily')   renderDaily();
+  if (screenName === 'journal')  { renderHistory(); renderNotes(); }
+  if (screenName === 'daily')    renderDaily();
 }
 
 navButtons.forEach(btn => {
   btn.addEventListener('click', () => navigateTo(btn.dataset.screen));
 });
 
+/* Journal tab switching */
+document.querySelectorAll('.journal-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.journal-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.journal-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(`panel-${tab.dataset.panel}`).classList.add('active');
+
+    /* If switching to notes and passcode is set, require it */
+    if (tab.dataset.panel === 'notes' && getPasscode()) {
+      showPasscodePrompt('unlock');
+    }
+  });
+});
+
 
 /* ────────────────────────────────────────────────────────────────
-   5. EMOTION GRID
+   7. EMOTION GRID
    ──────────────────────────────────────────────────────────────── */
 
 const emotionGrid = document.getElementById('emotionGrid');
@@ -1264,59 +2076,50 @@ customInput.addEventListener('input', () => {
 
 
 /* ────────────────────────────────────────────────────────────────
-   6. AYAH MATCHING (non-repeating)
-   Uses shownIndexes to cycle through all ayahs for an emotion
-   before repeating any. This fixes the "same ayah" bug.
+   8. AYAH MATCHING — PROGRESSION SYSTEM
+   Instead of random picks, ayahs are shown sequentially:
+   1st request = comfort (index 0)
+   2nd request = patience (index 1)
+   3rd request = action (index 2)
+   Then the cycle resets.
    ──────────────────────────────────────────────────────────────── */
 
 /**
- * Pick the next unseen ayah for a given AYAH_DATA group.
- * Returns the entry and its index within the group's entries array.
+ * Pick the next ayah in the progression for a given emotion group.
+ * Returns the entry, its phase label, and counter info.
  */
-function pickNonRepeatingEntry(group) {
-  const emotionKey = group.emotion;
-  const total      = group.entries.length;
+function pickProgressionEntry(group) {
+  const key   = group.emotion;
+  const total = group.entries.length;
 
-  // Initialise tracking array if not present
-  if (!shownIndexes[emotionKey]) {
-    shownIndexes[emotionKey] = [];
+  /* Initialise to 0 if this emotion hasn't been visited yet */
+  if (progressionIndex[key] === undefined) {
+    progressionIndex[key] = 0;
   }
 
-  // If all ayahs have been shown, reset the cycle
-  if (shownIndexes[emotionKey].length >= total) {
-    shownIndexes[emotionKey] = [];
-  }
+  const idx = progressionIndex[key];
 
-  // Find indexes that haven't been shown yet
-  const available = [];
-  for (let i = 0; i < total; i++) {
-    if (!shownIndexes[emotionKey].includes(i)) {
-      available.push(i);
-    }
-  }
-
-  // Pick a random one from the available pool
-  const pick  = available[Math.floor(Math.random() * available.length)];
-  shownIndexes[emotionKey].push(pick);
+  /* Advance for next time (wraps around) */
+  progressionIndex[key] = (idx + 1) % total;
 
   return {
-    entry: group.entries[pick],
-    index: pick,
-    shown: shownIndexes[emotionKey].length,
-    total: total
+    entry: group.entries[idx],
+    index: idx,
+    shown: idx + 1,
+    total: total,
+    phase: group.entries[idx].phase || ['comfort', 'patience', 'action'][idx]
   };
 }
 
 /**
- * Find the best matching emotion group and pick a non-repeating ayah.
+ * Find the best matching emotion group and pick next progression ayah.
  */
 function matchEmotion(emotionStr) {
   const lower = emotionStr.toLowerCase().trim();
 
-  // Exact match first
   let group = AYAH_DATA.find(a => a.emotion.toLowerCase() === lower);
 
-  // Synonym lookup
+  /* Synonym lookup */
   if (!group) {
     const keywords = lower.split(/\s+/);
     const synonyms = {
@@ -1346,7 +2149,7 @@ function matchEmotion(emotionStr) {
       }
     }
 
-    // Partial match
+    /* Partial match */
     if (!group) {
       for (const a of AYAH_DATA) {
         const emotionLower = a.emotion.toLowerCase();
@@ -1361,37 +2164,50 @@ function matchEmotion(emotionStr) {
     }
   }
 
-  // Fallback: random group
+  /* Fallback: random group */
   if (!group) {
     group = AYAH_DATA[Math.floor(Math.random() * AYAH_DATA.length)];
   }
 
-  // Pick a non-repeating entry from the matched group
-  const result = pickNonRepeatingEntry(group);
+  const result = pickProgressionEntry(group);
   return {
     emotion: group.emotion,
     emoji:   group.emoji,
     entry:   result.entry,
     shown:   result.shown,
-    total:   result.total
+    total:   result.total,
+    phase:   result.phase,
+    index:   result.index
   };
 }
 
 
 /* ────────────────────────────────────────────────────────────────
-   7. RESULT SCREEN
-   Display the matched ayah with reflection prompts.
-   Uses the new ayah-card class with green left border.
+   9. RESULT SCREEN
+   Shows the matched ayah with progression badge, action step,
+   and reflection prompts.
    ──────────────────────────────────────────────────────────────── */
 
 const resultContent = document.getElementById('resultContent');
+
+function getPhaseLabel(phase) {
+  const labels = {
+    comfort:  { icon: '🤲', text: 'Comfort', cls: 'comfort' },
+    patience: { icon: '⏳', text: 'Patience', cls: 'patience' },
+    action:   { icon: '⚡', text: 'Action', cls: 'action' }
+  };
+  return labels[phase] || labels.comfort;
+}
 
 function showResult(emotionStr) {
   const match = matchEmotion(emotionStr);
   if (!match) return;
 
   currentEntry = match;
-  const { emotion, emoji, entry, shown, total } = match;
+  const { emotion, emoji, entry, shown, total, phase, index } = match;
+  const phaseInfo   = getPhaseLabel(phase);
+  const actionSteps = ACTION_STEPS[emotion] || ACTION_STEPS['Anxiety'];
+  const actionStep  = actionSteps[index] || actionSteps[0];
 
   resultContent.innerHTML = `
     <!-- Matched emotion label -->
@@ -1399,8 +2215,14 @@ function showResult(emotionStr) {
       ${emoji} Showing ayah for: <strong>${emotion}</strong>
     </div>
 
-    <!-- The ayah card — green left border, clean hierarchy -->
+    <!-- The ayah card -->
     <div class="ayah-card fade-up fade-up-delay-1" id="ayahDisplay">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <span class="progression-badge ${phaseInfo.cls}">
+          ${phaseInfo.icon} ${phaseInfo.text}
+        </span>
+        <span class="ayah-counter">${shown} of ${total}</span>
+      </div>
       <div class="arabic">${entry.ayah}</div>
       <div class="verse-ref">${entry.reference}</div>
       <p class="translation">"${entry.translation}"</p>
@@ -1410,7 +2232,15 @@ function showResult(emotionStr) {
       </div>
       <div class="divider"></div>
       <p style="font-size:12px;color:var(--text-muted);">${entry.explanation}</p>
-      <div class="ayah-counter">${shown} of ${total} ayat shown for this feeling</div>
+    </div>
+
+    <!-- Action step -->
+    <div class="action-step fade-up fade-up-delay-2">
+      <div class="action-step-icon">🕋</div>
+      <div>
+        <div class="action-step-label">Act on this now</div>
+        <div class="action-step-text">${actionStep}</div>
+      </div>
     </div>
 
     <!-- Reflection section -->
@@ -1437,17 +2267,22 @@ function showResult(emotionStr) {
     </div>
 
     <!-- Action buttons -->
-    <div class="fade-up fade-up-delay-3" style="text-align:center;margin-top:8px;">
+    <div class="fade-up fade-up-delay-3" style="text-align:center;margin-top:8px;padding-bottom:20px;">
       <button class="btn-ghost" id="anotherAyahBtn" style="margin-right:8px;">
         Show Another Ayah
       </button>
-      <button class="btn-ghost" id="backHomeBtn">
-        Back to Home
+      <button class="btn-ghost" id="enterFocusFromResult">
+        Deep Reflect
       </button>
+      <div style="margin-top:10px;">
+        <button class="btn-ghost" id="backHomeBtn">
+          Back to Home
+        </button>
+      </div>
     </div>
   `;
 
-  // Wire up Save button
+  /* Wire up Save button */
   document.getElementById('saveReflectionBtn').addEventListener('click', () => {
     const learned = document.getElementById('learnedInput').value.trim();
     const action  = document.getElementById('actionInput').value.trim();
@@ -1464,7 +2299,7 @@ function showResult(emotionStr) {
     resetHomeSelection();
   });
 
-  // Skip — save to history without reflection text
+  /* Skip — save without reflection */
   document.getElementById('skipSaveBtn').addEventListener('click', () => {
     saveToHistory({
       date: new Date().toISOString(),
@@ -1479,24 +2314,29 @@ function showResult(emotionStr) {
   });
 
   /*
-   * "Show Another Ayah" — smoothly swaps the ayah card content
-   * instead of rebuilding the entire page. Uses a fade-out then
-   * fade-in transition to prevent UI flicker.
+   * "Show Another Ayah" — smooth fade-out/fade-in swap.
+   * Now follows the progression system (comfort → patience → action).
    */
   document.getElementById('anotherAyahBtn').addEventListener('click', () => {
     const ayahCard = document.getElementById('ayahDisplay');
-
-    // Fade out the current card
     ayahCard.style.opacity = '0';
     ayahCard.style.transform = 'translateY(10px)';
     ayahCard.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
 
-    // After fade-out completes, swap content and fade back in
     setTimeout(() => {
-      const newMatch = matchEmotion(emotionStr);
-      currentEntry = newMatch;
+      const newMatch   = matchEmotion(emotionStr);
+      currentEntry     = newMatch;
+      const newPhase   = getPhaseLabel(newMatch.phase);
+      const newActions = ACTION_STEPS[newMatch.emotion] || ACTION_STEPS['Anxiety'];
+      const newAction  = newActions[newMatch.index] || newActions[0];
 
       ayahCard.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <span class="progression-badge ${newPhase.cls}">
+            ${newPhase.icon} ${newPhase.text}
+          </span>
+          <span class="ayah-counter">${newMatch.shown} of ${newMatch.total}</span>
+        </div>
         <div class="arabic">${newMatch.entry.ayah}</div>
         <div class="verse-ref">${newMatch.entry.reference}</div>
         <p class="translation">"${newMatch.entry.translation}"</p>
@@ -1506,10 +2346,12 @@ function showResult(emotionStr) {
         </div>
         <div class="divider"></div>
         <p style="font-size:12px;color:var(--text-muted);">${newMatch.entry.explanation}</p>
-        <div class="ayah-counter">${newMatch.shown} of ${newMatch.total} ayat shown for this feeling</div>
       `;
 
-      // Fade back in
+      /* Also update the action step */
+      const actionEl = document.querySelector('.action-step-text');
+      if (actionEl) actionEl.textContent = newAction;
+
       requestAnimationFrame(() => {
         ayahCard.style.opacity = '1';
         ayahCard.style.transform = 'translateY(0)';
@@ -1517,7 +2359,12 @@ function showResult(emotionStr) {
     }, 250);
   });
 
-  // Back to Home
+  /* Deep reflect from result screen */
+  document.getElementById('enterFocusFromResult').addEventListener('click', () => {
+    startFocusMode(entry);
+  });
+
+  /* Back to Home */
   document.getElementById('backHomeBtn').addEventListener('click', () => {
     navigateTo('home');
     resetHomeSelection();
@@ -1533,13 +2380,13 @@ function resetHomeSelection() {
   emotionGrid.querySelectorAll('.emotion-chip').forEach(c => c.classList.remove('selected'));
 }
 
-// Find Ayah button
+/* Find Ayah button */
 findBtn.addEventListener('click', () => {
   const emotion = selectedEmotion || customInput.value.trim();
   if (emotion) showResult(emotion);
 });
 
-// Enter key in custom input
+/* Enter key in custom input */
 customInput.addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && customInput.value.trim()) {
     showResult(customInput.value.trim());
@@ -1548,7 +2395,67 @@ customInput.addEventListener('keydown', (e) => {
 
 
 /* ────────────────────────────────────────────────────────────────
-   8. HISTORY SCREEN
+   10. FOCUS / DEEP MODE
+   Shows one ayah in a distraction-free fullscreen overlay
+   with an optional 60-second countdown timer.
+   ──────────────────────────────────────────────────────────────── */
+
+const focusOverlay = document.getElementById('focusOverlay');
+const focusTimer   = document.getElementById('focusTimer');
+const focusAyah    = document.getElementById('focusAyah');
+const focusExit    = document.getElementById('focusExit');
+let focusInterval  = null;
+
+function startFocusMode(entry) {
+  /* If no entry provided, pick a random one */
+  if (!entry) {
+    const group = AYAH_DATA[Math.floor(Math.random() * AYAH_DATA.length)];
+    entry = group.entries[Math.floor(Math.random() * group.entries.length)];
+  }
+
+  focusAyah.innerHTML = `
+    <div class="arabic">${entry.ayah}</div>
+    <p class="translation">"${entry.translation}"</p>
+    <div class="verse-ref">${entry.reference}</div>
+  `;
+
+  /* Start 60-second timer */
+  let seconds = 60;
+  focusTimer.textContent = '1:00';
+  focusOverlay.classList.add('active');
+
+  focusInterval = setInterval(() => {
+    seconds--;
+    if (seconds <= 0) {
+      clearInterval(focusInterval);
+      focusTimer.textContent = '0:00';
+      document.getElementById('focusPrompt').textContent =
+        'Time is up. Take this feeling with you. 🤲';
+    } else {
+      const m = Math.floor(seconds / 60);
+      const s = String(seconds % 60).padStart(2, '0');
+      focusTimer.textContent = `${m}:${s}`;
+    }
+  }, 1000);
+}
+
+function endFocusMode() {
+  if (focusInterval) clearInterval(focusInterval);
+  focusOverlay.classList.remove('active');
+  document.getElementById('focusPrompt').textContent =
+    'Breathe. Reflect. Let the words settle in your heart.';
+}
+
+focusExit.addEventListener('click', endFocusMode);
+
+/* Start Focus from Focus screen button */
+document.getElementById('startFocusBtn').addEventListener('click', () => {
+  startFocusMode(null);
+});
+
+
+/* ────────────────────────────────────────────────────────────────
+   11. HISTORY SCREEN
    ──────────────────────────────────────────────────────────────── */
 
 function renderHistory() {
@@ -1594,9 +2501,204 @@ document.getElementById('clearHistoryBtn').addEventListener('click', () => {
 
 
 /* ────────────────────────────────────────────────────────────────
-   9. DAILY AYAH
-   Picks a personalised ayah based on your most frequent emotion.
-   Uses a date-based seed so it stays stable for the whole day.
+   12. PRIVATE NOTES with optional passcode lock
+   ──────────────────────────────────────────────────────────────── */
+
+const lockToggle   = document.getElementById('lockToggle');
+const noteInput    = document.getElementById('noteInput');
+const saveNoteBtn  = document.getElementById('saveNoteBtn');
+const notesList    = document.getElementById('notesList');
+const notesPanel   = document.getElementById('panel-notes');
+
+/* Initialise lock toggle state */
+if (getPasscode()) lockToggle.classList.add('on');
+
+lockToggle.addEventListener('click', () => {
+  if (getPasscode()) {
+    /* Remove passcode */
+    if (confirm('Remove passcode lock from notes?')) {
+      removePasscode();
+      lockToggle.classList.remove('on');
+      showToast('Lock removed');
+    }
+  } else {
+    /* Set new passcode */
+    showPasscodePrompt('set');
+  }
+});
+
+saveNoteBtn.addEventListener('click', () => {
+  const text = noteInput.value.trim();
+  if (!text) return;
+  saveNote(text);
+  noteInput.value = '';
+  renderNotes();
+  showToast('Note saved');
+});
+
+function renderNotes() {
+  const notes = loadNotes();
+
+  if (notes.length === 0) {
+    notesList.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">🔐</div>
+        <p>No private notes yet.</p>
+        <p style="font-size:12px;margin-top:4px;">Your reflections stay on this device only.</p>
+      </div>`;
+    return;
+  }
+
+  notesList.innerHTML = notes.map((n, i) => {
+    const date = new Date(n.date);
+    const dateStr = date.toLocaleDateString('en-US', {
+      weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+    return `
+      <div class="note-item">
+        <div class="note-date">${dateStr}</div>
+        <div class="note-text">${escapeHtml(n.text)}</div>
+        <button class="note-delete" onclick="handleDeleteNote(${i})">Delete</button>
+      </div>`;
+  }).join('');
+}
+
+/* Delete note handler (needs to be global for inline onclick) */
+window.handleDeleteNote = function(index) {
+  if (confirm('Delete this note?')) {
+    deleteNote(index);
+    renderNotes();
+    showToast('Note deleted');
+  }
+};
+
+/* Escape HTML to prevent XSS in user-entered notes */
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+
+/* ────────────────────────────────────────────────────────────────
+   13. PASSCODE SYSTEM
+   Simple 4-digit PIN overlay.
+   Modes: 'set' (create new passcode) or 'unlock' (verify).
+   ──────────────────────────────────────────────────────────────── */
+
+const passcodeOverlay = document.getElementById('passcodeOverlay');
+const passcodeDots    = document.querySelectorAll('.passcode-dot');
+const passcodeError   = document.getElementById('passcodeError');
+const passcodeTitle   = document.getElementById('passcodeTitle');
+const passcodeCancel  = document.getElementById('passcodeCancel');
+
+let passcodeMode  = 'unlock'; // 'set' or 'unlock'
+let passcodeInput = '';
+let passcodeFirst = '';        // for confirm step when setting
+
+function showPasscodePrompt(mode) {
+  passcodeMode  = mode;
+  passcodeInput = '';
+  passcodeFirst = '';
+  passcodeError.textContent = '';
+  updatePasscodeDots();
+
+  if (mode === 'set') {
+    passcodeTitle.textContent = 'Create a 4-digit passcode';
+  } else {
+    passcodeTitle.textContent = 'Enter passcode to view notes';
+  }
+
+  passcodeOverlay.classList.add('active');
+}
+
+function hidePasscodePrompt() {
+  passcodeOverlay.classList.remove('active');
+  passcodeInput = '';
+  passcodeFirst = '';
+}
+
+function updatePasscodeDots() {
+  passcodeDots.forEach((dot, i) => {
+    dot.classList.toggle('filled', i < passcodeInput.length);
+  });
+}
+
+function handlePasscodeKey(val) {
+  if (val === 'clear') {
+    passcodeInput = '';
+    passcodeError.textContent = '';
+  } else if (val === 'back') {
+    passcodeInput = passcodeInput.slice(0, -1);
+  } else {
+    if (passcodeInput.length >= 4) return;
+    passcodeInput += val;
+  }
+
+  updatePasscodeDots();
+
+  /* When 4 digits entered, process */
+  if (passcodeInput.length === 4) {
+    setTimeout(() => processPasscode(), 200);
+  }
+}
+
+function processPasscode() {
+  if (passcodeMode === 'set') {
+    if (!passcodeFirst) {
+      /* First entry — ask to confirm */
+      passcodeFirst = passcodeInput;
+      passcodeInput = '';
+      passcodeTitle.textContent = 'Confirm your passcode';
+      updatePasscodeDots();
+    } else {
+      /* Confirm entry */
+      if (passcodeInput === passcodeFirst) {
+        setPasscode(passcodeInput);
+        lockToggle.classList.add('on');
+        hidePasscodePrompt();
+        showToast('Passcode set');
+      } else {
+        passcodeError.textContent = 'Passcodes don\'t match. Try again.';
+        passcodeInput = '';
+        passcodeFirst = '';
+        passcodeTitle.textContent = 'Create a 4-digit passcode';
+        updatePasscodeDots();
+      }
+    }
+  } else {
+    /* Unlock mode */
+    if (passcodeInput === getPasscode()) {
+      hidePasscodePrompt();
+    } else {
+      passcodeError.textContent = 'Wrong passcode. Try again.';
+      passcodeInput = '';
+      updatePasscodeDots();
+    }
+  }
+}
+
+/* Wire up keypad buttons */
+document.querySelectorAll('.passcode-key').forEach(key => {
+  key.addEventListener('click', () => handlePasscodeKey(key.dataset.val));
+});
+
+passcodeCancel.addEventListener('click', () => {
+  hidePasscodePrompt();
+  /* If cancelling unlock, switch back to history tab */
+  if (passcodeMode === 'unlock') {
+    document.querySelectorAll('.journal-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.journal-panel').forEach(p => p.classList.remove('active'));
+    document.querySelector('.journal-tab[data-panel="history"]').classList.add('active');
+    document.getElementById('panel-history').classList.add('active');
+  }
+});
+
+
+/* ────────────────────────────────────────────────────────────────
+   14. DAILY AYAH
+   Picks a personalised ayah based on most frequent emotion.
+   Date-seeded so it stays stable for the whole day.
    ──────────────────────────────────────────────────────────────── */
 
 function renderDaily() {
@@ -1622,6 +2724,8 @@ function renderDaily() {
   }
 
   const entry = group.entries[daySeed % group.entries.length];
+  const actionSteps = ACTION_STEPS[group.emotion] || ACTION_STEPS['Anxiety'];
+  const actionStep  = actionSteps[daySeed % actionSteps.length];
 
   content.innerHTML = `
     ${topEmotion ? `<p style="text-align:center;font-size:12px;color:var(--text-muted);margin-bottom:16px;">
@@ -1639,18 +2743,38 @@ function renderDaily() {
       <p style="font-size:13px;color:var(--text-muted);">${entry.explanation}</p>
     </div>
 
+    <div class="action-step fade-up fade-up-delay-1">
+      <div class="action-step-icon">🕋</div>
+      <div>
+        <div class="action-step-label">Act on this now</div>
+        <div class="action-step-text">${actionStep}</div>
+      </div>
+    </div>
+
     <div class="card fade-up fade-up-delay-1">
       <div class="explanation">
         <strong>Reflection prompt:</strong><br />
         ${entry.reason}
       </div>
     </div>
+
+    <div style="text-align:center;margin-top:12px;">
+      <button class="btn-ghost" id="dailyFocusBtn">
+        Deep Reflect on This Ayah
+      </button>
+    </div>
   `;
+
+  /* Wire up deep reflect button for daily */
+  const dailyFocusBtn = document.getElementById('dailyFocusBtn');
+  if (dailyFocusBtn) {
+    dailyFocusBtn.addEventListener('click', () => startFocusMode(entry));
+  }
 }
 
 
 /* ────────────────────────────────────────────────────────────────
-   10. TOAST NOTIFICATION
+   15. TOAST NOTIFICATION
    ──────────────────────────────────────────────────────────────── */
 
 const toast = document.getElementById('toast');
@@ -1663,9 +2787,10 @@ function showToast(message) {
 
 
 /* ────────────────────────────────────────────────────────────────
-   11. INITIALISATION
+   16. INITIALISATION
    ──────────────────────────────────────────────────────────────── */
 
+renderStreak();
 renderDaily();
 
 </script>
