@@ -554,6 +554,81 @@
       border-radius: 6px;
     }
 
+    /* ── Guidance Stack — Hadith card ────────────────────────── */
+    .hadith-card {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      border-left: 4px solid var(--green-light);
+      border-radius: var(--radius);
+      padding: 22px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .hadith-card-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--green);
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hadith-card-text {
+      font-size: 15px;
+      line-height: 1.75;
+      color: var(--text);
+      font-style: italic;
+    }
+
+    .hadith-card-source {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 10px;
+      letter-spacing: 0.03em;
+    }
+
+    /* ── Guidance Stack — Scholar wisdom card ─────────────────── */
+    .scholar-card {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow-sm);
+      text-align: center;
+    }
+
+    .scholar-card-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-dim);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .scholar-card-text {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text);
+      font-style: italic;
+    }
+
+    .scholar-card-name {
+      font-size: 12px;
+      color: var(--green);
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
     /* ── Empty state ──────────────────────────────────────────── */
     .empty-state {
       text-align: center;
@@ -1270,6 +1345,8 @@
     .fade-up-delay-1 { animation-delay: 0.15s; opacity: 0; }
     .fade-up-delay-2 { animation-delay: 0.3s;  opacity: 0; }
     .fade-up-delay-3 { animation-delay: 0.45s; opacity: 0; }
+    .fade-up-delay-4 { animation-delay: 0.6s;  opacity: 0; }
+    .fade-up-delay-5 { animation-delay: 0.75s; opacity: 0; }
 
     /* ── Ayah swap transition ─────────────────────────────────── */
     @keyframes ayahFadeIn {
@@ -2335,6 +2412,107 @@ const ACTION_STEPS = {
 
 
 /* ────────────────────────────────────────────────────────────────
+   1b. GUIDANCE STACK
+   Related hadith and scholar wisdom for each emotion.
+   Displayed as layered cards below the ayah.
+   Each emotion has 3 entries matching the progression phases.
+   ──────────────────────────────────────────────────────────────── */
+
+const GUIDANCE_STACK = {
+  "Anxiety": [
+    { hadith: "If you put your trust in Allah as you should, He would provide for you as He provides for the birds — they go out hungry in the morning and return full in the evening.", hadithSource: "Tirmidhi 2344", wisdom: "Anxiety does not empty tomorrow of its troubles — it only empties today of its peace.", scholar: "Ibn al-Qayyim" },
+    { hadith: "How wonderful is the affair of the believer, for his affairs are all good. If something good happens to him, he is thankful, and that is good for him. If something bad happens, he bears it with patience, and that is good for him.", hadithSource: "Muslim 2999", wisdom: "The heart will not find rest except in drawing close to the One who created it.", scholar: "Ibn Taymiyyah" },
+    { hadith: "Be in this world as though you were a stranger or a traveller.", hadithSource: "Bukhari 6416", wisdom: "When the world pushes you to your knees, you are in the perfect position to pray.", scholar: "Imam al-Ghazali" }
+  ],
+  "Sadness": [
+    { hadith: "No fatigue, disease, sorrow, sadness, hurt, or distress befalls a Muslim — not even the prick of a thorn — except that Allah expiates some of his sins by it.", hadithSource: "Bukhari 5641", wisdom: "Do not grieve — what is destined will reach you even if it is under two mountains. And what is not destined for you will not reach you even if it is between your two lips.", scholar: "Ibn al-Qayyim" },
+    { hadith: "The Prophet (peace be upon him) would say when distressed: 'O Living, O Sustainer, in Your mercy I seek relief.'", hadithSource: "Tirmidhi 3524", wisdom: "Tears are the silent language of grief, but they are also the prayers your soul cannot speak.", scholar: "Imam al-Ghazali" },
+    { hadith: "Allah does not burden a soul beyond that it can bear.", hadithSource: "Muslim (from Quran 2:286)", wisdom: "Sadness is not a sign of weak faith — even the Prophet wept.", scholar: "Ibn al-Qayyim" }
+  ],
+  "Lack of Motivation": [
+    { hadith: "Take advantage of five before five: your youth before old age, your health before sickness, your wealth before poverty, your free time before busyness, and your life before death.", hadithSource: "Hakim, Bayhaqi", wisdom: "A moment of patience in a moment of anger saves you a thousand moments of regret.", scholar: "Ali ibn Abi Talib" },
+    { hadith: "The strong believer is better and more beloved to Allah than the weak believer, while there is good in both.", hadithSource: "Muslim 2664", wisdom: "Do not wait for motivation — begin, and motivation will follow.", scholar: "Imam al-Ghazali" },
+    { hadith: "Tie your camel, then put your trust in Allah.", hadithSource: "Tirmidhi 2517", wisdom: "Your greatest enemy is the nafs that tells you to wait until tomorrow.", scholar: "Ibn al-Qayyim" }
+  ],
+  "Gratitude": [
+    { hadith: "He who does not thank people, does not thank Allah.", hadithSource: "Abu Dawud 4811", wisdom: "Gratitude is not merely a feeling — it is a way of seeing.", scholar: "Ibn Taymiyyah" },
+    { hadith: "Look at those below you and do not look at those above you, for it is the best way not to belittle Allah's favours on you.", hadithSource: "Muslim 2963", wisdom: "When you are grateful, your blessings increase. This is not metaphor — it is a divine promise.", scholar: "Ibn al-Qayyim" },
+    { hadith: "The first thing the servant will be asked about on the Day of Judgment is: 'Did We not give you a healthy body and quench your thirst with cold water?'", hadithSource: "Tirmidhi 3358", wisdom: "True wealth is the richness of the soul, not what fills the hand.", scholar: "Hasan al-Basri" }
+  ],
+  "Anger": [
+    { hadith: "The strong person is not the one who can wrestle someone else down. The strong person is the one who can control himself when he is angry.", hadithSource: "Bukhari 6114", wisdom: "Anger is a wind that blows out the lamp of the mind.", scholar: "Imam al-Ghazali" },
+    { hadith: "If one of you becomes angry while standing, let him sit down. If it does not go away, let him lie down.", hadithSource: "Abu Dawud 4782", wisdom: "Silence in the face of provocation is one of the highest forms of strength.", scholar: "Ali ibn Abi Talib" },
+    { hadith: "Do not be angry, and Paradise will be yours.", hadithSource: "Tabarani (Sahih)", wisdom: "The one who controls his anger has conquered the strongest enemy within.", scholar: "Ibn Taymiyyah" }
+  ],
+  "Feeling Lost": [
+    { hadith: "Consult your heart. Righteousness is that about which the soul feels at ease and the heart feels tranquil.", hadithSource: "Ahmad 17545", wisdom: "If you feel far from Allah, know that it is you who moved — He never left.", scholar: "Ibn al-Qayyim" },
+    { hadith: "O turner of hearts, keep my heart firm upon Your religion.", hadithSource: "Tirmidhi 2140", wisdom: "Sometimes Allah closes all the doors and forces you into a path that leads straight to Him.", scholar: "Imam al-Ghazali" },
+    { hadith: "Whoever makes the Hereafter his goal, Allah gathers his affairs, places richness in his heart, and the world comes to him willingly.", hadithSource: "Ibn Majah 4105", wisdom: "Being lost is not the end of the road — it is the beginning of finding your way back to Allah.", scholar: "Ibn Taymiyyah" }
+  ],
+  "Fear": [
+    { hadith: "If the whole nation were to gather together to benefit you, they would not benefit you except with what Allah has already written for you.", hadithSource: "Tirmidhi 2516", wisdom: "Fear only the One in whose hand is your soul — everything else is powerless without His permission.", scholar: "Ibn al-Qayyim" },
+    { hadith: "Allah is with those who are patient.", hadithSource: "Bukhari (from Quran 2:153)", wisdom: "Courage is not the absence of fear but the judgement that something else — your trust in Allah — is more important.", scholar: "Imam al-Ghazali" },
+    { hadith: "Nothing will happen to us except what Allah has decreed for us — He is our Protector.", hadithSource: "Muslim (from Quran 9:51)", wisdom: "The heart that fears Allah fears nothing else; the heart that does not fear Allah fears everything.", scholar: "Ibn Taymiyyah" }
+  ],
+  "Loneliness": [
+    { hadith: "Allah says: I am as My servant thinks of Me, and I am with him when he remembers Me.", hadithSource: "Bukhari 7405", wisdom: "If you find yourself lonely, know that Allah brought you to this emptiness so you would fill it only with Him.", scholar: "Ibn al-Qayyim" },
+    { hadith: "Islam began as something strange and will return to being strange — so blessed are the strangers.", hadithSource: "Muslim 145", wisdom: "Sometimes loneliness is Allah removing everyone from your life so you can hear only His voice.", scholar: "Imam al-Ghazali" },
+    { hadith: "Whoever reads Surah Al-Ikhlas, it is as if he has read one-third of the Quran.", hadithSource: "Muslim 811", wisdom: "You are never alone when the Lord of all creation is closer to you than your own jugular vein.", scholar: "Hasan al-Basri" }
+  ],
+  "Grief": [
+    { hadith: "The eyes shed tears, the heart grieves, and we say only what pleases our Lord. We are saddened by your departure, O Ibrahim.", hadithSource: "Bukhari 1303", wisdom: "Grief is the price we pay for love, and love never dies — it simply changes its dwelling to the heart.", scholar: "Ibn al-Qayyim" },
+    { hadith: "Indeed, to Allah we belong and to Him we shall return. O Allah, reward me in my affliction and replace it with something better.", hadithSource: "Muslim 918", wisdom: "The believer does not grieve without hope — for every ending in this world is a beginning in the next.", scholar: "Imam al-Ghazali" },
+    { hadith: "When Allah loves a servant, He tests him.", hadithSource: "Tirmidhi 2396", wisdom: "Your tears for the departed are not a sign of weak faith — they are a sign of a tender heart, and Allah loves the tender-hearted.", scholar: "Ibn Taymiyyah" }
+  ],
+  "Hopelessness": [
+    { hadith: "Know that victory comes with patience, relief comes with affliction, and with hardship comes ease.", hadithSource: "Tirmidhi 2516", wisdom: "Do not despair of the mercy of Allah — despair itself is the only real defeat.", scholar: "Ibn al-Qayyim" },
+    { hadith: "Whoever persists in asking, Allah will give him.", hadithSource: "Bukhari 6340", wisdom: "The darkest hour of the night is just before dawn — hold on.", scholar: "Imam al-Ghazali" },
+    { hadith: "No one who has an atom's weight of faith in his heart will remain in the Fire forever.", hadithSource: "Muslim 93", wisdom: "Hope in Allah is never misplaced. He saved Yunus from the belly of a whale in the depths of the sea — He will save you too.", scholar: "Ibn Taymiyyah" }
+  ],
+  "Impatience": [
+    { hadith: "Patience is a light.", hadithSource: "Muslim 223", wisdom: "Patience is not the ability to wait, but the ability to keep a good attitude while waiting.", scholar: "Ibn al-Qayyim" },
+    { hadith: "No one is given a gift better and more encompassing than patience.", hadithSource: "Bukhari 1469", wisdom: "The fruit of patience is sweet — but only those who endure the bitter taste of waiting ever taste it.", scholar: "Imam al-Ghazali" },
+    { hadith: "Whoever remains patient, Allah will make him patient. And no one is given a better or greater gift than patience.", hadithSource: "Bukhari 1469", wisdom: "In patience there is dignity. In haste there is regret.", scholar: "Ali ibn Abi Talib" }
+  ],
+  "Self-Doubt": [
+    { hadith: "Allah does not look at your appearance or wealth, but He looks at your hearts and deeds.", hadithSource: "Muslim 2564", wisdom: "You are not what whispers tell you. You are what Allah created you to be — and He does not create without purpose.", scholar: "Ibn al-Qayyim" },
+    { hadith: "Every son of Adam is a sinner, but the best sinners are those who repent.", hadithSource: "Tirmidhi 2499", wisdom: "Do not belittle yourself — you carry a soul that the angels themselves were not given.", scholar: "Imam al-Ghazali" },
+    { hadith: "If you relied on Allah as He should be relied on, He would provide for you as He provides for the birds.", hadithSource: "Tirmidhi 2344", wisdom: "Your worth is not measured by what you produce — it was established the moment Allah breathed life into you.", scholar: "Ibn Taymiyyah" }
+  ],
+  "Overwhelmed": [
+    { hadith: "Make things easy for people and do not make them difficult. Give glad tidings and do not drive people away.", hadithSource: "Bukhari 6125", wisdom: "You were not created to carry everything — you were created to surrender it to the One who carries all things.", scholar: "Ibn al-Qayyim" },
+    { hadith: "Allah does not burden a soul beyond what it can bear.", hadithSource: "Bukhari (from Quran 2:286)", wisdom: "When you feel you cannot go on, remember: you are not carrying this alone. Let go and let Allah.", scholar: "Imam al-Ghazali" },
+    { hadith: "Seek help from Allah and do not feel helpless.", hadithSource: "Muslim 2664", wisdom: "The mountain ahead of you is not meant to crush you — it is meant to be climbed, one step at a time.", scholar: "Ibn Taymiyyah" }
+  ],
+  "Jealousy": [
+    { hadith: "Beware of jealousy, for it consumes good deeds just as fire consumes wood.", hadithSource: "Abu Dawud 4903", wisdom: "Jealousy is the thief of contentment. Guard your heart, and be grateful for your own garden.", scholar: "Ibn al-Qayyim" },
+    { hadith: "None of you truly believes until he loves for his brother what he loves for himself.", hadithSource: "Bukhari 13", wisdom: "The cure for envy is to know that what is written for you will never miss you.", scholar: "Imam al-Ghazali" },
+    { hadith: "Look at those below you and do not look at those above you, for it is the best way not to belittle Allah's favours.", hadithSource: "Muslim 2963", wisdom: "When you envy someone, you insult your own destiny. Trust the One who distributed all things.", scholar: "Ibn Taymiyyah" }
+  ],
+  "Guilt": [
+    { hadith: "All the children of Adam make mistakes, and the best of those who make mistakes are those who repent.", hadithSource: "Tirmidhi 2499", wisdom: "Guilt is the soul's way of telling you it still knows right from wrong — that is not weakness, that is your fitrah.", scholar: "Ibn al-Qayyim" },
+    { hadith: "Allah extends His hand at night to accept the repentance of the one who sinned during the day, and He extends His hand during the day to accept the repentance of the one who sinned at night.", hadithSource: "Muslim 2759", wisdom: "Do not let your sin make you forget the vastness of His mercy.", scholar: "Imam al-Ghazali" },
+    { hadith: "If you did not sin, Allah would replace you with people who would sin and then seek His forgiveness, and He would forgive them.", hadithSource: "Muslim 2749", wisdom: "Tawbah is not a sign of failure — it is the most honourable return a soul can make.", scholar: "Ibn Taymiyyah" }
+  ],
+  "Confusion": [
+    { hadith: "None of you should wish for death because of a calamity. If he must, let him say: O Allah, keep me alive so long as life is good for me, and cause me to die when death is better for me.", hadithSource: "Bukhari 5671", wisdom: "When you cannot see the way forward, stand still and ask the One who sees everything.", scholar: "Ibn al-Qayyim" },
+    { hadith: "Consult your heart. Righteousness is that about which the soul feels at ease.", hadithSource: "Ahmad 17545", wisdom: "Clarity comes to the one who prays, not the one who overthinks.", scholar: "Imam al-Ghazali" },
+    { hadith: "O Allah, I ask You for guidance, piety, chastity, and self-sufficiency.", hadithSource: "Muslim 2721", wisdom: "If you are torn between two paths, choose the one that brings you closer to Allah — you will never be lost.", scholar: "Ibn Taymiyyah" }
+  ],
+  "Heartbreak": [
+    { hadith: "When Allah takes something from you, He is not punishing you — He is emptying your hands for something better.", hadithSource: "Attributed (widely cited)", wisdom: "A broken heart that turns to Allah becomes the strongest heart of all.", scholar: "Ibn al-Qayyim" },
+    { hadith: "If Allah wants good for someone, He tests him.", hadithSource: "Bukhari 5645", wisdom: "Love that is lost in this world is never wasted — it teaches the heart to seek the love that never ends.", scholar: "Imam al-Ghazali" },
+    { hadith: "O Allah, reward me in my calamity and replace it with something better.", hadithSource: "Muslim 918", wisdom: "Sometimes the person who broke you was the bridge that led you back to your Lord.", scholar: "Ibn Taymiyyah" }
+  ],
+  "Thankfulness": [
+    { hadith: "He who does not thank people, does not thank Allah.", hadithSource: "Abu Dawud 4811", wisdom: "The thankful heart sees blessings even in trials.", scholar: "Ibn al-Qayyim" },
+    { hadith: "Remember Allah in times of ease and He will remember you in times of hardship.", hadithSource: "Tirmidhi 2516", wisdom: "Shukr is the highest station of the heart — higher even than sabr.", scholar: "Imam al-Ghazali" },
+    { hadith: "If you are grateful, I will surely increase you in favour.", hadithSource: "Bukhari (from Quran 14:7)", wisdom: "Gratitude does not just change your perspective — it changes your reality.", scholar: "Ibn Taymiyyah" }
+  ]
+};
+
+
+/* ────────────────────────────────────────────────────────────────
    2. STATE
    ──────────────────────────────────────────────────────────────── */
 
@@ -2715,6 +2893,7 @@ function showResult(emotionStr) {
   const phaseInfo   = getPhaseLabel(phase);
   const actionSteps = ACTION_STEPS[emotion] || ACTION_STEPS['Anxiety'];
   const actionStep  = actionSteps[index] || actionSteps[0];
+  const guidance    = (GUIDANCE_STACK[emotion] || GUIDANCE_STACK['Anxiety'])[index] || (GUIDANCE_STACK[emotion] || GUIDANCE_STACK['Anxiety'])[0];
 
   resultContent.innerHTML = `
     <!-- Matched emotion label -->
@@ -2741,8 +2920,22 @@ function showResult(emotionStr) {
       <p style="font-size:12px;color:var(--text-muted);">${entry.explanation}</p>
     </div>
 
+    <!-- Hadith card -->
+    <div class="hadith-card fade-up fade-up-delay-2" id="hadithDisplay">
+      <div class="hadith-card-label">📖 Related Hadith</div>
+      <div class="hadith-card-text">"${guidance.hadith}"</div>
+      <div class="hadith-card-source">— ${guidance.hadithSource}</div>
+    </div>
+
+    <!-- Scholar wisdom -->
+    <div class="scholar-card fade-up fade-up-delay-3" id="scholarDisplay">
+      <div class="scholar-card-label">✨ Words of Wisdom</div>
+      <div class="scholar-card-text">"${guidance.wisdom}"</div>
+      <div class="scholar-card-name">— ${guidance.scholar}</div>
+    </div>
+
     <!-- Action step -->
-    <div class="action-step fade-up fade-up-delay-2">
+    <div class="action-step fade-up fade-up-delay-4">
       <div class="action-step-icon">🕋</div>
       <div>
         <div class="action-step-label">Act on this now</div>
@@ -2751,7 +2944,7 @@ function showResult(emotionStr) {
     </div>
 
     <!-- Reflection section -->
-    <div class="card fade-up fade-up-delay-2">
+    <div class="card fade-up fade-up-delay-4">
       <div class="section-title">Reflect</div>
       <label style="font-size:13px;color:var(--text-muted);display:block;margin-bottom:6px;">
         What did you learn from this ayah?
@@ -2774,7 +2967,7 @@ function showResult(emotionStr) {
     </div>
 
     <!-- Action buttons -->
-    <div class="fade-up fade-up-delay-3" style="text-align:center;margin-top:8px;padding-bottom:20px;">
+    <div class="fade-up fade-up-delay-5" style="text-align:center;margin-top:8px;padding-bottom:20px;">
       <button class="btn-ghost" id="anotherAyahBtn" style="margin-right:8px;">
         Show Another Ayah
       </button>
@@ -2858,6 +3051,19 @@ function showResult(emotionStr) {
       /* Also update the action step */
       const actionEl = document.querySelector('.action-step-text');
       if (actionEl) actionEl.textContent = newAction;
+
+      /* Update guidance stack */
+      const newGuidance = (GUIDANCE_STACK[newMatch.emotion] || GUIDANCE_STACK['Anxiety'])[newMatch.index] || (GUIDANCE_STACK[newMatch.emotion] || GUIDANCE_STACK['Anxiety'])[0];
+      const hadithEl = document.getElementById('hadithDisplay');
+      if (hadithEl) {
+        hadithEl.querySelector('.hadith-card-text').textContent = '"' + newGuidance.hadith + '"';
+        hadithEl.querySelector('.hadith-card-source').textContent = '— ' + newGuidance.hadithSource;
+      }
+      const scholarEl = document.getElementById('scholarDisplay');
+      if (scholarEl) {
+        scholarEl.querySelector('.scholar-card-text').textContent = '"' + newGuidance.wisdom + '"';
+        scholarEl.querySelector('.scholar-card-name').textContent = '— ' + newGuidance.scholar;
+      }
 
       requestAnimationFrame(() => {
         ayahCard.style.opacity = '1';
@@ -3623,6 +3829,8 @@ function renderDaily() {
   const entry = group.entries[daySeed % group.entries.length];
   const actionSteps = ACTION_STEPS[group.emotion] || ACTION_STEPS['Anxiety'];
   const actionStep  = actionSteps[daySeed % actionSteps.length];
+  const dailyIdx = daySeed % (group.entries.length);
+  const dailyGuidance = (GUIDANCE_STACK[group.emotion] || GUIDANCE_STACK['Anxiety'])[dailyIdx] || (GUIDANCE_STACK[group.emotion] || GUIDANCE_STACK['Anxiety'])[0];
 
   content.innerHTML = `
     ${topEmotion ? `<p style="text-align:center;font-size:12px;color:var(--text-muted);margin-bottom:16px;">
@@ -3640,7 +3848,19 @@ function renderDaily() {
       <p style="font-size:13px;color:var(--text-muted);">${entry.explanation}</p>
     </div>
 
-    <div class="action-step fade-up fade-up-delay-1">
+    <div class="hadith-card fade-up fade-up-delay-1">
+      <div class="hadith-card-label">📖 Related Hadith</div>
+      <div class="hadith-card-text">"${dailyGuidance.hadith}"</div>
+      <div class="hadith-card-source">— ${dailyGuidance.hadithSource}</div>
+    </div>
+
+    <div class="scholar-card fade-up fade-up-delay-2">
+      <div class="scholar-card-label">✨ Words of Wisdom</div>
+      <div class="scholar-card-text">"${dailyGuidance.wisdom}"</div>
+      <div class="scholar-card-name">— ${dailyGuidance.scholar}</div>
+    </div>
+
+    <div class="action-step fade-up fade-up-delay-3">
       <div class="action-step-icon">🕋</div>
       <div>
         <div class="action-step-label">Act on this now</div>
@@ -3648,14 +3868,14 @@ function renderDaily() {
       </div>
     </div>
 
-    <div class="card fade-up fade-up-delay-1">
+    <div class="card fade-up fade-up-delay-4">
       <div class="explanation">
         <strong>Reflection prompt:</strong><br />
         ${entry.reason}
       </div>
     </div>
 
-    <div style="text-align:center;margin-top:12px;">
+    <div style="text-align:center;margin-top:12px;" class="fade-up fade-up-delay-5">
       <button class="btn-ghost" id="dailyFocusBtn">
         🎬 Cinematic Ayah
       </button>
