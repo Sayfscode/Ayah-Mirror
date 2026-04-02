@@ -576,85 +576,610 @@
       color: #1e88e5;
     }
 
-    /* ── Focus / Deep Mode overlay ────────────────────────────── */
-    .focus-overlay {
+    /* ══════════════════════════════════════════════════════════════
+       CINEMATIC NATURE REFLECTION MODE
+       Fullscreen immersive experience with animated backgrounds,
+       ambient audio, staged ayah reveal, and guided reflection.
+       ══════════════════════════════════════════════════════════════ */
+
+    /* ── Cinematic overlay — fullscreen container ─────────────── */
+    .cinematic-overlay {
       position: fixed;
       inset: 0;
       z-index: 200;
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 32px 24px;
+      background: #000;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.4s ease;
+      transition: opacity 1s ease;
+      overflow: hidden;
     }
 
-    .focus-overlay.active {
+    .cinematic-overlay.active {
       opacity: 1;
       pointer-events: auto;
     }
 
-    .focus-timer {
-      font-size: 48px;
-      font-weight: 200;
-      color: var(--green);
-      margin-bottom: 32px;
+    /* ── Animated nature background layer ─────────────────────── */
+    .cinematic-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    /* ── Dark overlay on top of background ────────────────────── */
+    .cinematic-dark-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: rgba(0, 0, 0, 0.50);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+
+    /* ── Content layer — scrollable, centered ─────────────────── */
+    .cinematic-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100%;
+      padding: 32px 24px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* ── Top bar inside cinematic (timer + controls) ──────────── */
+    .cinematic-topbar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+    }
+
+    .cinematic-timer {
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.6);
       font-variant-numeric: tabular-nums;
       letter-spacing: 0.05em;
     }
 
-    .focus-ayah {
-      max-width: 400px;
-      text-align: center;
-      margin-bottom: 32px;
-    }
-
-    .focus-ayah .arabic {
-      text-align: center;
-      font-size: 28px;
-      border-bottom: none;
-      margin-bottom: 16px;
-      padding-bottom: 0;
-    }
-
-    .focus-ayah .translation {
-      text-align: center;
-      font-size: 17px;
-      color: var(--text-muted);
-    }
-
-    .focus-ayah .verse-ref {
-      text-align: center;
-      margin-top: 12px;
-    }
-
-    .focus-exit {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      padding: 10px 24px;
-      border-radius: 24px;
+    .cinematic-sound-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      color: rgba(255,255,255,0.7);
       font-family: var(--font);
-      font-size: 13px;
+      font-size: 12px;
+      padding: 6px 12px;
       cursor: pointer;
       transition: all 0.3s ease;
-      margin-top: 16px;
     }
 
-    .focus-exit:hover {
-      border-color: var(--green);
-      color: var(--green);
+    .cinematic-sound-btn:hover {
+      background: rgba(255,255,255,0.18);
+      color: #fff;
     }
 
-    .focus-prompt {
-      font-size: 12px;
-      color: var(--text-dim);
-      margin-top: 24px;
+    .cinematic-sound-btn:active { transform: scale(0.95); }
+
+    /* ── Volume slider ────────────────────────────────────────── */
+    .cinematic-volume {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cinematic-volume input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 80px;
+      height: 4px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .cinematic-volume input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.8);
+      cursor: pointer;
+    }
+
+    /* ── Ayah display inside cinematic ────────────────────────── */
+    .cinematic-ayah {
+      max-width: 500px;
       text-align: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 1.2s ease, transform 1.2s ease;
+    }
+
+    .cinematic-ayah.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .cinematic-ayah .arabic {
+      font-family: var(--font-arabic);
+      font-size: 30px;
+      line-height: 2;
+      color: rgba(255,255,255,0.95);
+      text-align: center;
+      direction: rtl;
+      padding: 0;
+      border: none;
+      margin-bottom: 20px;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    }
+
+    .cinematic-ayah .translation {
+      font-size: 18px;
+      line-height: 1.8;
+      color: rgba(255,255,255,0.80);
       font-style: italic;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+      margin-bottom: 12px;
+    }
+
+    .cinematic-ayah .translation.visible { opacity: 1; }
+
+    .cinematic-ayah .verse-ref {
+      font-size: 12px;
+      color: rgba(129,199,132,0.8);
+      letter-spacing: 0.06em;
+      font-weight: 600;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    .cinematic-ayah .verse-ref.visible { opacity: 1; }
+
+    /* ── Reflection prompt cards ──────────────────────────────── */
+    .cinematic-reflection {
+      max-width: 440px;
+      width: 100%;
+      margin-top: 32px;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .cinematic-reflection.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .cinematic-reflection-prompt {
+      font-size: 16px;
+      color: rgba(255,255,255,0.85);
+      text-align: center;
+      line-height: 1.7;
+      margin-bottom: 16px;
+      font-style: italic;
+    }
+
+    .cinematic-reflection textarea {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: var(--radius-sm);
+      color: rgba(255,255,255,0.9);
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.6;
+      resize: vertical;
+      min-height: 60px;
+      outline: none;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .cinematic-reflection textarea:focus {
+      border-color: rgba(129,199,132,0.5);
+      box-shadow: 0 0 0 3px rgba(76,175,80,0.15);
+    }
+
+    .cinematic-reflection textarea::placeholder {
+      color: rgba(255,255,255,0.3);
+    }
+
+    /* ── Cinematic buttons ────────────────────────────────────── */
+    .cinematic-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 28px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 28px;
+      color: rgba(255,255,255,0.85);
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease, transform 0.15s ease;
+      margin: 6px;
+    }
+
+    .cinematic-btn:hover {
+      background: rgba(255,255,255,0.18);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .cinematic-btn:active { transform: scale(0.96); }
+
+    .cinematic-btn.primary {
+      background: linear-gradient(135deg, rgba(76,175,80,0.5), rgba(129,199,132,0.4));
+      border-color: rgba(129,199,132,0.4);
+    }
+
+    .cinematic-btn.primary:hover {
+      background: linear-gradient(135deg, rgba(76,175,80,0.65), rgba(129,199,132,0.55));
+    }
+
+    /* ── Wisdom card ──────────────────────────────────────────── */
+    .cinematic-wisdom {
+      max-width: 440px;
+      text-align: center;
+      padding: 24px;
+      margin-top: 24px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius);
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .cinematic-wisdom.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .cinematic-wisdom-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(129,199,132,0.7);
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .cinematic-wisdom-text {
+      font-size: 17px;
+      color: rgba(255,255,255,0.9);
+      line-height: 1.7;
+      font-style: italic;
+    }
+
+    /* ── Action step inside cinematic ─────────────────────────── */
+    .cinematic-action {
+      max-width: 440px;
+      width: 100%;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 18px;
+      margin-top: 20px;
+      background: rgba(76,175,80,0.1);
+      border: 1px solid rgba(129,199,132,0.2);
+      border-radius: var(--radius);
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .cinematic-action.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .cinematic-action-icon { font-size: 22px; flex-shrink: 0; }
+
+    .cinematic-action-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(129,199,132,0.8);
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .cinematic-action-text {
+      font-size: 14px;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.6;
+    }
+
+    /* ── Exit message ─────────────────────────────────────────── */
+    .cinematic-farewell {
+      text-align: center;
+      opacity: 0;
+      transition: opacity 1.5s ease;
+    }
+
+    .cinematic-farewell.visible { opacity: 1; }
+
+    .cinematic-farewell-text {
+      font-size: 22px;
+      color: rgba(255,255,255,0.9);
+      font-weight: 300;
+      letter-spacing: 0.04em;
+      margin-bottom: 24px;
+    }
+
+    /* ── Environment selector (Focus screen) ─────────────────── */
+    .env-selector {
+      margin-bottom: 24px;
+    }
+
+    .env-selector-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .env-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .env-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 16px 10px;
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all var(--transition), transform 0.15s ease;
+      user-select: none;
+    }
+
+    .env-card:hover {
+      border-color: var(--green-light);
+      background: var(--green-glow);
+    }
+
+    .env-card:active { transform: scale(0.96); }
+
+    .env-card.selected {
+      border-color: var(--green);
+      background: var(--green-soft);
+      box-shadow: 0 0 0 2px rgba(31,122,77,0.15);
+    }
+
+    .env-card-icon { font-size: 28px; }
+    .env-card-name { font-size: 13px; font-weight: 600; color: var(--text); }
+
+    /* Sound pills */
+    .sound-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .sound-pill {
+      padding: 8px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-family: var(--font);
+      font-size: 12px;
+      color: var(--text);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .sound-pill:hover {
+      border-color: var(--green-light);
+      background: var(--green-glow);
+    }
+
+    .sound-pill.selected {
+      border-color: var(--green);
+      background: var(--green-soft);
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    /* ═══ ANIMATED NATURE BACKGROUNDS ═════════════════════════════
+       Pure CSS animated scenes — no video files needed.
+       Each theme creates an immersive nature atmosphere.
+       ═════════════════════════════════════════════════════════════ */
+
+    /* ── Rain ──────────────────────────────────────────────────── */
+    .bg-rain {
+      background: linear-gradient(180deg, #1a2a3a 0%, #2c3e50 40%, #1a2530 100%);
+    }
+
+    .bg-rain::before,
+    .bg-rain::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .bg-rain::before {
+      background-image:
+        linear-gradient(transparent 90%, rgba(174,194,224,0.15) 90%, rgba(174,194,224,0.15) 91%, transparent 91%);
+      background-size: 1px 22px;
+      animation: rainFall 0.7s linear infinite;
+      opacity: 0.7;
+    }
+
+    .bg-rain::after {
+      background-image:
+        linear-gradient(transparent 88%, rgba(174,194,224,0.1) 88%, rgba(174,194,224,0.1) 89%, transparent 89%);
+      background-size: 2px 30px;
+      animation: rainFall 0.9s linear infinite;
+      animation-delay: -0.3s;
+      opacity: 0.5;
+    }
+
+    @keyframes rainFall {
+      from { background-position: 0 -30px; }
+      to   { background-position: 0 0; }
+    }
+
+    /* ── Ocean ─────────────────────────────────────────────────── */
+    .bg-ocean {
+      background: linear-gradient(180deg, #0c1929 0%, #163d5c 40%, #1a5276 70%, #1a3c52 100%);
+    }
+
+    .bg-ocean::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: -50%;
+      right: -50%;
+      height: 60%;
+      background:
+        radial-gradient(ellipse 120% 60% at 30% 80%, rgba(26,82,118,0.6) 0%, transparent 70%),
+        radial-gradient(ellipse 100% 50% at 70% 70%, rgba(22,61,92,0.5) 0%, transparent 60%);
+      animation: oceanWave 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .bg-ocean::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: -30%;
+      right: -30%;
+      height: 40%;
+      background:
+        radial-gradient(ellipse 150% 80% at 60% 90%, rgba(41,128,185,0.2) 0%, transparent 60%);
+      animation: oceanWave 8s ease-in-out infinite reverse;
+      pointer-events: none;
+    }
+
+    @keyframes oceanWave {
+      0%, 100% { transform: translateX(-2%) translateY(0); }
+      50%      { transform: translateX(2%) translateY(-8px); }
+    }
+
+    /* ── Forest ────────────────────────────────────────────────── */
+    .bg-forest {
+      background: linear-gradient(180deg, #0d1f0d 0%, #1a3a1a 30%, #2d5a2d 60%, #1a3a1a 100%);
+    }
+
+    .bg-forest::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 25% 30%, rgba(255,223,100,0.08) 0%, transparent 40%),
+        radial-gradient(circle at 60% 20%, rgba(255,223,100,0.06) 0%, transparent 35%),
+        radial-gradient(circle at 80% 50%, rgba(255,223,100,0.04) 0%, transparent 30%);
+      animation: dappleLight 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .bg-forest::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 40% 60%, rgba(76,175,80,0.05) 0%, transparent 50%),
+        radial-gradient(circle at 70% 80%, rgba(56,142,60,0.04) 0%, transparent 40%);
+      animation: dappleLight 12s ease-in-out infinite reverse;
+      pointer-events: none;
+    }
+
+    @keyframes dappleLight {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50%      { opacity: 1; transform: scale(1.05); }
+    }
+
+    /* ── Night sky ─────────────────────────────────────────────── */
+    .bg-night {
+      background: linear-gradient(180deg, #05080f 0%, #0a1628 40%, #101d36 70%, #0a1220 100%);
+    }
+
+    .bg-night::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.7) 50%, transparent 50%),
+        radial-gradient(1px 1px at 25% 35%, rgba(255,255,255,0.5) 50%, transparent 50%),
+        radial-gradient(1.5px 1.5px at 45% 10%, rgba(255,255,255,0.8) 50%, transparent 50%),
+        radial-gradient(1px 1px at 60% 45%, rgba(255,255,255,0.4) 50%, transparent 50%),
+        radial-gradient(1px 1px at 75% 20%, rgba(255,255,255,0.6) 50%, transparent 50%),
+        radial-gradient(1.5px 1.5px at 85% 55%, rgba(255,255,255,0.5) 50%, transparent 50%),
+        radial-gradient(1px 1px at 15% 65%, rgba(255,255,255,0.4) 50%, transparent 50%),
+        radial-gradient(1px 1px at 35% 80%, rgba(255,255,255,0.6) 50%, transparent 50%),
+        radial-gradient(1.5px 1.5px at 55% 70%, rgba(255,255,255,0.5) 50%, transparent 50%),
+        radial-gradient(1px 1px at 90% 30%, rgba(255,255,255,0.7) 50%, transparent 50%),
+        radial-gradient(1px 1px at 5% 90%, rgba(255,255,255,0.3) 50%, transparent 50%),
+        radial-gradient(1px 1px at 70% 85%, rgba(255,255,255,0.5) 50%, transparent 50%),
+        radial-gradient(2px 2px at 50% 50%, rgba(255,255,255,0.6) 50%, transparent 50%),
+        radial-gradient(1px 1px at 30% 5%, rgba(255,255,255,0.5) 50%, transparent 50%),
+        radial-gradient(1px 1px at 95% 75%, rgba(255,255,255,0.4) 50%, transparent 50%);
+      animation: twinkle 4s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .bg-night::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 20% 25%, rgba(255,255,255,0.5) 50%, transparent 50%),
+        radial-gradient(1.5px 1.5px at 40% 55%, rgba(255,255,255,0.6) 50%, transparent 50%),
+        radial-gradient(1px 1px at 65% 15%, rgba(255,255,255,0.4) 50%, transparent 50%),
+        radial-gradient(1px 1px at 80% 65%, rgba(255,255,255,0.7) 50%, transparent 50%),
+        radial-gradient(1px 1px at 50% 35%, rgba(255,255,255,0.3) 50%, transparent 50%),
+        radial-gradient(1px 1px at 12% 48%, rgba(255,255,255,0.5) 50%, transparent 50%),
+        radial-gradient(1.5px 1.5px at 88% 42%, rgba(255,255,255,0.4) 50%, transparent 50%),
+        radial-gradient(1px 1px at 33% 92%, rgba(255,255,255,0.6) 50%, transparent 50%);
+      animation: twinkle 5s ease-in-out infinite reverse;
+      pointer-events: none;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.5; }
+      50%      { opacity: 1; }
+    }
+
+    /* ── Breathing animation (subtle pulse) ───────────────────── */
+    @keyframes breathe {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.015); }
+    }
+
+    .cinematic-breathe {
+      animation: breathe 6s ease-in-out infinite;
     }
 
     /* ── Journal tabs ─────────────────────────────────────────── */
@@ -1047,17 +1572,54 @@
       <div id="dailyContent"></div>
     </div>
 
-    <!-- ─── FOCUS / DEEP MODE SCREEN ─────────────────────────── -->
+    <!-- ─── NATURE REFLECTION MODE SCREEN ────────────────────── -->
     <div class="screen" id="screen-focus">
       <div class="focus-start-card">
-        <div class="icon">🕌</div>
-        <h2>1-Minute Deep Mode</h2>
+        <div class="icon">🌿</div>
+        <h2>Nature Reflection</h2>
         <p>
-          Step away from distractions.<br />
-          One ayah. One minute. Just you and the words of Allah.
+          Immerse yourself in nature.<br />
+          One ayah. Calm sounds. Deep reflection with the words of Allah.
         </p>
-        <button class="btn-primary" id="startFocusBtn" style="max-width:240px;margin:0 auto;">
-          Begin Deep Reflection
+
+        <!-- Environment selector -->
+        <div class="env-selector">
+          <div class="env-selector-title">Choose your scene</div>
+          <div class="env-grid" id="envGrid">
+            <button class="env-card selected" data-env="rain">
+              <span class="env-card-icon">🌧️</span>
+              <span class="env-card-name">Rain</span>
+            </button>
+            <button class="env-card" data-env="ocean">
+              <span class="env-card-icon">🌊</span>
+              <span class="env-card-name">Ocean</span>
+            </button>
+            <button class="env-card" data-env="forest">
+              <span class="env-card-icon">🌲</span>
+              <span class="env-card-name">Forest</span>
+            </button>
+            <button class="env-card" data-env="night">
+              <span class="env-card-icon">🌙</span>
+              <span class="env-card-name">Night Sky</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Sound selector -->
+        <div class="env-selector">
+          <div class="env-selector-title">Ambient sound</div>
+          <div class="sound-pills" id="soundPills">
+            <button class="sound-pill selected" data-sound="rain">🌧️ Rain</button>
+            <button class="sound-pill" data-sound="river">💧 River</button>
+            <button class="sound-pill" data-sound="ocean">🌊 Ocean</button>
+            <button class="sound-pill" data-sound="forest">🍃 Forest</button>
+            <button class="sound-pill" data-sound="thunder">⛈️ Thunder</button>
+            <button class="sound-pill" data-sound="silence">🤫 Silence</button>
+          </div>
+        </div>
+
+        <button class="btn-primary" id="startFocusBtn" style="max-width:280px;margin:0 auto;">
+          🌿 Enter Nature Reflection
         </button>
       </div>
     </div>
@@ -1118,8 +1680,8 @@
       Daily
     </button>
     <button class="nav-btn" data-screen="focus">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-      Focus
+      <svg viewBox="0 0 24 24"><path d="M12 3c-1.5 0-3 .5-4.2 1.4C6 5.6 5 7.7 5 10c0 4 3.5 7.5 6 10.5 0 0 .7-.8 1.5-1.8M19 10c0-2.3-1-4.4-2.8-5.6C15 3.5 13.5 3 12 3"/><circle cx="12" cy="10" r="2"/></svg>
+      Nature
     </button>
     <button class="nav-btn" data-screen="journal">
       <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
@@ -1132,12 +1694,28 @@
 
 </div>
 
-<!-- ═══ FOCUS MODE OVERLAY (fullscreen when active) ════════════ -->
-<div class="focus-overlay" id="focusOverlay">
-  <div class="focus-timer" id="focusTimer">1:00</div>
-  <div class="focus-ayah" id="focusAyah"></div>
-  <div class="focus-prompt" id="focusPrompt">Breathe. Reflect. Let the words settle in your heart.</div>
-  <button class="focus-exit" id="focusExit">End Reflection</button>
+<!-- ═══ CINEMATIC NATURE REFLECTION OVERLAY ═══════════════════ -->
+<div class="cinematic-overlay" id="cinematicOverlay">
+
+  <!-- Layer 1: Animated nature background -->
+  <div class="cinematic-bg bg-rain" id="cinematicBg"></div>
+
+  <!-- Layer 2: Dark overlay + subtle blur -->
+  <div class="cinematic-dark-layer"></div>
+
+  <!-- Top bar: timer + sound controls -->
+  <div class="cinematic-topbar">
+    <div class="cinematic-timer" id="cinematicTimer">2:00</div>
+    <div class="cinematic-volume">
+      <button class="cinematic-sound-btn" id="cinematicMuteBtn">🔊</button>
+      <input type="range" min="0" max="100" value="30" id="cinematicVolume" />
+    </div>
+  </div>
+
+  <!-- Layer 3: Content — all cinematic steps appear here -->
+  <div class="cinematic-content" id="cinematicContent">
+    <!-- Filled dynamically by JS -->
+  </div>
 </div>
 
 <!-- ═══ PASSCODE OVERLAY ══════════════════════════════════════ -->
@@ -2272,7 +2850,7 @@ function showResult(emotionStr) {
         Show Another Ayah
       </button>
       <button class="btn-ghost" id="enterFocusFromResult">
-        Deep Reflect
+        🌿 Nature Reflect
       </button>
       <div style="margin-top:10px;">
         <button class="btn-ghost" id="backHomeBtn">
@@ -2394,61 +2972,552 @@ customInput.addEventListener('keydown', (e) => {
 });
 
 
-/* ────────────────────────────────────────────────────────────────
-   10. FOCUS / DEEP MODE
-   Shows one ayah in a distraction-free fullscreen overlay
-   with an optional 60-second countdown timer.
-   ──────────────────────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════════════════
+   10. CINEMATIC NATURE REFLECTION MODE
+   An immersive fullscreen experience with animated nature scenes,
+   procedural ambient audio (Web Audio API), staged ayah reveal,
+   guided reflection prompts, and graceful auto-exit.
+   ════════════════════════════════════════════════════════════════ */
 
-const focusOverlay = document.getElementById('focusOverlay');
-const focusTimer   = document.getElementById('focusTimer');
-const focusAyah    = document.getElementById('focusAyah');
-const focusExit    = document.getElementById('focusExit');
-let focusInterval  = null;
+/* ── DOM references ───────────────────────────────────────────── */
+const cinematicOverlay  = document.getElementById('cinematicOverlay');
+const cinematicBg       = document.getElementById('cinematicBg');
+const cinematicContent  = document.getElementById('cinematicContent');
+const cinematicTimerEl  = document.getElementById('cinematicTimer');
+const cinematicMuteBtn  = document.getElementById('cinematicMuteBtn');
+const cinematicVolumeEl = document.getElementById('cinematicVolume');
 
+/* ── Cinematic state ──────────────────────────────────────────── */
+let cinematicInterval   = null;   // countdown timer
+let cinematicStepTimer  = null;   // setTimeout chain for staged reveals
+let audioCtx            = null;   // Web Audio context
+let ambientNodes        = [];     // active audio nodes for cleanup
+let selectedEnv         = 'rain';
+let selectedSound       = 'rain';
+let isMuted             = false;
+const CINEMATIC_KEY     = 'ayah_mirror_cinematic_reflections';
+
+/* ── One-line wisdom takeaways — keyed by emotion ─────────────── */
+const WISDOM_LINES = {
+  "Anxiety":           "Peace is not the absence of storms — it is trusting the One who calms them.",
+  "Sadness":           "Your tears are not weakness — they are prayers your heart could not speak.",
+  "Lack of Motivation":"The smallest step taken with bismillah outweighs a thousand plans left unstarted.",
+  "Gratitude":         "The richest person is not who has the most — but who notices the most.",
+  "Anger":             "Strength is not in the strike — it is in the breath you take before you respond.",
+  "Feeling Lost":      "You are not lost — you are being redirected by the Best of Planners.",
+  "Fear":              "Courage is not fearlessness — it is trusting Allah while your hands still tremble.",
+  "Loneliness":        "You are never truly alone — the One who created you never leaves your side.",
+  "Grief":             "What you love does not disappear — it changes address to the care of Allah.",
+  "Hopelessness":      "Dawn has never once failed to follow the darkest part of the night.",
+  "Impatience":        "Allah's timing is perfect — what is delayed is not denied.",
+  "Self-Doubt":        "Allah placed you here on purpose — you are not an accident, you are an ayah.",
+  "Overwhelmed":       "You were never asked to carry everything — only to take the next step.",
+  "Jealousy":          "Your rizq was written before you were born — no one can take what is yours.",
+  "Guilt":             "The door of tawbah is open right now — walk through it and don't look back.",
+  "Confusion":         "Clarity is a gift from Allah — ask for it in sajdah and then be patient.",
+  "Heartbreak":        "A broken heart that turns to Allah becomes the strongest heart of all.",
+  "Thankfulness":      "Gratitude does not change what you have — it changes how you see everything."
+};
+
+/* ── Reflection prompts shown one by one ──────────────────────── */
+const REFLECTION_PROMPTS = [
+  "What part of this ayah touches you the most?",
+  "Why do you think this ayah was shown to you right now?",
+  "What will you do differently after this?"
+];
+
+
+/* ════════════════════════════════════════════════════════════════
+   10a. WEB AUDIO API — PROCEDURAL AMBIENT SOUNDS
+   Generates rain, river, ocean, forest, and thunder using
+   noise generators and filters. No audio files needed.
+   ════════════════════════════════════════════════════════════════ */
+
+function getAudioCtx() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+
+/** Create a white noise buffer source */
+function createNoise(ctx, duration) {
+  const bufferSize = ctx.sampleRate * duration;
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = Math.random() * 2 - 1;
+  }
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+  source.loop = true;
+  return source;
+}
+
+/** Build the ambient sound graph for a given type */
+function startAmbientSound(type) {
+  stopAmbientSound();
+  if (type === 'silence') return;
+
+  const ctx = getAudioCtx();
+  const masterGain = ctx.createGain();
+  const vol = cinematicVolumeEl.value / 100;
+  masterGain.gain.value = isMuted ? 0 : vol * 0.6;
+  masterGain.connect(ctx.destination);
+
+  /* Store master gain so volume slider can adjust it */
+  ambientNodes._masterGain = masterGain;
+
+  if (type === 'rain') {
+    /* Rain = high-pass filtered noise + occasional drip peaks */
+    const noise = createNoise(ctx, 2);
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass'; hp.frequency.value = 4000; hp.Q.value = 0.5;
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = 9000;
+    const gain = ctx.createGain(); gain.gain.value = 0.8;
+    noise.connect(hp); hp.connect(lp); lp.connect(gain); gain.connect(masterGain);
+    noise.start();
+    ambientNodes.push(noise);
+
+    /* Deeper rain layer */
+    const noise2 = createNoise(ctx, 3);
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass'; bp.frequency.value = 800; bp.Q.value = 0.3;
+    const gain2 = ctx.createGain(); gain2.gain.value = 0.3;
+    noise2.connect(bp); bp.connect(gain2); gain2.connect(masterGain);
+    noise2.start();
+    ambientNodes.push(noise2);
+  }
+
+  else if (type === 'river') {
+    /* River = mid-band noise with slow modulation */
+    const noise = createNoise(ctx, 2);
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass'; bp.frequency.value = 600; bp.Q.value = 0.4;
+    const gain = ctx.createGain(); gain.gain.value = 0.7;
+    noise.connect(bp); bp.connect(gain); gain.connect(masterGain);
+    noise.start();
+    ambientNodes.push(noise);
+
+    /* Gentle babble layer */
+    const noise2 = createNoise(ctx, 1.5);
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass'; hp.frequency.value = 2000;
+    const gain2 = ctx.createGain(); gain2.gain.value = 0.2;
+    /* Slow LFO on babble volume */
+    const lfo = ctx.createOscillator();
+    lfo.frequency.value = 0.3;
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.value = 0.15;
+    lfo.connect(lfoGain); lfoGain.connect(gain2.gain);
+    noise2.connect(hp); hp.connect(gain2); gain2.connect(masterGain);
+    noise2.start(); lfo.start();
+    ambientNodes.push(noise2, lfo);
+  }
+
+  else if (type === 'ocean') {
+    /* Ocean = low-pass noise with slow oscillating volume (waves) */
+    const noise = createNoise(ctx, 4);
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = 1200; lp.Q.value = 0.5;
+    const gain = ctx.createGain(); gain.gain.value = 0.6;
+    /* Slow wave oscillation */
+    const lfo = ctx.createOscillator();
+    lfo.frequency.value = 0.12;
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.value = 0.35;
+    lfo.connect(lfoGain); lfoGain.connect(gain.gain);
+    noise.connect(lp); lp.connect(gain); gain.connect(masterGain);
+    noise.start(); lfo.start();
+    ambientNodes.push(noise, lfo);
+
+    /* Distant hiss layer */
+    const noise2 = createNoise(ctx, 2);
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass'; hp.frequency.value = 3000;
+    const gain2 = ctx.createGain(); gain2.gain.value = 0.15;
+    noise2.connect(hp); hp.connect(gain2); gain2.connect(masterGain);
+    noise2.start();
+    ambientNodes.push(noise2);
+  }
+
+  else if (type === 'forest') {
+    /* Forest = gentle broad noise + soft high chirp tones */
+    const noise = createNoise(ctx, 3);
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass'; bp.frequency.value = 400; bp.Q.value = 0.2;
+    const gain = ctx.createGain(); gain.gain.value = 0.25;
+    noise.connect(bp); bp.connect(gain); gain.connect(masterGain);
+    noise.start();
+    ambientNodes.push(noise);
+
+    /* Wind rustle */
+    const noise2 = createNoise(ctx, 2);
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = 800;
+    const gain2 = ctx.createGain(); gain2.gain.value = 0.2;
+    const lfo = ctx.createOscillator();
+    lfo.frequency.value = 0.15;
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.value = 0.15;
+    lfo.connect(lfoGain); lfoGain.connect(gain2.gain);
+    noise2.connect(lp); lp.connect(gain2); gain2.connect(masterGain);
+    noise2.start(); lfo.start();
+    ambientNodes.push(noise2, lfo);
+  }
+
+  else if (type === 'thunder') {
+    /* Thunder = deep rumble (very low noise) + rain layer */
+    const noise = createNoise(ctx, 2);
+    const hp = ctx.createBiquadFilter();
+    hp.type = 'highpass'; hp.frequency.value = 3500;
+    const gain = ctx.createGain(); gain.gain.value = 0.5;
+    noise.connect(hp); hp.connect(gain); gain.connect(masterGain);
+    noise.start();
+    ambientNodes.push(noise);
+
+    /* Deep rumble */
+    const noise2 = createNoise(ctx, 4);
+    const lp = ctx.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = 200; lp.Q.value = 1;
+    const gain2 = ctx.createGain(); gain2.gain.value = 0.5;
+    const lfo = ctx.createOscillator();
+    lfo.frequency.value = 0.05;
+    const lfoGain = ctx.createGain();
+    lfoGain.gain.value = 0.4;
+    lfo.connect(lfoGain); lfoGain.connect(gain2.gain);
+    noise2.connect(lp); lp.connect(gain2); gain2.connect(masterGain);
+    noise2.start(); lfo.start();
+    ambientNodes.push(noise2, lfo);
+  }
+}
+
+/** Stop all ambient audio nodes */
+function stopAmbientSound() {
+  ambientNodes.forEach(node => {
+    try { node.stop(); } catch(e) {}
+    try { node.disconnect(); } catch(e) {}
+  });
+  if (ambientNodes._masterGain) {
+    try { ambientNodes._masterGain.disconnect(); } catch(e) {}
+  }
+  ambientNodes = [];
+}
+
+/* ── Volume slider and mute button ────────────────────────────── */
+cinematicVolumeEl.addEventListener('input', () => {
+  if (ambientNodes._masterGain) {
+    const vol = cinematicVolumeEl.value / 100;
+    ambientNodes._masterGain.gain.value = isMuted ? 0 : vol * 0.6;
+  }
+});
+
+cinematicMuteBtn.addEventListener('click', () => {
+  isMuted = !isMuted;
+  cinematicMuteBtn.textContent = isMuted ? '🔇' : '🔊';
+  if (ambientNodes._masterGain) {
+    const vol = cinematicVolumeEl.value / 100;
+    ambientNodes._masterGain.gain.value = isMuted ? 0 : vol * 0.6;
+  }
+});
+
+
+/* ════════════════════════════════════════════════════════════════
+   10b. ENVIRONMENT & SOUND SELECTORS (Focus screen)
+   ════════════════════════════════════════════════════════════════ */
+
+/* Environment cards */
+document.getElementById('envGrid').addEventListener('click', (e) => {
+  const card = e.target.closest('.env-card');
+  if (!card) return;
+  document.querySelectorAll('.env-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  selectedEnv = card.dataset.env;
+});
+
+/* Sound pills */
+document.getElementById('soundPills').addEventListener('click', (e) => {
+  const pill = e.target.closest('.sound-pill');
+  if (!pill) return;
+  document.querySelectorAll('.sound-pill').forEach(p => p.classList.remove('selected'));
+  pill.classList.add('selected');
+  selectedSound = pill.dataset.sound;
+});
+
+
+/* ════════════════════════════════════════════════════════════════
+   10c. CINEMATIC FLOW — STAGED REVEAL
+   The experience unfolds in timed steps:
+     0s  — background fades in
+     1s  — ayah arabic appears (soft fade)
+     3s  — translation fades in
+     5s  — verse reference appears
+     8s  — first reflection prompt
+     user proceeds through 3 prompts →
+     wisdom → action step → auto-exit at ~2-3 min
+   ════════════════════════════════════════════════════════════════ */
+
+/** Save cinematic reflections to localStorage */
+function saveCinematicReflection(data) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CINEMATIC_KEY)) || [];
+    saved.unshift(data);
+    if (saved.length > 50) saved.length = 50;
+    localStorage.setItem(CINEMATIC_KEY, JSON.stringify(saved));
+  } catch(e) {}
+}
+
+/**
+ * startFocusMode — main entry point.
+ * Called from Focus screen, Result screen ("Deep Reflect"),
+ * and Daily screen ("Deep Reflect on This Ayah").
+ * Kept same name for backward compatibility.
+ */
 function startFocusMode(entry) {
-  /* If no entry provided, pick a random one */
+  /* Pick a random ayah if none provided */
   if (!entry) {
     const group = AYAH_DATA[Math.floor(Math.random() * AYAH_DATA.length)];
     entry = group.entries[Math.floor(Math.random() * group.entries.length)];
   }
 
-  focusAyah.innerHTML = `
-    <div class="arabic">${entry.ayah}</div>
-    <p class="translation">"${entry.translation}"</p>
-    <div class="verse-ref">${entry.reference}</div>
+  /* Find the emotion for this entry (for wisdom/action lookup) */
+  let entryEmotion = 'Anxiety';
+  for (const g of AYAH_DATA) {
+    if (g.entries.some(e => e.ayah === entry.ayah)) {
+      entryEmotion = g.emotion;
+      break;
+    }
+  }
+
+  /* Set background scene */
+  cinematicBg.className = 'cinematic-bg bg-' + selectedEnv;
+
+  /* Start ambient sound */
+  startAmbientSound(selectedSound);
+
+  /* Reset mute state visually */
+  isMuted = false;
+  cinematicMuteBtn.textContent = '🔊';
+
+  /* Reflection responses collected during the session */
+  const reflectionAnswers = [];
+
+  /* ── Build cinematic content ────────────────────────────────── */
+  cinematicContent.innerHTML = `
+    <div class="cinematic-ayah cinematic-breathe" id="cinAyah">
+      <div class="arabic">${entry.ayah}</div>
+      <p class="translation" id="cinTranslation">"${entry.translation}"</p>
+      <div class="verse-ref" id="cinRef">${entry.reference}</div>
+    </div>
+
+    <div class="cinematic-reflection" id="cinReflection">
+      <div class="cinematic-reflection-prompt" id="cinPromptText"></div>
+      <textarea id="cinReflectionInput" placeholder="Type your reflection..."></textarea>
+      <div style="text-align:center;margin-top:12px;">
+        <button class="cinematic-btn primary" id="cinNextPrompt">Continue</button>
+      </div>
+    </div>
+
+    <div class="cinematic-wisdom" id="cinWisdom">
+      <div class="cinematic-wisdom-label">If you remember one thing from this ayah</div>
+      <div class="cinematic-wisdom-text">${WISDOM_LINES[entryEmotion] || WISDOM_LINES['Anxiety']}</div>
+    </div>
+
+    <div class="cinematic-action" id="cinAction">
+      <div class="cinematic-action-icon">🕋</div>
+      <div>
+        <div class="cinematic-action-label">Act on this now</div>
+        <div class="cinematic-action-text" id="cinActionText"></div>
+      </div>
+    </div>
+
+    <div class="cinematic-farewell" id="cinFarewell">
+      <div class="cinematic-farewell-text">Take this with you. 🤲</div>
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;">
+        <button class="cinematic-btn primary" id="cinSaveExit">Save &amp; Exit</button>
+        <button class="cinematic-btn" id="cinExit">Exit</button>
+      </div>
+    </div>
   `;
 
-  /* Start 60-second timer */
-  let seconds = 60;
-  focusTimer.textContent = '1:00';
-  focusOverlay.classList.add('active');
+  /* Set action step text */
+  const actions = ACTION_STEPS[entryEmotion] || ACTION_STEPS['Anxiety'];
+  const actionIdx = Math.floor(Math.random() * actions.length);
+  document.getElementById('cinActionText').textContent = actions[actionIdx];
 
-  focusInterval = setInterval(() => {
+  /* ── Show overlay with 1s fade ──────────────────────────────── */
+  cinematicOverlay.classList.add('active');
+
+  /* ── Start countdown timer (2 minutes = 120 seconds) ────────── */
+  let seconds = 120;
+  cinematicTimerEl.textContent = '2:00';
+
+  cinematicInterval = setInterval(() => {
     seconds--;
     if (seconds <= 0) {
-      clearInterval(focusInterval);
-      focusTimer.textContent = '0:00';
-      document.getElementById('focusPrompt').textContent =
-        'Time is up. Take this feeling with you. 🤲';
+      clearInterval(cinematicInterval);
+      cinematicTimerEl.textContent = '0:00';
+      /* Auto-trigger farewell if not already shown */
+      showFarewell();
     } else {
       const m = Math.floor(seconds / 60);
       const s = String(seconds % 60).padStart(2, '0');
-      focusTimer.textContent = `${m}:${s}`;
+      cinematicTimerEl.textContent = `${m}:${s}`;
     }
+  }, 1000);
+
+  /* ── Staged reveal timeline ─────────────────────────────────── */
+  let currentPrompt = 0;
+  let farewellShown = false;
+
+  /* Step 1: After 1s — fade in ayah Arabic */
+  cinematicStepTimer = setTimeout(() => {
+    document.getElementById('cinAyah').classList.add('visible');
+
+    /* Step 2: After 2.5s more — fade in translation */
+    cinematicStepTimer = setTimeout(() => {
+      document.getElementById('cinTranslation').classList.add('visible');
+
+      /* Step 3: After 1.5s more — show verse reference */
+      cinematicStepTimer = setTimeout(() => {
+        document.getElementById('cinRef').classList.add('visible');
+
+        /* Step 4: After 2s more — show first reflection prompt */
+        cinematicStepTimer = setTimeout(() => {
+          showReflectionPrompt(0);
+        }, 2000);
+      }, 1500);
+    }, 2500);
+  }, 1000);
+
+  /** Show a reflection prompt by index */
+  function showReflectionPrompt(index) {
+    if (index >= REFLECTION_PROMPTS.length) {
+      /* All prompts answered — show wisdom, action, farewell */
+      showWisdomAndAction();
+      return;
+    }
+    currentPrompt = index;
+    const reflectionEl = document.getElementById('cinReflection');
+    const promptText   = document.getElementById('cinPromptText');
+    const input        = document.getElementById('cinReflectionInput');
+
+    promptText.textContent = REFLECTION_PROMPTS[index];
+    input.value = '';
+    input.placeholder = 'Type your reflection...';
+
+    /* Fade in the reflection section */
+    reflectionEl.classList.remove('visible');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        reflectionEl.classList.add('visible');
+      });
+    });
+  }
+
+  /** Show wisdom + action step after reflections */
+  function showWisdomAndAction() {
+    /* Hide reflection section */
+    const reflectionEl = document.getElementById('cinReflection');
+    reflectionEl.classList.remove('visible');
+
+    setTimeout(() => {
+      reflectionEl.style.display = 'none';
+
+      /* Show wisdom */
+      document.getElementById('cinWisdom').classList.add('visible');
+
+      setTimeout(() => {
+        /* Show action */
+        document.getElementById('cinAction').classList.add('visible');
+
+        /* After 4 seconds, show farewell */
+        setTimeout(() => showFarewell(), 4000);
+      }, 2000);
+    }, 600);
+  }
+
+  /** Show the farewell / exit screen */
+  function showFarewell() {
+    if (farewellShown) return;
+    farewellShown = true;
+
+    /* Make sure wisdom and action are visible */
+    document.getElementById('cinWisdom').classList.add('visible');
+    document.getElementById('cinAction').classList.add('visible');
+
+    /* Fade in farewell */
+    document.getElementById('cinFarewell').classList.add('visible');
+  }
+
+  /* ── "Continue" button — advance through reflection prompts ── */
+  document.getElementById('cinNextPrompt').addEventListener('click', () => {
+    const input = document.getElementById('cinReflectionInput');
+    const answer = input.value.trim();
+    if (answer) {
+      reflectionAnswers.push({
+        prompt: REFLECTION_PROMPTS[currentPrompt],
+        answer: answer
+      });
+    }
+    showReflectionPrompt(currentPrompt + 1);
+  });
+
+  /* ── "Save & Exit" button ───────────────────────────────────── */
+  document.getElementById('cinSaveExit').addEventListener('click', () => {
+    /* Save reflection data */
+    if (reflectionAnswers.length > 0) {
+      saveCinematicReflection({
+        date: new Date().toISOString(),
+        reference: entry.reference,
+        translation: entry.translation,
+        emotion: entryEmotion,
+        reflections: reflectionAnswers,
+        environment: selectedEnv,
+        sound: selectedSound
+      });
+
+      /* Also save to main history */
+      saveToHistory({
+        date: new Date().toISOString(),
+        emotion: entryEmotion,
+        reference: entry.reference,
+        translation: entry.translation,
+        learnedText: reflectionAnswers.map(r => r.answer).join(' | '),
+        actionText: '(Nature Reflection)'
+      });
+    }
+    showToast('Reflection saved ✨');
+    endCinematicMode();
+  });
+
+  /* ── "Exit" button (no save) ────────────────────────────────── */
+  document.getElementById('cinExit').addEventListener('click', () => {
+    endCinematicMode();
+  });
+}
+
+/** Clean up and close the cinematic overlay */
+function endCinematicMode() {
+  /* Stop timer */
+  if (cinematicInterval) { clearInterval(cinematicInterval); cinematicInterval = null; }
+  if (cinematicStepTimer) { clearTimeout(cinematicStepTimer); cinematicStepTimer = null; }
+
+  /* Stop audio */
+  stopAmbientSound();
+
+  /* Fade out overlay */
+  cinematicOverlay.classList.remove('active');
+
+  /* Clean up content after fade completes */
+  setTimeout(() => {
+    cinematicContent.innerHTML = '';
   }, 1000);
 }
 
-function endFocusMode() {
-  if (focusInterval) clearInterval(focusInterval);
-  focusOverlay.classList.remove('active');
-  document.getElementById('focusPrompt').textContent =
-    'Breathe. Reflect. Let the words settle in your heart.';
-}
-
-focusExit.addEventListener('click', endFocusMode);
-
-/* Start Focus from Focus screen button */
+/* ── Start from Focus screen button ───────────────────────────── */
 document.getElementById('startFocusBtn').addEventListener('click', () => {
   startFocusMode(null);
 });
@@ -2760,7 +3829,7 @@ function renderDaily() {
 
     <div style="text-align:center;margin-top:12px;">
       <button class="btn-ghost" id="dailyFocusBtn">
-        Deep Reflect on This Ayah
+        🌿 Nature Reflect on This Ayah
       </button>
     </div>
   `;
