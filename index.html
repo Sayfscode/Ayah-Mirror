@@ -577,9 +577,10 @@
     }
 
     /* ══════════════════════════════════════════════════════════════
-       CINEMATIC NATURE REFLECTION MODE
-       Fullscreen immersive experience with animated backgrounds,
-       ambient audio, staged ayah reveal, and guided reflection.
+       CINEMATIC AYAH EXPERIENCE
+       Fullscreen immersive mode with real nature video backgrounds,
+       high-quality ambient audio, optional Quran recitation,
+       and a calm, passive cinematic flow.
        ══════════════════════════════════════════════════════════════ */
 
     /* ── Cinematic overlay — fullscreen container ─────────────── */
@@ -590,7 +591,7 @@
       background: #000;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 1s ease;
+      transition: opacity 1.2s ease;
       overflow: hidden;
     }
 
@@ -599,25 +600,42 @@
       pointer-events: auto;
     }
 
-    /* ── Animated nature background layer ─────────────────────── */
-    .cinematic-bg {
+    .cinematic-overlay.fade-exit {
+      opacity: 0;
+      transition: opacity 1.5s ease;
+    }
+
+    /* ── Video background ─────────────────────────────────────── */
+    .cinematic-video {
       position: absolute;
       inset: 0;
       z-index: 0;
-      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      animation: slowZoom 30s ease-in-out infinite alternate;
     }
 
-    /* ── Dark overlay on top of background ────────────────────── */
+    @keyframes slowZoom {
+      from { transform: scale(1); }
+      to   { transform: scale(1.08); }
+    }
+
+    /* ── Dark gradient overlay for readability ────────────────── */
     .cinematic-dark-layer {
       position: absolute;
       inset: 0;
       z-index: 1;
-      background: rgba(0, 0, 0, 0.50);
-      backdrop-filter: blur(2px);
-      -webkit-backdrop-filter: blur(2px);
+      background: linear-gradient(
+        180deg,
+        rgba(0,0,0,0.55) 0%,
+        rgba(0,0,0,0.35) 40%,
+        rgba(0,0,0,0.40) 70%,
+        rgba(0,0,0,0.60) 100%
+      );
     }
 
-    /* ── Content layer — scrollable, centered ─────────────────── */
+    /* ── Content layer — centered, no scroll ──────────────────── */
     .cinematic-content {
       position: relative;
       z-index: 2;
@@ -625,89 +643,120 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100%;
-      padding: 32px 24px;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+      height: 100%;
+      padding: 60px 24px 80px;
     }
 
-    /* ── Top bar inside cinematic (timer + controls) ──────────── */
-    .cinematic-topbar {
+    /* ── X exit button (top-left) ─────────────────────────────── */
+    .cinematic-close {
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 3;
+      top: 16px;
+      left: 16px;
+      z-index: 5;
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 16px 20px;
+      justify-content: center;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 50%;
+      color: rgba(255,255,255,0.5);
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      line-height: 1;
     }
 
-    .cinematic-timer {
-      font-size: 14px;
-      font-weight: 500;
+    .cinematic-close:hover {
+      background: rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.85);
+    }
+
+    .cinematic-close:active { transform: scale(0.9); }
+
+    /* ── Top-right controls (sound + recitation) ──────────────── */
+    .cinematic-controls {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cinematic-ctrl-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 50%;
       color: rgba(255,255,255,0.6);
-      font-variant-numeric: tabular-nums;
-      letter-spacing: 0.05em;
-    }
-
-    .cinematic-sound-btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 20px;
-      color: rgba(255,255,255,0.7);
-      font-family: var(--font);
-      font-size: 12px;
-      padding: 6px 12px;
+      font-size: 16px;
       cursor: pointer;
       transition: all 0.3s ease;
     }
 
-    .cinematic-sound-btn:hover {
-      background: rgba(255,255,255,0.18);
-      color: #fff;
+    .cinematic-ctrl-btn:hover {
+      background: rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.9);
     }
 
-    .cinematic-sound-btn:active { transform: scale(0.95); }
+    .cinematic-ctrl-btn:active { transform: scale(0.9); }
+    .cinematic-ctrl-btn.active-ctrl { color: rgba(129,199,132,0.9); border-color: rgba(129,199,132,0.3); }
 
-    /* ── Volume slider ────────────────────────────────────────── */
-    .cinematic-volume {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .cinematic-volume input[type="range"] {
+    /* ── Volume slider (pop-out) ──────────────────────────────── */
+    .cinematic-vol-slider {
       -webkit-appearance: none;
       appearance: none;
-      width: 80px;
-      height: 4px;
+      width: 70px;
+      height: 3px;
       background: rgba(255,255,255,0.2);
       border-radius: 2px;
       outline: none;
       cursor: pointer;
+      transition: opacity 0.3s ease;
     }
 
-    .cinematic-volume input[type="range"]::-webkit-slider-thumb {
+    .cinematic-vol-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 14px;
-      height: 14px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       background: rgba(255,255,255,0.8);
       cursor: pointer;
     }
 
+    /* ── Progress bar (bottom) ────────────────────────────────── */
+    .cinematic-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 4;
+      height: 3px;
+      background: rgba(255,255,255,0.1);
+    }
+
+    .cinematic-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, rgba(129,199,132,0.6), rgba(76,175,80,0.8));
+      border-radius: 0 2px 2px 0;
+      transition: width 1s linear;
+    }
+
     /* ── Ayah display inside cinematic ────────────────────────── */
     .cinematic-ayah {
-      max-width: 500px;
+      max-width: 520px;
       text-align: center;
       opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 1.2s ease, transform 1.2s ease;
+      transform: translateY(24px);
+      transition: opacity 1s ease, transform 1s ease;
     }
 
     .cinematic-ayah.visible {
@@ -724,26 +773,30 @@
       direction: rtl;
       padding: 0;
       border: none;
-      margin-bottom: 20px;
-      text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+      margin-bottom: 24px;
+      text-shadow: 0 2px 16px rgba(0,0,0,0.5), 0 0 40px rgba(129,199,132,0.08);
     }
 
     .cinematic-ayah .translation {
       font-size: 18px;
       line-height: 1.8;
-      color: rgba(255,255,255,0.80);
+      color: rgba(255,255,255,0.78);
       font-style: italic;
       text-align: center;
       opacity: 0;
-      transition: opacity 1.5s ease;
-      margin-bottom: 12px;
+      transform: translateY(10px);
+      transition: opacity 1.2s ease, transform 1.2s ease;
+      margin-bottom: 14px;
     }
 
-    .cinematic-ayah .translation.visible { opacity: 1; }
+    .cinematic-ayah .translation.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
 
     .cinematic-ayah .verse-ref {
       font-size: 12px;
-      color: rgba(129,199,132,0.8);
+      color: rgba(129,199,132,0.7);
       letter-spacing: 0.06em;
       font-weight: 600;
       text-align: center;
@@ -753,103 +806,18 @@
 
     .cinematic-ayah .verse-ref.visible { opacity: 1; }
 
-    /* ── Reflection prompt cards ──────────────────────────────── */
-    .cinematic-reflection {
-      max-width: 440px;
-      width: 100%;
-      margin-top: 32px;
-      opacity: 0;
-      transform: translateY(16px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
-    }
-
-    .cinematic-reflection.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .cinematic-reflection-prompt {
-      font-size: 16px;
-      color: rgba(255,255,255,0.85);
-      text-align: center;
-      line-height: 1.7;
-      margin-bottom: 16px;
-      font-style: italic;
-    }
-
-    .cinematic-reflection textarea {
-      width: 100%;
-      padding: 14px 16px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: var(--radius-sm);
-      color: rgba(255,255,255,0.9);
-      font-family: var(--font);
-      font-size: 14px;
-      line-height: 1.6;
-      resize: vertical;
-      min-height: 60px;
-      outline: none;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .cinematic-reflection textarea:focus {
-      border-color: rgba(129,199,132,0.5);
-      box-shadow: 0 0 0 3px rgba(76,175,80,0.15);
-    }
-
-    .cinematic-reflection textarea::placeholder {
-      color: rgba(255,255,255,0.3);
-    }
-
-    /* ── Cinematic buttons ────────────────────────────────────── */
-    .cinematic-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 12px 28px;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 28px;
-      color: rgba(255,255,255,0.85);
-      font-family: var(--font);
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease, transform 0.15s ease;
-      margin: 6px;
-    }
-
-    .cinematic-btn:hover {
-      background: rgba(255,255,255,0.18);
-      color: #fff;
-      transform: translateY(-1px);
-    }
-
-    .cinematic-btn:active { transform: scale(0.96); }
-
-    .cinematic-btn.primary {
-      background: linear-gradient(135deg, rgba(76,175,80,0.5), rgba(129,199,132,0.4));
-      border-color: rgba(129,199,132,0.4);
-    }
-
-    .cinematic-btn.primary:hover {
-      background: linear-gradient(135deg, rgba(76,175,80,0.65), rgba(129,199,132,0.55));
-    }
-
-    /* ── Wisdom card ──────────────────────────────────────────── */
+    /* ── Wisdom line (appears after ayah settles) ─────────────── */
     .cinematic-wisdom {
       max-width: 440px;
       text-align: center;
-      padding: 24px;
-      margin-top: 24px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.1);
+      padding: 20px 24px;
+      margin-top: 28px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
       border-radius: var(--radius);
       opacity: 0;
-      transform: translateY(16px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
+      transform: translateY(12px);
+      transition: opacity 1s ease, transform 1s ease;
     }
 
     .cinematic-wisdom.visible {
@@ -858,63 +826,25 @@
     }
 
     .cinematic-wisdom-label {
-      font-size: 11px;
+      font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: rgba(129,199,132,0.7);
-      margin-bottom: 10px;
+      letter-spacing: 0.14em;
+      color: rgba(129,199,132,0.6);
+      margin-bottom: 8px;
       font-weight: 600;
     }
 
     .cinematic-wisdom-text {
-      font-size: 17px;
-      color: rgba(255,255,255,0.9);
+      font-size: 16px;
+      color: rgba(255,255,255,0.85);
       line-height: 1.7;
       font-style: italic;
     }
 
-    /* ── Action step inside cinematic ─────────────────────────── */
-    .cinematic-action {
-      max-width: 440px;
-      width: 100%;
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 18px;
-      margin-top: 20px;
-      background: rgba(76,175,80,0.1);
-      border: 1px solid rgba(129,199,132,0.2);
-      border-radius: var(--radius);
-      opacity: 0;
-      transform: translateY(16px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
-    }
-
-    .cinematic-action.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .cinematic-action-icon { font-size: 22px; flex-shrink: 0; }
-
-    .cinematic-action-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: rgba(129,199,132,0.8);
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .cinematic-action-text {
-      font-size: 14px;
-      color: rgba(255,255,255,0.85);
-      line-height: 1.6;
-    }
-
-    /* ── Exit message ─────────────────────────────────────────── */
+    /* ── Farewell message ─────────────────────────────────────── */
     .cinematic-farewell {
       text-align: center;
+      margin-top: 32px;
       opacity: 0;
       transition: opacity 1.5s ease;
     }
@@ -922,16 +852,15 @@
     .cinematic-farewell.visible { opacity: 1; }
 
     .cinematic-farewell-text {
-      font-size: 22px;
-      color: rgba(255,255,255,0.9);
+      font-size: 20px;
+      color: rgba(255,255,255,0.85);
       font-weight: 300;
       letter-spacing: 0.04em;
-      margin-bottom: 24px;
     }
 
     /* ── Environment selector (Focus screen) ─────────────────── */
     .env-selector {
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
 
     .env-selector-title {
@@ -1011,176 +940,50 @@
       font-weight: 600;
     }
 
-    /* ═══ ANIMATED NATURE BACKGROUNDS ═════════════════════════════
-       Pure CSS animated scenes — no video files needed.
-       Each theme creates an immersive nature atmosphere.
-       ═════════════════════════════════════════════════════════════ */
-
-    /* ── Rain ──────────────────────────────────────────────────── */
-    .bg-rain {
-      background: linear-gradient(180deg, #1a2a3a 0%, #2c3e50 40%, #1a2530 100%);
+    /* Duration pills */
+    .duration-pills {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
     }
 
-    .bg-rain::before,
-    .bg-rain::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
+    .duration-pill {
+      padding: 8px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-family: var(--font);
+      font-size: 12px;
+      color: var(--text);
+      cursor: pointer;
+      transition: all var(--transition);
     }
 
-    .bg-rain::before {
-      background-image:
-        linear-gradient(transparent 90%, rgba(174,194,224,0.15) 90%, rgba(174,194,224,0.15) 91%, transparent 91%);
-      background-size: 1px 22px;
-      animation: rainFall 0.7s linear infinite;
-      opacity: 0.7;
+    .duration-pill:hover {
+      border-color: var(--green-light);
+      background: var(--green-glow);
     }
 
-    .bg-rain::after {
-      background-image:
-        linear-gradient(transparent 88%, rgba(174,194,224,0.1) 88%, rgba(174,194,224,0.1) 89%, transparent 89%);
-      background-size: 2px 30px;
-      animation: rainFall 0.9s linear infinite;
-      animation-delay: -0.3s;
-      opacity: 0.5;
+    .duration-pill.selected {
+      border-color: var(--green);
+      background: var(--green-soft);
+      color: var(--green);
+      font-weight: 600;
     }
 
-    @keyframes rainFall {
-      from { background-position: 0 -30px; }
-      to   { background-position: 0 0; }
+    /* ── Recitation toggle on Focus screen ────────────────────── */
+    .recitation-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-muted);
     }
 
-    /* ── Ocean ─────────────────────────────────────────────────── */
-    .bg-ocean {
-      background: linear-gradient(180deg, #0c1929 0%, #163d5c 40%, #1a5276 70%, #1a3c52 100%);
-    }
-
-    .bg-ocean::before {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: -50%;
-      right: -50%;
-      height: 60%;
-      background:
-        radial-gradient(ellipse 120% 60% at 30% 80%, rgba(26,82,118,0.6) 0%, transparent 70%),
-        radial-gradient(ellipse 100% 50% at 70% 70%, rgba(22,61,92,0.5) 0%, transparent 60%);
-      animation: oceanWave 6s ease-in-out infinite;
-      pointer-events: none;
-    }
-
-    .bg-ocean::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: -30%;
-      right: -30%;
-      height: 40%;
-      background:
-        radial-gradient(ellipse 150% 80% at 60% 90%, rgba(41,128,185,0.2) 0%, transparent 60%);
-      animation: oceanWave 8s ease-in-out infinite reverse;
-      pointer-events: none;
-    }
-
-    @keyframes oceanWave {
-      0%, 100% { transform: translateX(-2%) translateY(0); }
-      50%      { transform: translateX(2%) translateY(-8px); }
-    }
-
-    /* ── Forest ────────────────────────────────────────────────── */
-    .bg-forest {
-      background: linear-gradient(180deg, #0d1f0d 0%, #1a3a1a 30%, #2d5a2d 60%, #1a3a1a 100%);
-    }
-
-    .bg-forest::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at 25% 30%, rgba(255,223,100,0.08) 0%, transparent 40%),
-        radial-gradient(circle at 60% 20%, rgba(255,223,100,0.06) 0%, transparent 35%),
-        radial-gradient(circle at 80% 50%, rgba(255,223,100,0.04) 0%, transparent 30%);
-      animation: dappleLight 8s ease-in-out infinite;
-      pointer-events: none;
-    }
-
-    .bg-forest::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at 40% 60%, rgba(76,175,80,0.05) 0%, transparent 50%),
-        radial-gradient(circle at 70% 80%, rgba(56,142,60,0.04) 0%, transparent 40%);
-      animation: dappleLight 12s ease-in-out infinite reverse;
-      pointer-events: none;
-    }
-
-    @keyframes dappleLight {
-      0%, 100% { opacity: 0.6; transform: scale(1); }
-      50%      { opacity: 1; transform: scale(1.05); }
-    }
-
-    /* ── Night sky ─────────────────────────────────────────────── */
-    .bg-night {
-      background: linear-gradient(180deg, #05080f 0%, #0a1628 40%, #101d36 70%, #0a1220 100%);
-    }
-
-    .bg-night::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image:
-        radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.7) 50%, transparent 50%),
-        radial-gradient(1px 1px at 25% 35%, rgba(255,255,255,0.5) 50%, transparent 50%),
-        radial-gradient(1.5px 1.5px at 45% 10%, rgba(255,255,255,0.8) 50%, transparent 50%),
-        radial-gradient(1px 1px at 60% 45%, rgba(255,255,255,0.4) 50%, transparent 50%),
-        radial-gradient(1px 1px at 75% 20%, rgba(255,255,255,0.6) 50%, transparent 50%),
-        radial-gradient(1.5px 1.5px at 85% 55%, rgba(255,255,255,0.5) 50%, transparent 50%),
-        radial-gradient(1px 1px at 15% 65%, rgba(255,255,255,0.4) 50%, transparent 50%),
-        radial-gradient(1px 1px at 35% 80%, rgba(255,255,255,0.6) 50%, transparent 50%),
-        radial-gradient(1.5px 1.5px at 55% 70%, rgba(255,255,255,0.5) 50%, transparent 50%),
-        radial-gradient(1px 1px at 90% 30%, rgba(255,255,255,0.7) 50%, transparent 50%),
-        radial-gradient(1px 1px at 5% 90%, rgba(255,255,255,0.3) 50%, transparent 50%),
-        radial-gradient(1px 1px at 70% 85%, rgba(255,255,255,0.5) 50%, transparent 50%),
-        radial-gradient(2px 2px at 50% 50%, rgba(255,255,255,0.6) 50%, transparent 50%),
-        radial-gradient(1px 1px at 30% 5%, rgba(255,255,255,0.5) 50%, transparent 50%),
-        radial-gradient(1px 1px at 95% 75%, rgba(255,255,255,0.4) 50%, transparent 50%);
-      animation: twinkle 4s ease-in-out infinite;
-      pointer-events: none;
-    }
-
-    .bg-night::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image:
-        radial-gradient(1px 1px at 20% 25%, rgba(255,255,255,0.5) 50%, transparent 50%),
-        radial-gradient(1.5px 1.5px at 40% 55%, rgba(255,255,255,0.6) 50%, transparent 50%),
-        radial-gradient(1px 1px at 65% 15%, rgba(255,255,255,0.4) 50%, transparent 50%),
-        radial-gradient(1px 1px at 80% 65%, rgba(255,255,255,0.7) 50%, transparent 50%),
-        radial-gradient(1px 1px at 50% 35%, rgba(255,255,255,0.3) 50%, transparent 50%),
-        radial-gradient(1px 1px at 12% 48%, rgba(255,255,255,0.5) 50%, transparent 50%),
-        radial-gradient(1.5px 1.5px at 88% 42%, rgba(255,255,255,0.4) 50%, transparent 50%),
-        radial-gradient(1px 1px at 33% 92%, rgba(255,255,255,0.6) 50%, transparent 50%);
-      animation: twinkle 5s ease-in-out infinite reverse;
-      pointer-events: none;
-    }
-
-    @keyframes twinkle {
-      0%, 100% { opacity: 0.5; }
-      50%      { opacity: 1; }
-    }
-
-    /* ── Breathing animation (subtle pulse) ───────────────────── */
-    @keyframes breathe {
-      0%, 100% { transform: scale(1); }
-      50%      { transform: scale(1.015); }
-    }
-
-    .cinematic-breathe {
-      animation: breathe 6s ease-in-out infinite;
-    }
+    .recitation-toggle-row .lock-toggle { width: 40px; height: 22px; }
+    .recitation-toggle-row .lock-toggle::after { width: 18px; height: 18px; }
+    .recitation-toggle-row .lock-toggle.on::after { transform: translateX(18px); }
 
     /* ── Journal tabs ─────────────────────────────────────────── */
     .journal-tabs {
@@ -1572,19 +1375,19 @@
       <div id="dailyContent"></div>
     </div>
 
-    <!-- ─── NATURE REFLECTION MODE SCREEN ────────────────────── -->
+    <!-- ─── CINEMATIC AYAH EXPERIENCE SCREEN ────────────────── -->
     <div class="screen" id="screen-focus">
       <div class="focus-start-card">
         <div class="icon">🌿</div>
-        <h2>Nature Reflection</h2>
+        <h2>Cinematic Ayah</h2>
         <p>
-          Immerse yourself in nature.<br />
-          One ayah. Calm sounds. Deep reflection with the words of Allah.
+          A short, peaceful escape.<br />
+          Nature. Sound. The words of Allah.
         </p>
 
-        <!-- Environment selector -->
+        <!-- Scene selector -->
         <div class="env-selector">
-          <div class="env-selector-title">Choose your scene</div>
+          <div class="env-selector-title">Scene</div>
           <div class="env-grid" id="envGrid">
             <button class="env-card selected" data-env="rain">
               <span class="env-card-icon">🌧️</span>
@@ -1610,16 +1413,33 @@
           <div class="env-selector-title">Ambient sound</div>
           <div class="sound-pills" id="soundPills">
             <button class="sound-pill selected" data-sound="rain">🌧️ Rain</button>
-            <button class="sound-pill" data-sound="river">💧 River</button>
             <button class="sound-pill" data-sound="ocean">🌊 Ocean</button>
-            <button class="sound-pill" data-sound="forest">🍃 Forest</button>
-            <button class="sound-pill" data-sound="thunder">⛈️ Thunder</button>
+            <button class="sound-pill" data-sound="wind">🍃 Wind</button>
+            <button class="sound-pill" data-sound="night">🦗 Night</button>
             <button class="sound-pill" data-sound="silence">🤫 Silence</button>
           </div>
         </div>
 
+        <!-- Duration selector -->
+        <div class="env-selector">
+          <div class="env-selector-title">Duration</div>
+          <div class="duration-pills" id="durationPills">
+            <button class="duration-pill selected" data-dur="30">30s</button>
+            <button class="duration-pill" data-dur="60">1 min</button>
+            <button class="duration-pill" data-dur="0">Infinite</button>
+          </div>
+        </div>
+
+        <!-- Recitation toggle -->
+        <div class="env-selector">
+          <div class="recitation-toggle-row">
+            <span>🎙️ Play Quran recitation</span>
+            <button class="lock-toggle" id="recitationToggle"></button>
+          </div>
+        </div>
+
         <button class="btn-primary" id="startFocusBtn" style="max-width:280px;margin:0 auto;">
-          🌿 Enter Nature Reflection
+          Enter Experience
         </button>
       </div>
     </div>
@@ -1694,27 +1514,34 @@
 
 </div>
 
-<!-- ═══ CINEMATIC NATURE REFLECTION OVERLAY ═══════════════════ -->
+<!-- ═══ CINEMATIC AYAH EXPERIENCE OVERLAY ═════════════════════ -->
 <div class="cinematic-overlay" id="cinematicOverlay">
 
-  <!-- Layer 1: Animated nature background -->
-  <div class="cinematic-bg bg-rain" id="cinematicBg"></div>
+  <!-- Layer 1: Nature video background -->
+  <video class="cinematic-video" id="cinematicVideo"
+         muted loop playsinline preload="none"></video>
 
-  <!-- Layer 2: Dark overlay + subtle blur -->
+  <!-- Layer 2: Dark gradient overlay -->
   <div class="cinematic-dark-layer"></div>
 
-  <!-- Top bar: timer + sound controls -->
-  <div class="cinematic-topbar">
-    <div class="cinematic-timer" id="cinematicTimer">2:00</div>
-    <div class="cinematic-volume">
-      <button class="cinematic-sound-btn" id="cinematicMuteBtn">🔊</button>
-      <input type="range" min="0" max="100" value="30" id="cinematicVolume" />
-    </div>
+  <!-- X close button (top-left) -->
+  <button class="cinematic-close" id="cinematicClose">&times;</button>
+
+  <!-- Controls (top-right): mute + volume + recitation -->
+  <div class="cinematic-controls" id="cinematicControls">
+    <button class="cinematic-ctrl-btn" id="cinReciteBtn" title="Toggle recitation" style="display:none;">🎙️</button>
+    <input type="range" class="cinematic-vol-slider" id="cinematicVolume" min="0" max="100" value="25" title="Ambient volume" />
+    <button class="cinematic-ctrl-btn" id="cinematicMuteBtn" title="Mute/unmute">🔊</button>
   </div>
 
-  <!-- Layer 3: Content — all cinematic steps appear here -->
+  <!-- Content layer — ayah + wisdom -->
   <div class="cinematic-content" id="cinematicContent">
     <!-- Filled dynamically by JS -->
+  </div>
+
+  <!-- Progress bar (bottom edge) -->
+  <div class="cinematic-progress">
+    <div class="cinematic-progress-fill" id="cinematicProgress"></div>
   </div>
 </div>
 
@@ -2850,7 +2677,7 @@ function showResult(emotionStr) {
         Show Another Ayah
       </button>
       <button class="btn-ghost" id="enterFocusFromResult">
-        🌿 Nature Reflect
+        🎬 Cinematic Ayah
       </button>
       <div style="margin-top:10px;">
         <button class="btn-ghost" id="backHomeBtn">
@@ -2973,29 +2800,49 @@ customInput.addEventListener('keydown', (e) => {
 
 
 /* ════════════════════════════════════════════════════════════════
-   10. CINEMATIC NATURE REFLECTION MODE
-   An immersive fullscreen experience with animated nature scenes,
-   procedural ambient audio (Web Audio API), staged ayah reveal,
-   guided reflection prompts, and graceful auto-exit.
+   10. CINEMATIC AYAH EXPERIENCE
+   A calm, passive fullscreen experience with real nature video,
+   high-quality ambient audio, optional Quran recitation,
+   and a gentle cinematic flow (no forced interaction).
    ════════════════════════════════════════════════════════════════ */
 
 /* ── DOM references ───────────────────────────────────────────── */
 const cinematicOverlay  = document.getElementById('cinematicOverlay');
-const cinematicBg       = document.getElementById('cinematicBg');
+const cinematicVideo    = document.getElementById('cinematicVideo');
 const cinematicContent  = document.getElementById('cinematicContent');
-const cinematicTimerEl  = document.getElementById('cinematicTimer');
+const cinematicProgress = document.getElementById('cinematicProgress');
+const cinematicCloseBtn = document.getElementById('cinematicClose');
 const cinematicMuteBtn  = document.getElementById('cinematicMuteBtn');
 const cinematicVolumeEl = document.getElementById('cinematicVolume');
+const cinReciteBtn      = document.getElementById('cinReciteBtn');
 
 /* ── Cinematic state ──────────────────────────────────────────── */
 let cinematicInterval   = null;   // countdown timer
-let cinematicStepTimer  = null;   // setTimeout chain for staged reveals
-let audioCtx            = null;   // Web Audio context
-let ambientNodes        = [];     // active audio nodes for cleanup
+let cinematicTimers     = [];     // setTimeout chain for staged reveals
+let ambientAudio        = null;   // HTML5 Audio element for ambient sound
+let recitationAudio     = null;   // HTML5 Audio element for Quran recitation
 let selectedEnv         = 'rain';
 let selectedSound       = 'rain';
+let selectedDuration    = 30;     // seconds (0 = infinite)
+let wantRecitation      = false;  // user toggled recitation on
 let isMuted             = false;
-const CINEMATIC_KEY     = 'ayah_mirror_cinematic_reflections';
+
+/* ── Video URLs (Pexels, royalty-free) ────────────────────────── */
+const VIDEO_SOURCES = {
+  rain:   'https://videos.pexels.com/video-files/8110359/8110359-hd_1920_1080_30fps.mp4',
+  ocean:  'https://videos.pexels.com/video-files/856204/856204-hd_1280_720_25fps.mp4',
+  forest: 'https://videos.pexels.com/video-files/14057075/14057075-hd_1280_720_30fps.mp4',
+  night:  'https://videos.pexels.com/video-files/2646392/2646392-hd_1280_720_30fps.mp4'
+};
+
+/* ── Ambient audio URLs (GitHub/MIT, high-quality loops) ──────── */
+const SOUND_SOURCES = {
+  rain:    'https://raw.githubusercontent.com/bradtraversy/ambient-sound-mixer/main/audio/rain.mp3',
+  ocean:   'https://raw.githubusercontent.com/bradtraversy/ambient-sound-mixer/main/audio/ocean.mp3',
+  wind:    'https://raw.githubusercontent.com/bradtraversy/ambient-sound-mixer/main/audio/wind.mp3',
+  night:   'https://raw.githubusercontent.com/bradtraversy/ambient-sound-mixer/main/audio/night.mp3',
+  silence: null
+};
 
 /* ── One-line wisdom takeaways — keyed by emotion ─────────────── */
 const WISDOM_LINES = {
@@ -3019,214 +2866,153 @@ const WISDOM_LINES = {
   "Thankfulness":      "Gratitude does not change what you have — it changes how you see everything."
 };
 
-/* ── Reflection prompts shown one by one ──────────────────────── */
-const REFLECTION_PROMPTS = [
-  "What part of this ayah touches you the most?",
-  "Why do you think this ayah was shown to you right now?",
-  "What will you do differently after this?"
+/*
+ * Quran surah verse counts — used to convert "Surah X (chapter:verse)"
+ * to absolute ayah numbers for the recitation API.
+ * Array index = surah number (1-based), value = total verses in that surah.
+ */
+const SURAH_VERSES = [
+  0,7,286,200,176,120,165,206,75,129,109,123,111,43,52,99,128,111,110,98,
+  135,112,78,118,64,77,227,93,88,69,60,34,30,73,54,45,83,182,88,75,85,54,
+  53,89,59,37,35,38,88,52,45,30,25,20,56,96,25,92,29,22,24,13,14,11,11,
+  18,12,12,30,52,52,44,28,28,20,56,40,31,50,40,46,42,29,19,36,25,22,17,
+  19,26,30,20,15,21,11,8,8,19,5,8,8,11,11,8,3,9,5,4,7,3,6,3,5,4,5,6
 ];
+
+/**
+ * Convert a reference string like "Surah Ar-Ra'd (13:28)" to an absolute
+ * ayah number (1–6236) for the recitation audio API.
+ * Returns null if the reference has a range (e.g. "2:155-156").
+ */
+function refToAbsoluteAyah(ref) {
+  const m = ref.match(/\((\d+):(\d+)\)$/);
+  if (!m) return null;
+  const surah = parseInt(m[1], 10);
+  const verse = parseInt(m[2], 10);
+  if (surah < 1 || surah > 114 || !SURAH_VERSES[surah]) return null;
+  /* Sum all verses in preceding surahs */
+  let abs = 0;
+  for (let i = 1; i < surah; i++) abs += SURAH_VERSES[i];
+  return abs + verse;
+}
 
 
 /* ════════════════════════════════════════════════════════════════
-   10a. WEB AUDIO API — PROCEDURAL AMBIENT SOUNDS
-   Generates rain, river, ocean, forest, and thunder using
-   noise generators and filters. No audio files needed.
+   10a. AMBIENT AUDIO — REAL HIGH-QUALITY FILES
+   Uses HTML5 Audio with smooth fade-in/out and looping.
    ════════════════════════════════════════════════════════════════ */
 
-function getAudioCtx() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  if (audioCtx.state === 'suspended') audioCtx.resume();
-  return audioCtx;
+/** Start ambient audio with a gentle 1.5s fade-in */
+function startAmbientAudio(type) {
+  stopAmbientAudio();
+  const src = SOUND_SOURCES[type];
+  if (!src) return; // silence
+
+  ambientAudio = new Audio(src);
+  ambientAudio.loop = true;
+  ambientAudio.volume = 0; // start silent, fade in
+  ambientAudio.play().catch(() => {}); // may need user gesture
+
+  /* Smooth fade in over 1.5s */
+  const targetVol = (cinematicVolumeEl.value / 100) * 0.5;
+  fadeAudioTo(ambientAudio, isMuted ? 0 : targetVol, 1500);
 }
 
-/** Create a white noise buffer source */
-function createNoise(ctx, duration) {
-  const bufferSize = ctx.sampleRate * duration;
-  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-  const data = buffer.getChannelData(0);
-  for (let i = 0; i < bufferSize; i++) {
-    data[i] = Math.random() * 2 - 1;
-  }
-  const source = ctx.createBufferSource();
-  source.buffer = buffer;
-  source.loop = true;
-  return source;
-}
-
-/** Build the ambient sound graph for a given type */
-function startAmbientSound(type) {
-  stopAmbientSound();
-  if (type === 'silence') return;
-
-  const ctx = getAudioCtx();
-  const masterGain = ctx.createGain();
-  const vol = cinematicVolumeEl.value / 100;
-  masterGain.gain.value = isMuted ? 0 : vol * 0.6;
-  masterGain.connect(ctx.destination);
-
-  /* Store master gain so volume slider can adjust it */
-  ambientNodes._masterGain = masterGain;
-
-  if (type === 'rain') {
-    /* Rain = high-pass filtered noise + occasional drip peaks */
-    const noise = createNoise(ctx, 2);
-    const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass'; hp.frequency.value = 4000; hp.Q.value = 0.5;
-    const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass'; lp.frequency.value = 9000;
-    const gain = ctx.createGain(); gain.gain.value = 0.8;
-    noise.connect(hp); hp.connect(lp); lp.connect(gain); gain.connect(masterGain);
-    noise.start();
-    ambientNodes.push(noise);
-
-    /* Deeper rain layer */
-    const noise2 = createNoise(ctx, 3);
-    const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass'; bp.frequency.value = 800; bp.Q.value = 0.3;
-    const gain2 = ctx.createGain(); gain2.gain.value = 0.3;
-    noise2.connect(bp); bp.connect(gain2); gain2.connect(masterGain);
-    noise2.start();
-    ambientNodes.push(noise2);
-  }
-
-  else if (type === 'river') {
-    /* River = mid-band noise with slow modulation */
-    const noise = createNoise(ctx, 2);
-    const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass'; bp.frequency.value = 600; bp.Q.value = 0.4;
-    const gain = ctx.createGain(); gain.gain.value = 0.7;
-    noise.connect(bp); bp.connect(gain); gain.connect(masterGain);
-    noise.start();
-    ambientNodes.push(noise);
-
-    /* Gentle babble layer */
-    const noise2 = createNoise(ctx, 1.5);
-    const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass'; hp.frequency.value = 2000;
-    const gain2 = ctx.createGain(); gain2.gain.value = 0.2;
-    /* Slow LFO on babble volume */
-    const lfo = ctx.createOscillator();
-    lfo.frequency.value = 0.3;
-    const lfoGain = ctx.createGain();
-    lfoGain.gain.value = 0.15;
-    lfo.connect(lfoGain); lfoGain.connect(gain2.gain);
-    noise2.connect(hp); hp.connect(gain2); gain2.connect(masterGain);
-    noise2.start(); lfo.start();
-    ambientNodes.push(noise2, lfo);
-  }
-
-  else if (type === 'ocean') {
-    /* Ocean = low-pass noise with slow oscillating volume (waves) */
-    const noise = createNoise(ctx, 4);
-    const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass'; lp.frequency.value = 1200; lp.Q.value = 0.5;
-    const gain = ctx.createGain(); gain.gain.value = 0.6;
-    /* Slow wave oscillation */
-    const lfo = ctx.createOscillator();
-    lfo.frequency.value = 0.12;
-    const lfoGain = ctx.createGain();
-    lfoGain.gain.value = 0.35;
-    lfo.connect(lfoGain); lfoGain.connect(gain.gain);
-    noise.connect(lp); lp.connect(gain); gain.connect(masterGain);
-    noise.start(); lfo.start();
-    ambientNodes.push(noise, lfo);
-
-    /* Distant hiss layer */
-    const noise2 = createNoise(ctx, 2);
-    const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass'; hp.frequency.value = 3000;
-    const gain2 = ctx.createGain(); gain2.gain.value = 0.15;
-    noise2.connect(hp); hp.connect(gain2); gain2.connect(masterGain);
-    noise2.start();
-    ambientNodes.push(noise2);
-  }
-
-  else if (type === 'forest') {
-    /* Forest = gentle broad noise + soft high chirp tones */
-    const noise = createNoise(ctx, 3);
-    const bp = ctx.createBiquadFilter();
-    bp.type = 'bandpass'; bp.frequency.value = 400; bp.Q.value = 0.2;
-    const gain = ctx.createGain(); gain.gain.value = 0.25;
-    noise.connect(bp); bp.connect(gain); gain.connect(masterGain);
-    noise.start();
-    ambientNodes.push(noise);
-
-    /* Wind rustle */
-    const noise2 = createNoise(ctx, 2);
-    const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass'; lp.frequency.value = 800;
-    const gain2 = ctx.createGain(); gain2.gain.value = 0.2;
-    const lfo = ctx.createOscillator();
-    lfo.frequency.value = 0.15;
-    const lfoGain = ctx.createGain();
-    lfoGain.gain.value = 0.15;
-    lfo.connect(lfoGain); lfoGain.connect(gain2.gain);
-    noise2.connect(lp); lp.connect(gain2); gain2.connect(masterGain);
-    noise2.start(); lfo.start();
-    ambientNodes.push(noise2, lfo);
-  }
-
-  else if (type === 'thunder') {
-    /* Thunder = deep rumble (very low noise) + rain layer */
-    const noise = createNoise(ctx, 2);
-    const hp = ctx.createBiquadFilter();
-    hp.type = 'highpass'; hp.frequency.value = 3500;
-    const gain = ctx.createGain(); gain.gain.value = 0.5;
-    noise.connect(hp); hp.connect(gain); gain.connect(masterGain);
-    noise.start();
-    ambientNodes.push(noise);
-
-    /* Deep rumble */
-    const noise2 = createNoise(ctx, 4);
-    const lp = ctx.createBiquadFilter();
-    lp.type = 'lowpass'; lp.frequency.value = 200; lp.Q.value = 1;
-    const gain2 = ctx.createGain(); gain2.gain.value = 0.5;
-    const lfo = ctx.createOscillator();
-    lfo.frequency.value = 0.05;
-    const lfoGain = ctx.createGain();
-    lfoGain.gain.value = 0.4;
-    lfo.connect(lfoGain); lfoGain.connect(gain2.gain);
-    noise2.connect(lp); lp.connect(gain2); gain2.connect(masterGain);
-    noise2.start(); lfo.start();
-    ambientNodes.push(noise2, lfo);
-  }
-}
-
-/** Stop all ambient audio nodes */
-function stopAmbientSound() {
-  ambientNodes.forEach(node => {
-    try { node.stop(); } catch(e) {}
-    try { node.disconnect(); } catch(e) {}
+/** Stop ambient audio with a gentle 1s fade-out */
+function stopAmbientAudio() {
+  if (!ambientAudio) return;
+  const audio = ambientAudio;
+  ambientAudio = null;
+  fadeAudioTo(audio, 0, 1000, () => {
+    audio.pause();
+    audio.src = '';
   });
-  if (ambientNodes._masterGain) {
-    try { ambientNodes._masterGain.disconnect(); } catch(e) {}
-  }
-  ambientNodes = [];
 }
 
-/* ── Volume slider and mute button ────────────────────────────── */
-cinematicVolumeEl.addEventListener('input', () => {
-  if (ambientNodes._masterGain) {
-    const vol = cinematicVolumeEl.value / 100;
-    ambientNodes._masterGain.gain.value = isMuted ? 0 : vol * 0.6;
+/** Smoothly fade an Audio element's volume */
+function fadeAudioTo(audio, target, durationMs, onDone) {
+  const start = audio.volume;
+  const diff  = target - start;
+  const steps = Math.max(1, Math.round(durationMs / 50));
+  let step = 0;
+  const interval = setInterval(() => {
+    step++;
+    audio.volume = Math.max(0, Math.min(1, start + diff * (step / steps)));
+    if (step >= steps) {
+      clearInterval(interval);
+      audio.volume = Math.max(0, Math.min(1, target));
+      if (onDone) onDone();
+    }
+  }, 50);
+}
+
+/** Update ambient volume when slider moves */
+function updateAmbientVolume() {
+  if (!ambientAudio) return;
+  const vol = (cinematicVolumeEl.value / 100) * 0.5;
+  ambientAudio.volume = isMuted ? 0 : vol;
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   10b. QURAN RECITATION AUDIO
+   Uses cdn.islamic.network for Mishary Alafasy recitation.
+   Plays at medium volume, separate from ambient.
+   ════════════════════════════════════════════════════════════════ */
+
+/** Start Quran recitation for a given ayah reference */
+function startRecitation(ref) {
+  stopRecitation();
+  const absAyah = refToAbsoluteAyah(ref);
+  if (!absAyah) return;
+
+  const url = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${absAyah}.mp3`;
+  recitationAudio = new Audio(url);
+  recitationAudio.volume = 0;
+  recitationAudio.play().catch(() => {});
+
+  /* Fade in to 0.6 volume over 1s */
+  fadeAudioTo(recitationAudio, isMuted ? 0 : 0.6, 1000);
+}
+
+/** Stop recitation with fade-out */
+function stopRecitation() {
+  if (!recitationAudio) return;
+  const audio = recitationAudio;
+  recitationAudio = null;
+  fadeAudioTo(audio, 0, 800, () => {
+    audio.pause();
+    audio.src = '';
+  });
+}
+
+/** Toggle recitation play/pause */
+function toggleRecitation(ref) {
+  if (recitationAudio && !recitationAudio.paused) {
+    stopRecitation();
+    cinReciteBtn.classList.remove('active-ctrl');
+  } else {
+    startRecitation(ref);
+    cinReciteBtn.classList.add('active-ctrl');
   }
-});
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   10c. CONTROLS — Volume, Mute, Selectors
+   ════════════════════════════════════════════════════════════════ */
+
+cinematicVolumeEl.addEventListener('input', updateAmbientVolume);
 
 cinematicMuteBtn.addEventListener('click', () => {
   isMuted = !isMuted;
   cinematicMuteBtn.textContent = isMuted ? '🔇' : '🔊';
-  if (ambientNodes._masterGain) {
-    const vol = cinematicVolumeEl.value / 100;
-    ambientNodes._masterGain.gain.value = isMuted ? 0 : vol * 0.6;
+  updateAmbientVolume();
+  /* Also mute/unmute recitation */
+  if (recitationAudio) {
+    recitationAudio.volume = isMuted ? 0 : 0.6;
   }
 });
-
-
-/* ════════════════════════════════════════════════════════════════
-   10b. ENVIRONMENT & SOUND SELECTORS (Focus screen)
-   ════════════════════════════════════════════════════════════════ */
 
 /* Environment cards */
 document.getElementById('envGrid').addEventListener('click', (e) => {
@@ -3246,34 +3032,39 @@ document.getElementById('soundPills').addEventListener('click', (e) => {
   selectedSound = pill.dataset.sound;
 });
 
+/* Duration pills */
+document.getElementById('durationPills').addEventListener('click', (e) => {
+  const pill = e.target.closest('.duration-pill');
+  if (!pill) return;
+  document.querySelectorAll('.duration-pill').forEach(p => p.classList.remove('selected'));
+  pill.classList.add('selected');
+  selectedDuration = parseInt(pill.dataset.dur, 10);
+});
+
+/* Recitation toggle */
+document.getElementById('recitationToggle').addEventListener('click', function() {
+  wantRecitation = !wantRecitation;
+  this.classList.toggle('on', wantRecitation);
+});
+
 
 /* ════════════════════════════════════════════════════════════════
-   10c. CINEMATIC FLOW — STAGED REVEAL
-   The experience unfolds in timed steps:
-     0s  — background fades in
-     1s  — ayah arabic appears (soft fade)
-     3s  — translation fades in
-     5s  — verse reference appears
-     8s  — first reflection prompt
-     user proceeds through 3 prompts →
-     wisdom → action step → auto-exit at ~2-3 min
+   10d. CINEMATIC FLOW — PASSIVE EXPERIENCE
+   A calm, non-interactive flow:
+     0s   — overlay + video fade in
+     1s   — ayah arabic appears
+     3s   — translation fades in
+     4.5s — verse reference
+     6s   — recitation starts (if enabled)
+     ~60% — wisdom line fades in
+     end  — "Take this with you" + auto-fade-out
+   No reflection prompts. No forced interaction.
    ════════════════════════════════════════════════════════════════ */
-
-/** Save cinematic reflections to localStorage */
-function saveCinematicReflection(data) {
-  try {
-    const saved = JSON.parse(localStorage.getItem(CINEMATIC_KEY)) || [];
-    saved.unshift(data);
-    if (saved.length > 50) saved.length = 50;
-    localStorage.setItem(CINEMATIC_KEY, JSON.stringify(saved));
-  } catch(e) {}
-}
 
 /**
  * startFocusMode — main entry point.
- * Called from Focus screen, Result screen ("Deep Reflect"),
- * and Daily screen ("Deep Reflect on This Ayah").
- * Kept same name for backward compatibility.
+ * Called from Focus screen, Result screen, and Daily screen.
+ * Name kept for backward compatibility.
  */
 function startFocusMode(entry) {
   /* Pick a random ayah if none provided */
@@ -3282,7 +3073,7 @@ function startFocusMode(entry) {
     entry = group.entries[Math.floor(Math.random() * group.entries.length)];
   }
 
-  /* Find the emotion for this entry (for wisdom/action lookup) */
+  /* Find the emotion for this entry (for wisdom lookup) */
   let entryEmotion = 'Anxiety';
   for (const g of AYAH_DATA) {
     if (g.entries.some(e => e.ayah === entry.ayah)) {
@@ -3291,231 +3082,166 @@ function startFocusMode(entry) {
     }
   }
 
-  /* Set background scene */
-  cinematicBg.className = 'cinematic-bg bg-' + selectedEnv;
+  /* ── Load and start video ───────────────────────────────────── */
+  cinematicVideo.src = VIDEO_SOURCES[selectedEnv] || VIDEO_SOURCES.rain;
+  cinematicVideo.load();
+  cinematicVideo.play().catch(() => {});
 
-  /* Start ambient sound */
-  startAmbientSound(selectedSound);
-
-  /* Reset mute state visually */
+  /* ── Start ambient audio ────────────────────────────────────── */
+  startAmbientAudio(selectedSound);
   isMuted = false;
   cinematicMuteBtn.textContent = '🔊';
 
-  /* Reflection responses collected during the session */
-  const reflectionAnswers = [];
+  /* ── Show/hide recitation button ────────────────────────────── */
+  cinReciteBtn.style.display = wantRecitation ? 'flex' : 'none';
+  cinReciteBtn.classList.remove('active-ctrl');
 
-  /* ── Build cinematic content ────────────────────────────────── */
+  /* ── Build cinematic content (minimal, passive) ─────────────── */
   cinematicContent.innerHTML = `
-    <div class="cinematic-ayah cinematic-breathe" id="cinAyah">
+    <div class="cinematic-ayah" id="cinAyah">
       <div class="arabic">${entry.ayah}</div>
       <p class="translation" id="cinTranslation">"${entry.translation}"</p>
       <div class="verse-ref" id="cinRef">${entry.reference}</div>
     </div>
 
-    <div class="cinematic-reflection" id="cinReflection">
-      <div class="cinematic-reflection-prompt" id="cinPromptText"></div>
-      <textarea id="cinReflectionInput" placeholder="Type your reflection..."></textarea>
-      <div style="text-align:center;margin-top:12px;">
-        <button class="cinematic-btn primary" id="cinNextPrompt">Continue</button>
-      </div>
-    </div>
-
     <div class="cinematic-wisdom" id="cinWisdom">
-      <div class="cinematic-wisdom-label">If you remember one thing from this ayah</div>
+      <div class="cinematic-wisdom-label">Remember this</div>
       <div class="cinematic-wisdom-text">${WISDOM_LINES[entryEmotion] || WISDOM_LINES['Anxiety']}</div>
     </div>
 
-    <div class="cinematic-action" id="cinAction">
-      <div class="cinematic-action-icon">🕋</div>
-      <div>
-        <div class="cinematic-action-label">Act on this now</div>
-        <div class="cinematic-action-text" id="cinActionText"></div>
-      </div>
-    </div>
-
     <div class="cinematic-farewell" id="cinFarewell">
-      <div class="cinematic-farewell-text">Take this with you. 🤲</div>
-      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;">
-        <button class="cinematic-btn primary" id="cinSaveExit">Save &amp; Exit</button>
-        <button class="cinematic-btn" id="cinExit">Exit</button>
-      </div>
+      <div class="cinematic-farewell-text">Take this with you.</div>
     </div>
   `;
 
-  /* Set action step text */
-  const actions = ACTION_STEPS[entryEmotion] || ACTION_STEPS['Anxiety'];
-  const actionIdx = Math.floor(Math.random() * actions.length);
-  document.getElementById('cinActionText').textContent = actions[actionIdx];
-
-  /* ── Show overlay with 1s fade ──────────────────────────────── */
+  /* ── Show overlay ───────────────────────────────────────────── */
+  cinematicOverlay.classList.remove('fade-exit');
   cinematicOverlay.classList.add('active');
+  cinematicProgress.style.width = '0%';
+  cinematicProgress.style.transition = 'none';
 
-  /* ── Start countdown timer (2 minutes = 120 seconds) ────────── */
-  let seconds = 120;
-  cinematicTimerEl.textContent = '2:00';
-
-  cinematicInterval = setInterval(() => {
-    seconds--;
-    if (seconds <= 0) {
-      clearInterval(cinematicInterval);
-      cinematicTimerEl.textContent = '0:00';
-      /* Auto-trigger farewell if not already shown */
-      showFarewell();
-    } else {
-      const m = Math.floor(seconds / 60);
-      const s = String(seconds % 60).padStart(2, '0');
-      cinematicTimerEl.textContent = `${m}:${s}`;
-    }
-  }, 1000);
-
-  /* ── Staged reveal timeline ─────────────────────────────────── */
-  let currentPrompt = 0;
+  /* ── Duration and progress ──────────────────────────────────── */
+  const totalSec = selectedDuration || 0; // 0 = infinite
+  let elapsed = 0;
   let farewellShown = false;
 
-  /* Step 1: After 1s — fade in ayah Arabic */
-  cinematicStepTimer = setTimeout(() => {
-    document.getElementById('cinAyah').classList.add('visible');
-
-    /* Step 2: After 2.5s more — fade in translation */
-    cinematicStepTimer = setTimeout(() => {
-      document.getElementById('cinTranslation').classList.add('visible');
-
-      /* Step 3: After 1.5s more — show verse reference */
-      cinematicStepTimer = setTimeout(() => {
-        document.getElementById('cinRef').classList.add('visible');
-
-        /* Step 4: After 2s more — show first reflection prompt */
-        cinematicStepTimer = setTimeout(() => {
-          showReflectionPrompt(0);
-        }, 2000);
-      }, 1500);
-    }, 2500);
-  }, 1000);
-
-  /** Show a reflection prompt by index */
-  function showReflectionPrompt(index) {
-    if (index >= REFLECTION_PROMPTS.length) {
-      /* All prompts answered — show wisdom, action, farewell */
-      showWisdomAndAction();
-      return;
-    }
-    currentPrompt = index;
-    const reflectionEl = document.getElementById('cinReflection');
-    const promptText   = document.getElementById('cinPromptText');
-    const input        = document.getElementById('cinReflectionInput');
-
-    promptText.textContent = REFLECTION_PROMPTS[index];
-    input.value = '';
-    input.placeholder = 'Type your reflection...';
-
-    /* Fade in the reflection section */
-    reflectionEl.classList.remove('visible');
+  /* Start progress bar animation after a small delay */
+  if (totalSec > 0) {
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        reflectionEl.classList.add('visible');
+        cinematicProgress.style.transition = `width ${totalSec}s linear`;
+        cinematicProgress.style.width = '100%';
       });
     });
   }
 
-  /** Show wisdom + action step after reflections */
-  function showWisdomAndAction() {
-    /* Hide reflection section */
-    const reflectionEl = document.getElementById('cinReflection');
-    reflectionEl.classList.remove('visible');
+  /* Timer tick every second */
+  cinematicInterval = setInterval(() => {
+    elapsed++;
+    if (totalSec > 0 && elapsed >= totalSec) {
+      clearInterval(cinematicInterval);
+      cinematicInterval = null;
+      showFarewell();
+      /* Auto-exit 3 seconds after farewell */
+      const exitTimer = setTimeout(() => endCinematicMode(), 3000);
+      cinematicTimers.push(exitTimer);
+    }
+  }, 1000);
 
-    setTimeout(() => {
-      reflectionEl.style.display = 'none';
-
-      /* Show wisdom */
-      document.getElementById('cinWisdom').classList.add('visible');
-
-      setTimeout(() => {
-        /* Show action */
-        document.getElementById('cinAction').classList.add('visible');
-
-        /* After 4 seconds, show farewell */
-        setTimeout(() => showFarewell(), 4000);
-      }, 2000);
-    }, 600);
+  /* ── Staged reveal timeline ─────────────────────────────────── */
+  function scheduleStep(fn, ms) {
+    const t = setTimeout(fn, ms);
+    cinematicTimers.push(t);
   }
 
-  /** Show the farewell / exit screen */
+  /* Step 1: 1s — fade in ayah */
+  scheduleStep(() => {
+    const el = document.getElementById('cinAyah');
+    if (el) el.classList.add('visible');
+  }, 1000);
+
+  /* Step 2: 3s — translation */
+  scheduleStep(() => {
+    const el = document.getElementById('cinTranslation');
+    if (el) el.classList.add('visible');
+  }, 3000);
+
+  /* Step 3: 4.5s — verse reference */
+  scheduleStep(() => {
+    const el = document.getElementById('cinRef');
+    if (el) el.classList.add('visible');
+  }, 4500);
+
+  /* Step 4: 6s — start recitation if enabled */
+  if (wantRecitation) {
+    scheduleStep(() => {
+      startRecitation(entry.reference);
+      cinReciteBtn.classList.add('active-ctrl');
+    }, 6000);
+  }
+
+  /* Step 5: ~60% through — show wisdom */
+  const wisdomTime = totalSec > 0
+    ? Math.max(8000, totalSec * 600) // 60% of duration, min 8s
+    : 15000; // infinite mode: show at 15s
+  scheduleStep(() => {
+    const el = document.getElementById('cinWisdom');
+    if (el) el.classList.add('visible');
+  }, wisdomTime);
+
+  /** Show farewell */
   function showFarewell() {
     if (farewellShown) return;
     farewellShown = true;
-
-    /* Make sure wisdom and action are visible */
-    document.getElementById('cinWisdom').classList.add('visible');
-    document.getElementById('cinAction').classList.add('visible');
-
-    /* Fade in farewell */
-    document.getElementById('cinFarewell').classList.add('visible');
+    const el = document.getElementById('cinFarewell');
+    if (el) el.classList.add('visible');
   }
 
-  /* ── "Continue" button — advance through reflection prompts ── */
-  document.getElementById('cinNextPrompt').addEventListener('click', () => {
-    const input = document.getElementById('cinReflectionInput');
-    const answer = input.value.trim();
-    if (answer) {
-      reflectionAnswers.push({
-        prompt: REFLECTION_PROMPTS[currentPrompt],
-        answer: answer
-      });
-    }
-    showReflectionPrompt(currentPrompt + 1);
-  });
+  /* ── Recitation button toggle ───────────────────────────────── */
+  cinReciteBtn.onclick = () => toggleRecitation(entry.reference);
 
-  /* ── "Save & Exit" button ───────────────────────────────────── */
-  document.getElementById('cinSaveExit').addEventListener('click', () => {
-    /* Save reflection data */
-    if (reflectionAnswers.length > 0) {
-      saveCinematicReflection({
-        date: new Date().toISOString(),
-        reference: entry.reference,
-        translation: entry.translation,
-        emotion: entryEmotion,
-        reflections: reflectionAnswers,
-        environment: selectedEnv,
-        sound: selectedSound
-      });
-
-      /* Also save to main history */
-      saveToHistory({
-        date: new Date().toISOString(),
-        emotion: entryEmotion,
-        reference: entry.reference,
-        translation: entry.translation,
-        learnedText: reflectionAnswers.map(r => r.answer).join(' | '),
-        actionText: '(Nature Reflection)'
-      });
-    }
-    showToast('Reflection saved ✨');
-    endCinematicMode();
-  });
-
-  /* ── "Exit" button (no save) ────────────────────────────────── */
-  document.getElementById('cinExit').addEventListener('click', () => {
-    endCinematicMode();
+  /* ── Save session to history ────────────────────────────────── */
+  saveToHistory({
+    date: new Date().toISOString(),
+    emotion: entryEmotion,
+    reference: entry.reference,
+    translation: entry.translation,
+    learnedText: '',
+    actionText: '(Cinematic Ayah)'
   });
 }
 
-/** Clean up and close the cinematic overlay */
-function endCinematicMode() {
-  /* Stop timer */
-  if (cinematicInterval) { clearInterval(cinematicInterval); cinematicInterval = null; }
-  if (cinematicStepTimer) { clearTimeout(cinematicStepTimer); cinematicStepTimer = null; }
 
-  /* Stop audio */
-  stopAmbientSound();
+/** Clean up and close the cinematic overlay with smooth fade-out */
+function endCinematicMode() {
+  /* Clear all timers */
+  if (cinematicInterval) { clearInterval(cinematicInterval); cinematicInterval = null; }
+  cinematicTimers.forEach(t => clearTimeout(t));
+  cinematicTimers = [];
+
+  /* Fade out audio */
+  stopAmbientAudio();
+  stopRecitation();
 
   /* Fade out overlay */
-  cinematicOverlay.classList.remove('active');
+  cinematicOverlay.classList.add('fade-exit');
 
-  /* Clean up content after fade completes */
+  /* After fade completes, fully clean up */
   setTimeout(() => {
+    cinematicOverlay.classList.remove('active', 'fade-exit');
     cinematicContent.innerHTML = '';
-  }, 1000);
+    cinematicProgress.style.width = '0%';
+    cinematicProgress.style.transition = 'none';
+
+    /* Unload video to free memory */
+    cinematicVideo.pause();
+    cinematicVideo.removeAttribute('src');
+    cinematicVideo.load();
+  }, 1600);
 }
+
+/* ── X close button ───────────────────────────────────────────── */
+cinematicCloseBtn.addEventListener('click', endCinematicMode);
 
 /* ── Start from Focus screen button ───────────────────────────── */
 document.getElementById('startFocusBtn').addEventListener('click', () => {
@@ -3829,7 +3555,7 @@ function renderDaily() {
 
     <div style="text-align:center;margin-top:12px;">
       <button class="btn-ghost" id="dailyFocusBtn">
-        🌿 Nature Reflect on This Ayah
+        🎬 Cinematic Ayah
       </button>
     </div>
   `;
