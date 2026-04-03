@@ -75,7 +75,7 @@
     .text-input, textarea.text-input, .btn-primary, .btn-ghost,
     .history-item, .history-reflection, .explanation, .save-toast,
     .streak-badge, .focus-overlay, .journal-tab, .note-item,
-    .passcode-overlay {
+    .passcode-overlay, .station-player, .reciter-card, .station-ctrl {
       transition: background-color 0.3s ease, color 0.3s ease,
                   border-color 0.3s ease, box-shadow 0.3s ease;
     }
@@ -273,7 +273,7 @@
       font-size: 10px;
       letter-spacing: 0.04em;
       cursor: pointer;
-      padding: 6px 12px;
+      padding: 6px 8px;
       border-radius: var(--radius-sm);
       transition: color var(--transition), background var(--transition), transform 0.15s ease;
     }
@@ -1171,6 +1171,199 @@
     .recitation-toggle-row .lock-toggle::after { width: 18px; height: 18px; }
     .recitation-toggle-row .lock-toggle.on::after { transform: translateX(18px); }
 
+    /* ── QUR'AN STATIONS ─────────────────────────────────────── */
+    .station-header {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+    .station-header h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .station-header p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Reciter cards */
+    .reciter-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+    .reciter-card {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1.5px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 14px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .reciter-card:hover { background: var(--bg-hover); }
+    .reciter-card.selected {
+      border-color: var(--green);
+      background: var(--green-soft);
+      box-shadow: 0 0 16px var(--glow-color);
+    }
+    .reciter-card-icon { font-size: 28px; margin-bottom: 6px; }
+    .reciter-card-name { font-size: 11px; font-weight: 600; color: var(--text); line-height: 1.3; }
+
+    /* Station player */
+    .station-player {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 18px;
+    }
+
+    /* Now-playing ayah display */
+    .station-ayah-display {
+      text-align: center;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+    .station-surah-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--green);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .station-arabic {
+      font-family: var(--font-arabic);
+      font-size: 26px;
+      line-height: 2;
+      color: var(--text);
+      direction: rtl;
+      margin-bottom: 14px;
+      text-shadow: 0 0 20px var(--glow-color);
+    }
+    .station-translation {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--text-muted);
+      font-style: italic;
+      max-width: 340px;
+    }
+    .station-ref {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 10px;
+    }
+
+    /* Player controls */
+    .station-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+    .station-ctrl {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-card);
+      border: 1.5px solid var(--glass-border);
+      border-radius: 50%;
+      color: var(--text);
+      font-size: 18px;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .station-ctrl:hover { background: var(--bg-hover); border-color: var(--green); }
+    .station-ctrl:active { transform: scale(0.9); }
+    .station-ctrl:disabled { opacity: 0.3; cursor: default; }
+    .station-ctrl:disabled:hover { background: var(--bg-card); border-color: var(--glass-border); }
+
+    .station-ctrl-play {
+      width: 56px;
+      height: 56px;
+      font-size: 22px;
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+    .station-ctrl-play:hover { background: var(--green-light); border-color: var(--green-light); }
+
+    /* Progress / status */
+    .station-status {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-dim);
+      min-height: 16px;
+    }
+    .station-status .loading-dots::after {
+      content: '';
+      animation: stationDots 1.2s steps(4, end) infinite;
+    }
+    @keyframes stationDots {
+      0% { content: ''; }
+      25% { content: '.'; }
+      50% { content: '..'; }
+      75% { content: '...'; }
+    }
+
+    /* Surah progress bar */
+    .station-progress-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .station-progress-track {
+      flex: 1;
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .station-progress-fill {
+      height: 100%;
+      background: var(--green);
+      border-radius: 2px;
+      transition: width 0.5s ease;
+      width: 0%;
+    }
+    .station-progress-label {
+      font-size: 10px;
+      color: var(--text-dim);
+      min-width: 44px;
+      text-align: right;
+    }
+
+    /* Start card (before playing) */
+    .station-idle-msg {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .station-idle-msg .icon { font-size: 36px; margin-bottom: 10px; }
+
+    /* Stop button */
+    .station-stop-row {
+      text-align: center;
+      margin-top: 6px;
+    }
+
     /* ── Journal tabs ─────────────────────────────────────────── */
     .journal-tabs {
       display: flex;
@@ -1638,6 +1831,72 @@
       </div>
     </div>
 
+    <!-- ─── QUR'AN STATIONS SCREEN ─────────────────────────────── -->
+    <div class="screen" id="screen-stations">
+      <div class="station-header">
+        <h2>Qur'an Stations</h2>
+        <p>Continuous recitation — pick a reciter and listen</p>
+      </div>
+
+      <!-- Reciter selection -->
+      <div class="reciter-grid" id="reciterGrid">
+        <button class="reciter-card selected" data-reciter="ar.alafasy" data-bitrate="128">
+          <div class="reciter-card-icon">🕌</div>
+          <div class="reciter-card-name">Mishary Alafasy</div>
+        </button>
+        <button class="reciter-card" data-reciter="ar.abdurrahmaansudais" data-bitrate="192">
+          <div class="reciter-card-icon">🌙</div>
+          <div class="reciter-card-name">Al-Sudais</div>
+        </button>
+        <button class="reciter-card" data-reciter="ar.shaatree" data-bitrate="128">
+          <div class="reciter-card-icon">📖</div>
+          <div class="reciter-card-name">Abu Bakr Ash-Shatri</div>
+        </button>
+      </div>
+
+      <!-- Player -->
+      <div class="station-player" id="stationPlayer">
+        <!-- Idle state -->
+        <div id="stationIdle">
+          <div class="station-idle-msg">
+            <div class="icon">🎧</div>
+            <p>Select a reciter and press play<br/>to start listening</p>
+          </div>
+        </div>
+
+        <!-- Now-playing state (hidden initially) -->
+        <div id="stationPlaying" style="display:none;">
+          <div class="station-ayah-display">
+            <div class="station-surah-label" id="stationSurah">—</div>
+            <div class="station-arabic" id="stationArabic">بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ</div>
+            <div class="station-translation" id="stationTranslation">In the name of Allah, the Entirely Merciful, the Especially Merciful.</div>
+            <div class="station-ref" id="stationRef">1:1</div>
+          </div>
+
+          <div class="station-progress-row">
+            <div class="station-progress-track">
+              <div class="station-progress-fill" id="stationProgressFill"></div>
+            </div>
+            <div class="station-progress-label" id="stationProgressLabel">0 / 0</div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="station-controls" style="margin-top:18px;">
+          <button class="station-ctrl" id="stationPrev" title="Previous ayah" disabled>⏮</button>
+          <button class="station-ctrl station-ctrl-play" id="stationPlayBtn" title="Play">▶</button>
+          <button class="station-ctrl" id="stationNext" title="Next ayah" disabled>⏭</button>
+        </div>
+
+        <div class="station-status" id="stationStatus"></div>
+
+        <!-- Stop button -->
+        <div class="station-stop-row" id="stationStopRow" style="display:none;">
+          <button class="btn-ghost" id="stationStopBtn" style="font-size:12px;">Stop Station</button>
+        </div>
+      </div>
+    </div>
+
     <!-- ─── JOURNAL SCREEN (History + Notes) ─────────────────── -->
     <div class="screen" id="screen-journal">
       <!-- Tabs to switch between History and Notes -->
@@ -1696,6 +1955,10 @@
     <button class="nav-btn" data-screen="focus">
       <svg viewBox="0 0 24 24"><path d="M12 3c-1.5 0-3 .5-4.2 1.4C6 5.6 5 7.7 5 10c0 4 3.5 7.5 6 10.5 0 0 .7-.8 1.5-1.8M19 10c0-2.3-1-4.4-2.8-5.6C15 3.5 13.5 3 12 3"/><circle cx="12" cy="10" r="2"/></svg>
       Nature
+    </button>
+    <button class="nav-btn" data-screen="stations">
+      <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      Stations
     </button>
     <button class="nav-btn" data-screen="journal">
       <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
@@ -4022,7 +4285,270 @@ function showToast(message) {
 
 
 /* ────────────────────────────────────────────────────────────────
-   16. INITIALISATION
+   16. QUR'AN STATIONS MODE
+   Spotify-like continuous Qur'an recitation with reciter selection.
+   Uses AlQuran Cloud CDN for audio and API for text.
+   ──────────────────────────────────────────────────────────────── */
+
+const RECITERS = {
+  'ar.alafasy':              { name: 'Mishary Alafasy',      bitrate: 128 },
+  'ar.abdurrahmaansudais':   { name: 'Abdul Rahman Al-Sudais', bitrate: 192 },
+  'ar.shaatree':             { name: 'Abu Bakr Ash-Shatri',  bitrate: 128 }
+};
+
+const TOTAL_AYAHS = 6236;
+
+/* Station state */
+let stationReciter  = 'ar.alafasy';
+let stationAyah     = 1;       // absolute ayah number (1–6236)
+let stationPlaying  = false;
+let stationAudio    = null;
+let stationLoading  = false;
+let stationCache    = {};      // cache ayah text: { [num]: { arabic, translation, surah, ayahInSurah } }
+
+/* DOM refs */
+const stationPlayBtn       = document.getElementById('stationPlayBtn');
+const stationPrevBtn       = document.getElementById('stationPrev');
+const stationNextBtn       = document.getElementById('stationNext');
+const stationIdleEl        = document.getElementById('stationIdle');
+const stationPlayingEl     = document.getElementById('stationPlaying');
+const stationArabicEl      = document.getElementById('stationArabic');
+const stationTranslationEl = document.getElementById('stationTranslation');
+const stationSurahEl       = document.getElementById('stationSurah');
+const stationRefEl         = document.getElementById('stationRef');
+const stationStatusEl      = document.getElementById('stationStatus');
+const stationProgressFill  = document.getElementById('stationProgressFill');
+const stationProgressLabel = document.getElementById('stationProgressLabel');
+const stationStopRow       = document.getElementById('stationStopRow');
+
+/* ── Reciter selection ──────────────────────────────────────────── */
+document.getElementById('reciterGrid').addEventListener('click', (e) => {
+  const card = e.target.closest('.reciter-card');
+  if (!card) return;
+  document.querySelectorAll('.reciter-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  stationReciter = card.dataset.reciter;
+
+  /* If already playing, restart with new reciter on same ayah */
+  if (stationPlaying) {
+    stationPlayAyah(stationAyah);
+  }
+});
+
+/* ── Build audio URL for a given ayah and reciter ───────────────── */
+function stationAudioUrl(ayahNum, reciterId) {
+  const bitrate = RECITERS[reciterId]?.bitrate || 128;
+  return `https://cdn.islamic.network/quran/audio/${bitrate}/${reciterId}/${ayahNum}.mp3`;
+}
+
+/* ── Fetch ayah text + translation from API ─────────────────────── */
+async function fetchAyahData(ayahNum) {
+  if (stationCache[ayahNum]) return stationCache[ayahNum];
+
+  try {
+    const res = await fetch(`https://api.alquran.cloud/v1/ayah/${ayahNum}/editions/quran-uthmani,en.sahih`);
+    if (!res.ok) throw new Error('API error');
+    const json = await res.json();
+    const arabic = json.data[0];
+    const english = json.data[1];
+
+    const data = {
+      arabic: arabic.text,
+      translation: english.text,
+      surah: arabic.surah.englishName,
+      surahArabic: arabic.surah.name,
+      surahNumber: arabic.surah.number,
+      ayahInSurah: arabic.numberInSurah,
+      totalInSurah: arabic.surah.numberOfAyahs
+    };
+    stationCache[ayahNum] = data;
+    return data;
+  } catch (err) {
+    return null;
+  }
+}
+
+/* ── Update the display with ayah data ──────────────────────────── */
+function stationUpdateDisplay(data) {
+  if (!data) return;
+  stationArabicEl.textContent = data.arabic;
+  stationTranslationEl.textContent = `"${data.translation}"`;
+  stationSurahEl.textContent = `${data.surah} (${data.surahArabic})`;
+  stationRefEl.textContent = `${data.surahNumber}:${data.ayahInSurah}`;
+
+  /* Progress within surah */
+  const pct = (data.ayahInSurah / data.totalInSurah * 100).toFixed(1);
+  stationProgressFill.style.width = pct + '%';
+  stationProgressLabel.textContent = `${data.ayahInSurah} / ${data.totalInSurah}`;
+}
+
+/* ── Set status text ────────────────────────────────────────────── */
+function stationSetStatus(text, loading) {
+  stationLoading = !!loading;
+  stationStatusEl.innerHTML = loading
+    ? `<span class="loading-dots">${text}</span>`
+    : text;
+}
+
+/* ── Play a specific ayah ───────────────────────────────────────── */
+async function stationPlayAyah(ayahNum) {
+  if (ayahNum < 1) ayahNum = TOTAL_AYAHS; // wrap to end
+  if (ayahNum > TOTAL_AYAHS) ayahNum = 1;  // wrap to start
+  stationAyah = ayahNum;
+
+  stationSetStatus('Loading', true);
+  stationPrevBtn.disabled = false;
+  stationNextBtn.disabled = false;
+
+  /* Stop any current playback */
+  if (stationAudio) {
+    stationAudio.pause();
+    stationAudio.removeAttribute('src');
+    stationAudio.load();
+  }
+
+  /* Fetch text + translation */
+  const data = await fetchAyahData(ayahNum);
+  if (data) {
+    stationUpdateDisplay(data);
+  }
+
+  /* Pre-fetch next ayah text (not audio — just metadata) */
+  const nextNum = ayahNum < TOTAL_AYAHS ? ayahNum + 1 : 1;
+  fetchAyahData(nextNum);
+
+  /* Create audio and play */
+  const url = stationAudioUrl(ayahNum, stationReciter);
+
+  if (!stationAudio) {
+    stationAudio = new Audio();
+    stationAudio.setAttribute('playsinline', '');
+  }
+  stationAudio.src = url;
+  stationAudio.volume = 0;
+  stationAudio.load();
+
+  const onCanPlay = () => {
+    stationAudio.removeEventListener('canplaythrough', onCanPlay);
+    stationAudio.removeEventListener('error', onError);
+    stationAudio.play().then(() => {
+      stationSetStatus(RECITERS[stationReciter]?.name || 'Playing', false);
+      fadeAudioTo(stationAudio, 0.8, 500);
+    }).catch(() => {
+      stationSetStatus('Tap play to start', false);
+      stationPlaying = false;
+      stationPlayBtn.textContent = '▶';
+    });
+  };
+
+  const onError = () => {
+    stationAudio.removeEventListener('canplaythrough', onCanPlay);
+    stationAudio.removeEventListener('error', onError);
+    stationSetStatus('Error loading — skipping', false);
+    /* Skip to next after a brief pause */
+    setTimeout(() => {
+      if (stationPlaying) stationPlayAyah(ayahNum + 1);
+    }, 1500);
+  };
+
+  stationAudio.addEventListener('canplaythrough', onCanPlay);
+  stationAudio.addEventListener('error', onError);
+
+  /* Auto-advance when this ayah finishes */
+  stationAudio.onended = () => {
+    if (stationPlaying) stationPlayAyah(ayahNum + 1);
+  };
+}
+
+/* ── Stop the station and clean up ──────────────────────────────── */
+function stationStop() {
+  stationPlaying = false;
+  stationPlayBtn.textContent = '▶';
+  stationPrevBtn.disabled = true;
+  stationNextBtn.disabled = true;
+  stationSetStatus('', false);
+
+  if (stationAudio) {
+    fadeAudioTo(stationAudio, 0, 600, () => {
+      if (stationAudio) {
+        stationAudio.pause();
+        stationAudio.removeAttribute('src');
+        stationAudio.load();
+      }
+    });
+  }
+
+  /* Show idle, hide playing */
+  stationIdleEl.style.display = '';
+  stationPlayingEl.style.display = 'none';
+  stationStopRow.style.display = 'none';
+}
+
+/* ── Play / Pause button ────────────────────────────────────────── */
+stationPlayBtn.addEventListener('click', () => {
+  if (stationLoading) return;
+
+  if (stationPlaying && stationAudio && !stationAudio.paused) {
+    /* Pause */
+    stationAudio.pause();
+    stationPlayBtn.textContent = '▶';
+    stationSetStatus('Paused', false);
+  } else if (stationPlaying && stationAudio && stationAudio.paused) {
+    /* Resume */
+    stationAudio.play().then(() => {
+      stationPlayBtn.textContent = '⏸';
+      stationSetStatus(RECITERS[stationReciter]?.name || 'Playing', false);
+    }).catch(() => {});
+  } else {
+    /* Start fresh */
+    stationPlaying = true;
+    stationPlayBtn.textContent = '⏸';
+
+    /* Stop any cinematic ambient audio */
+    if (typeof stopAmbientAudio === 'function') stopAmbientAudio();
+    if (typeof stopRecitation === 'function') stopRecitation();
+
+    /* Show playing UI */
+    stationIdleEl.style.display = 'none';
+    stationPlayingEl.style.display = '';
+    stationStopRow.style.display = '';
+
+    /* Prime audio on user gesture for mobile */
+    stationAudio = new Audio();
+    stationAudio.setAttribute('playsinline', '');
+    stationAudio.volume = 0;
+    stationAudio.play().catch(() => {});
+
+    stationPlayAyah(stationAyah);
+  }
+});
+
+/* ── Prev / Next buttons ────────────────────────────────────────── */
+stationPrevBtn.addEventListener('click', () => {
+  if (stationLoading) return;
+  stationPlayAyah(stationAyah - 1);
+});
+
+stationNextBtn.addEventListener('click', () => {
+  if (stationLoading) return;
+  stationPlayAyah(stationAyah + 1);
+});
+
+/* ── Stop button ────────────────────────────────────────────────── */
+document.getElementById('stationStopBtn').addEventListener('click', stationStop);
+
+/* ── Stop station when navigating away ──────────────────────────── */
+const _origNavigateTo = navigateTo;
+navigateTo = function(screenName) {
+  if (screenName !== 'stations' && stationPlaying) {
+    stationStop();
+  }
+  _origNavigateTo(screenName);
+};
+
+
+/* ────────────────────────────────────────────────────────────────
+   17. INITIALISATION
    ──────────────────────────────────────────────────────────────── */
 
 renderStreak();
