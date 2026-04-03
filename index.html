@@ -3471,10 +3471,11 @@ const SURAH_VERSES = [
 /**
  * Convert a reference string like "Surah Ar-Ra'd (13:28)" to an absolute
  * ayah number (1–6236) for the recitation audio API.
- * Returns null if the reference has a range (e.g. "2:155-156").
+ * For range references like "Surah Al-Baqarah (2:155-156)", uses the FIRST ayah.
  */
 function refToAbsoluteAyah(ref) {
-  const m = ref.match(/\((\d+):(\d+)\)$/);
+  /* Match both single (13:28) and range (2:155-156) formats */
+  const m = ref.match(/\((\d+):(\d+)(?:-\d+)?\)$/);
   if (!m) return null;
   const surah = parseInt(m[1], 10);
   const verse = parseInt(m[2], 10);
@@ -3596,12 +3597,24 @@ function primeRecitationAudio() {
 /** Start Quran recitation for a given ayah reference (must be called after primeRecitationAudio) */
 function startRecitation(ref) {
   const absAyah = refToAbsoluteAyah(ref);
-  if (!absAyah) return;
+  console.log('[Recitation] Display ref:', ref, '→ absolute ayah:', absAyah);
+  if (!absAyah) {
+    console.warn('[Recitation] Could not map reference to ayah number:', ref);
+    return;
+  }
+
+  /* Stop any currently playing recitation first */
+  if (recitationAudio && !recitationAudio.paused) {
+    recitationAudio.pause();
+    recitationAudio.removeAttribute('src');
+    recitationAudio.load();
+  }
 
   /* If no primed audio, create one (won't work on mobile without gesture, but try) */
   if (!recitationAudio) primeRecitationAudio();
 
   const url = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${absAyah}.mp3`;
+  console.log('[Recitation] Playing URL:', url);
   setReciteUI('loading');
 
   recitationAudio.src = url;
@@ -3630,8 +3643,9 @@ function startRecitation(ref) {
   recitationAudio.addEventListener('canplaythrough', onCanPlay);
   recitationAudio.addEventListener('error', onError);
 
-  /* When recitation ends naturally, restore ambient */
+  /* When recitation ends naturally — stop, do NOT auto-continue to next ayah */
   recitationAudio.onended = () => {
+    console.log('[Recitation] Finished playing ayah', absAyah);
     setReciteUI('idle');
     duckAmbient(false);
   };
@@ -4396,6 +4410,7 @@ async function stationPlayAyah(ayahNum) {
   if (ayahNum > TOTAL_AYAHS) ayahNum = 1;  // wrap to start
   stationAyah = ayahNum;
 
+  console.log('[Station] Loading ayah', ayahNum, 'with reciter', stationReciter);
   stationSetStatus('Loading', true);
   stationPrevBtn.disabled = false;
   stationNextBtn.disabled = false;
@@ -4411,13 +4426,14 @@ async function stationPlayAyah(ayahNum) {
   const data = await fetchAyahData(ayahNum);
   if (data) {
     stationUpdateDisplay(data);
+    console.log('[Station] Display:', data.surahNumber + ':' + data.ayahInSurah, '— Audio ayah:', ayahNum);
   }
 
   /* Pre-fetch next ayah text (not audio — just metadata) */
   const nextNum = ayahNum < TOTAL_AYAHS ? ayahNum + 1 : 1;
   fetchAyahData(nextNum);
 
-  /* Create audio and play */
+  /* Create audio and play — same ayahNum used for BOTH text and audio */
   const url = stationAudioUrl(ayahNum, stationReciter);
 
   if (!stationAudio) {
