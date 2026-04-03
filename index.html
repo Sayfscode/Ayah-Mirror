@@ -878,6 +878,21 @@
     .cinematic-ctrl-btn:active { transform: scale(0.9); }
     .cinematic-ctrl-btn.active-ctrl { color: rgba(129,199,132,0.9); border-color: rgba(129,199,132,0.3); }
 
+    /* Recitation button states */
+    .cinematic-ctrl-btn.recite-loading { border-color: rgba(255,200,50,0.4); }
+    .recite-spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.2);
+      border-top-color: rgba(255,255,255,0.8);
+      border-radius: 50%;
+      animation: reciteSpin 0.8s linear infinite;
+    }
+    @keyframes reciteSpin { to { transform: rotate(360deg); } }
+    @keyframes recitePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(129,199,132,0); }
+      50% { box-shadow: 0 0 0 8px rgba(129,199,132,0.3); }
+    }
+
     /* ── Volume slider (pop-out) ──────────────────────────────── */
     .cinematic-vol-slider {
       -webkit-appearance: none;
@@ -1708,7 +1723,10 @@
 
   <!-- Controls (top-right): mute + volume + recitation -->
   <div class="cinematic-controls" id="cinematicControls">
-    <button class="cinematic-ctrl-btn" id="cinReciteBtn" title="Toggle recitation" style="display:none;">🎙️</button>
+    <button class="cinematic-ctrl-btn" id="cinReciteBtn" title="Toggle recitation" style="display:none;">
+      <span id="cinReciteIcon">🎙️</span>
+      <span id="cinReciteSpinner" style="display:none;" class="recite-spinner"></span>
+    </button>
     <input type="range" class="cinematic-vol-slider" id="cinematicVolume" min="0" max="100" value="25" title="Ambient volume" />
     <button class="cinematic-ctrl-btn" id="cinematicMuteBtn" title="Mute/unmute">🔊</button>
   </div>
@@ -3265,44 +3283,141 @@ function updateAmbientVolume() {
 /* ════════════════════════════════════════════════════════════════
    10b. QURAN RECITATION AUDIO
    Uses cdn.islamic.network for Mishary Alafasy recitation.
-   Plays at medium volume, separate from ambient.
+   Mobile-safe: Audio element is pre-created during user gesture.
+   Ambient audio ducks when recitation plays.
    ════════════════════════════════════════════════════════════════ */
 
-/** Start Quran recitation for a given ayah reference */
+const cinReciteIcon    = document.getElementById('cinReciteIcon');
+const cinReciteSpinner = document.getElementById('cinReciteSpinner');
+let recitationState = 'idle'; // idle | loading | playing | paused
+
+function setReciteUI(state) {
+  recitationState = state;
+  cinReciteIcon.style.display    = state === 'loading' ? 'none' : '';
+  cinReciteSpinner.style.display = state === 'loading' ? '' : 'none';
+
+  cinReciteBtn.classList.toggle('active-ctrl',   state === 'playing');
+  cinReciteBtn.classList.toggle('recite-loading', state === 'loading');
+
+  if (state === 'idle')    cinReciteIcon.textContent = '🎙️';
+  if (state === 'playing') cinReciteIcon.textContent = '⏸️';
+  if (state === 'paused')  cinReciteIcon.textContent = '▶️';
+}
+
+/** Duck ambient volume when recitation plays, restore when it stops */
+function duckAmbient(duck) {
+  if (!ambientAudio) return;
+  const baseVol = (cinematicVolumeEl.value / 100) * 0.5;
+  const target  = duck ? baseVol * 0.2 : baseVol; // duck to 20%
+  fadeAudioTo(ambientAudio, isMuted ? 0 : target, 600);
+}
+
+/**
+ * Pre-create the recitation Audio element during user gesture.
+ * On iOS/Android, calling new Audio() + play() inside a click handler
+ * "unlocks" the element so it can play later even after src changes.
+ */
+function primeRecitationAudio() {
+  if (recitationAudio) {
+    recitationAudio.pause();
+    recitationAudio.removeAttribute('src');
+    recitationAudio.load();
+  }
+  recitationAudio = new Audio();
+  recitationAudio.setAttribute('playsinline', '');
+  recitationAudio.volume = 0;
+  /* Unlock on iOS by calling play() with an empty src, then catching the error */
+  recitationAudio.play().catch(() => {});
+}
+
+/** Start Quran recitation for a given ayah reference (must be called after primeRecitationAudio) */
 function startRecitation(ref) {
-  stopRecitation();
   const absAyah = refToAbsoluteAyah(ref);
   if (!absAyah) return;
 
-  const url = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${absAyah}.mp3`;
-  recitationAudio = new Audio(url);
-  recitationAudio.volume = 0;
-  recitationAudio.play().catch(() => {});
+  /* If no primed audio, create one (won't work on mobile without gesture, but try) */
+  if (!recitationAudio) primeRecitationAudio();
 
-  /* Fade in to 0.6 volume over 1s */
-  fadeAudioTo(recitationAudio, isMuted ? 0 : 0.6, 1000);
+  const url = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${absAyah}.mp3`;
+  setReciteUI('loading');
+
+  recitationAudio.src = url;
+  recitationAudio.volume = 0;
+  recitationAudio.load();
+
+  /* Once enough data is buffered, start playback */
+  const onCanPlay = () => {
+    recitationAudio.removeEventListener('canplaythrough', onCanPlay);
+    recitationAudio.removeEventListener('error', onError);
+    recitationAudio.play().then(() => {
+      setReciteUI('playing');
+      duckAmbient(true);
+      fadeAudioTo(recitationAudio, isMuted ? 0 : 0.7, 800);
+    }).catch(() => {
+      setReciteUI('idle');
+    });
+  };
+
+  const onError = () => {
+    recitationAudio.removeEventListener('canplaythrough', onCanPlay);
+    recitationAudio.removeEventListener('error', onError);
+    setReciteUI('idle');
+  };
+
+  recitationAudio.addEventListener('canplaythrough', onCanPlay);
+  recitationAudio.addEventListener('error', onError);
+
+  /* When recitation ends naturally, restore ambient */
+  recitationAudio.onended = () => {
+    setReciteUI('idle');
+    duckAmbient(false);
+  };
 }
 
-/** Stop recitation with fade-out */
+/** Stop recitation with fade-out and restore ambient */
 function stopRecitation() {
   if (!recitationAudio) return;
   const audio = recitationAudio;
   recitationAudio = null;
+  setReciteUI('idle');
+  duckAmbient(false);
   fadeAudioTo(audio, 0, 800, () => {
     audio.pause();
-    audio.src = '';
+    audio.removeAttribute('src');
+    audio.load();
   });
 }
 
-/** Toggle recitation play/pause */
+/** Pause recitation (keep audio element alive for resume) */
+function pauseRecitation() {
+  if (!recitationAudio || recitationAudio.paused) return;
+  recitationAudio.pause();
+  setReciteUI('paused');
+  duckAmbient(false);
+}
+
+/** Resume paused recitation */
+function resumeRecitation() {
+  if (!recitationAudio) return;
+  setReciteUI('loading');
+  recitationAudio.play().then(() => {
+    setReciteUI('playing');
+    duckAmbient(true);
+  }).catch(() => {
+    setReciteUI('idle');
+  });
+}
+
+/** Toggle recitation: play / pause / resume */
 function toggleRecitation(ref) {
-  if (recitationAudio && !recitationAudio.paused) {
-    stopRecitation();
-    cinReciteBtn.classList.remove('active-ctrl');
-  } else {
+  if (recitationState === 'playing') {
+    pauseRecitation();
+  } else if (recitationState === 'paused') {
+    resumeRecitation();
+  } else if (recitationState === 'idle') {
     startRecitation(ref);
-    cinReciteBtn.classList.add('active-ctrl');
   }
+  /* If loading, ignore tap */
 }
 
 
@@ -3317,8 +3432,8 @@ cinematicMuteBtn.addEventListener('click', () => {
   cinematicMuteBtn.textContent = isMuted ? '🔇' : '🔊';
   updateAmbientVolume();
   /* Also mute/unmute recitation */
-  if (recitationAudio) {
-    recitationAudio.volume = isMuted ? 0 : 0.6;
+  if (recitationAudio && !recitationAudio.paused) {
+    recitationAudio.volume = isMuted ? 0 : 0.7;
   }
 });
 
@@ -3402,7 +3517,10 @@ function startFocusMode(entry) {
 
   /* ── Show/hide recitation button ────────────────────────────── */
   cinReciteBtn.style.display = wantRecitation ? 'flex' : 'none';
-  cinReciteBtn.classList.remove('active-ctrl');
+  setReciteUI('idle');
+
+  /* Prime the audio element NOW (inside user click) for mobile compatibility */
+  if (wantRecitation) primeRecitationAudio();
 
   /* ── Build cinematic content (minimal, passive) ─────────────── */
   cinematicContent.innerHTML = `
@@ -3480,11 +3598,11 @@ function startFocusMode(entry) {
     if (el) el.classList.add('visible');
   }, 4500);
 
-  /* Step 4: 6s — start recitation if enabled */
+  /* Step 4: 6s — pulse recitation button to invite user to tap (no autoplay) */
   if (wantRecitation) {
     scheduleStep(() => {
-      startRecitation(entry.reference);
-      cinReciteBtn.classList.add('active-ctrl');
+      cinReciteBtn.style.animation = 'recitePulse 1.5s ease-in-out 3';
+      setTimeout(() => { cinReciteBtn.style.animation = ''; }, 4500);
     }, 6000);
   }
 
