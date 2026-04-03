@@ -75,7 +75,8 @@
     .text-input, textarea.text-input, .btn-primary, .btn-ghost,
     .history-item, .history-reflection, .explanation, .save-toast,
     .streak-badge, .focus-overlay, .journal-tab, .note-item,
-    .passcode-overlay, .station-player, .reciter-card, .station-ctrl {
+    .passcode-overlay, .station-player, .reciter-card, .station-ctrl,
+    .station-select, .station-ayah-input {
       transition: background-color 0.3s ease, color 0.3s ease,
                   border-color 0.3s ease, box-shadow 0.3s ease;
     }
@@ -1394,6 +1395,82 @@
       margin-top: 6px;
     }
 
+    /* Surah + ayah picker row */
+    .station-picker {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .station-picker-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .station-picker-group.ayah-group { flex: 0 0 100px; }
+    .station-picker-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+    .station-select {
+      appearance: none;
+      -webkit-appearance: none;
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1.5px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 10px 32px 10px 12px;
+      font-family: var(--font);
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color var(--transition);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a6b5e' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      width: 100%;
+    }
+    [data-theme="dark"] .station-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a5c4ae' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    }
+    .station-select:focus {
+      outline: none;
+      border-color: var(--green);
+    }
+    .station-ayah-input {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: textfield;
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1.5px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-family: var(--font);
+      font-size: 13px;
+      color: var(--text);
+      text-align: center;
+      width: 100%;
+      transition: border-color var(--transition);
+    }
+    .station-ayah-input::-webkit-inner-spin-button,
+    .station-ayah-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    .station-ayah-input:focus {
+      outline: none;
+      border-color: var(--green);
+    }
+    .station-ayah-hint {
+      font-size: 9px;
+      color: var(--text-dim);
+      text-align: center;
+      margin-top: 2px;
+    }
+
     /* ── Journal tabs ─────────────────────────────────────────── */
     .journal-tabs {
       display: flex;
@@ -1893,13 +1970,28 @@
         </button>
       </div>
 
+      <!-- Surah + Ayah picker -->
+      <div class="station-picker">
+        <div class="station-picker-group">
+          <div class="station-picker-label">Surah</div>
+          <select class="station-select" id="stationSurahSelect">
+            <!-- Populated by JS -->
+          </select>
+        </div>
+        <div class="station-picker-group ayah-group">
+          <div class="station-picker-label">Start Ayah</div>
+          <input type="number" class="station-ayah-input" id="stationAyahInput" min="1" max="7" value="1" />
+          <div class="station-ayah-hint" id="stationAyahHint">of 7</div>
+        </div>
+      </div>
+
       <!-- Player -->
       <div class="station-player" id="stationPlayer">
         <!-- Idle state -->
         <div id="stationIdle">
           <div class="station-idle-msg">
             <div class="icon">🎧</div>
-            <p>Select a reciter and press play<br/>to start listening</p>
+            <p>Choose a surah and press play</p>
           </div>
         </div>
 
@@ -4351,8 +4443,35 @@ const RECITERS = {
 
 const TOTAL_AYAHS = 6236;
 
+/* Surah names — index 0 unused, 1–114 are the surahs */
+const SURAH_NAMES = [
+  '',
+  'Al-Fatihah','Al-Baqarah','Aal-Imran','An-Nisa','Al-Ma\'idah','Al-An\'am','Al-A\'raf','Al-Anfal',
+  'At-Tawbah','Yunus','Hud','Yusuf','Ar-Ra\'d','Ibrahim','Al-Hijr','An-Nahl','Al-Isra','Al-Kahf',
+  'Maryam','Ta-Ha','Al-Anbiya','Al-Hajj','Al-Mu\'minun','An-Nur','Al-Furqan','Ash-Shu\'ara','An-Naml',
+  'Al-Qasas','Al-Ankabut','Ar-Rum','Luqman','As-Sajdah','Al-Ahzab','Saba','Fatir','Ya-Sin','As-Saffat',
+  'Sad','Az-Zumar','Ghafir','Fussilat','Ash-Shura','Az-Zukhruf','Ad-Dukhan','Al-Jathiyah','Al-Ahqaf',
+  'Muhammad','Al-Fath','Al-Hujurat','Qaf','Adh-Dhariyat','At-Tur','An-Najm','Al-Qamar','Ar-Rahman',
+  'Al-Waqi\'ah','Al-Hadid','Al-Mujadilah','Al-Hashr','Al-Mumtahanah','As-Saff','Al-Jumu\'ah','Al-Munafiqun',
+  'At-Taghabun','At-Talaq','At-Tahrim','Al-Mulk','Al-Qalam','Al-Haqqah','Al-Ma\'arij','Nuh','Al-Jinn',
+  'Al-Muzzammil','Al-Muddathir','Al-Qiyamah','Al-Insan','Al-Mursalat','An-Naba','An-Nazi\'at','Abasa',
+  'At-Takwir','Al-Infitar','Al-Mutaffifin','Al-Inshiqaq','Al-Buruj','At-Tariq','Al-A\'la','Al-Ghashiyah',
+  'Al-Fajr','Al-Balad','Ash-Shams','Al-Layl','Ad-Duha','Ash-Sharh','At-Tin','Al-Alaq','Al-Qadr',
+  'Al-Bayyinah','Az-Zalzalah','Al-Adiyat','Al-Qari\'ah','At-Takathur','Al-Asr','Al-Humazah','Al-Fil',
+  'Quraysh','Al-Ma\'un','Al-Kawthar','Al-Kafirun','An-Nasr','Al-Masad','Al-Ikhlas','Al-Falaq','An-Nas'
+];
+
+/** Convert surah number + ayah-in-surah to absolute ayah number (1–6236) */
+function surahAyahToAbsolute(surah, ayah) {
+  let abs = 0;
+  for (let i = 1; i < surah; i++) abs += SURAH_VERSES[i];
+  return abs + ayah;
+}
+
 /* Station state */
 let stationReciter  = 'ar.alafasy';
+let stationSurahNum = 1;       // selected surah (1–114)
+let stationStartAyah = 1;     // starting ayah within surah
 let stationAyah     = 1;       // absolute ayah number (1–6236)
 let stationPlaying  = false;
 let stationAudio    = null;
@@ -4373,6 +4492,49 @@ const stationStatusEl      = document.getElementById('stationStatus');
 const stationProgressFill  = document.getElementById('stationProgressFill');
 const stationProgressLabel = document.getElementById('stationProgressLabel');
 const stationStopRow       = document.getElementById('stationStopRow');
+const stationSurahSelect  = document.getElementById('stationSurahSelect');
+const stationAyahInput    = document.getElementById('stationAyahInput');
+const stationAyahHint     = document.getElementById('stationAyahHint');
+
+/* ── Populate surah dropdown ──────────────────────────────────────── */
+(function populateSurahDropdown() {
+  let html = '';
+  for (let i = 1; i <= 114; i++) {
+    html += `<option value="${i}">${i}. ${SURAH_NAMES[i]} (${SURAH_VERSES[i]} ayat)</option>`;
+  }
+  stationSurahSelect.innerHTML = html;
+})();
+
+/* ── Surah selection — update ayah range ──────────────────────────── */
+stationSurahSelect.addEventListener('change', () => {
+  stationSurahNum = parseInt(stationSurahSelect.value, 10);
+  const maxAyah = SURAH_VERSES[stationSurahNum];
+  stationAyahInput.max = maxAyah;
+  stationAyahInput.value = 1;
+  stationStartAyah = 1;
+  stationAyahHint.textContent = `of ${maxAyah}`;
+
+  /* If playing, jump to new surah */
+  if (stationPlaying) {
+    stationAyah = surahAyahToAbsolute(stationSurahNum, 1);
+    stationPlayAyah(stationAyah);
+  }
+});
+
+/* ── Ayah input — clamp and update starting ayah ──────────────────── */
+stationAyahInput.addEventListener('change', () => {
+  const maxAyah = SURAH_VERSES[stationSurahNum];
+  let val = parseInt(stationAyahInput.value, 10) || 1;
+  val = Math.max(1, Math.min(val, maxAyah));
+  stationAyahInput.value = val;
+  stationStartAyah = val;
+
+  /* If playing, jump to this ayah */
+  if (stationPlaying) {
+    stationAyah = surahAyahToAbsolute(stationSurahNum, val);
+    stationPlayAyah(stationAyah);
+  }
+});
 
 /* ── Reciter selection ──────────────────────────────────────────── */
 document.getElementById('reciterGrid').addEventListener('click', (e) => {
@@ -4433,6 +4595,16 @@ function stationUpdateDisplay(data) {
   const pct = (data.ayahInSurah / data.totalInSurah * 100).toFixed(1);
   stationProgressFill.style.width = pct + '%';
   stationProgressLabel.textContent = `${data.ayahInSurah} / ${data.totalInSurah}`;
+
+  /* Sync surah/ayah selectors to follow playback */
+  if (data.surahNumber !== stationSurahNum) {
+    stationSurahNum = data.surahNumber;
+    stationSurahSelect.value = data.surahNumber;
+    stationAyahInput.max = data.totalInSurah;
+    stationAyahHint.textContent = `of ${data.totalInSurah}`;
+  }
+  stationAyahInput.value = data.ayahInSurah;
+  stationStartAyah = data.ayahInSurah;
 }
 
 /* ── Set status text ────────────────────────────────────────────── */
@@ -4555,9 +4727,12 @@ stationPlayBtn.addEventListener('click', () => {
       stationSetStatus(RECITERS[stationReciter]?.name || 'Playing', false);
     }).catch(() => {});
   } else {
-    /* Start fresh */
+    /* Start fresh — use the surah/ayah selection */
     stationPlaying = true;
     stationPlayBtn.textContent = '⏸';
+
+    /* Calculate absolute ayah from surah + ayah selection */
+    stationAyah = surahAyahToAbsolute(stationSurahNum, stationStartAyah);
 
     /* Stop any cinematic ambient audio */
     if (typeof stopAmbientAudio === 'function') stopAmbientAudio();
