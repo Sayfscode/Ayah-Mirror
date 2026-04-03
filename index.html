@@ -1648,6 +1648,14 @@
       font-weight: 600;
       margin-left: 8px;
     }
+    .detect-result-confidence.conf-possible {
+      background: rgba(255,193,7,0.12);
+      color: #f9a825;
+    }
+    .detect-result-confidence.conf-low {
+      background: rgba(239,83,80,0.10);
+      color: var(--danger);
+    }
     .detect-result-actions {
       display: flex;
       gap: 8px;
@@ -2248,7 +2256,7 @@
       <div class="detect-section" id="detectSection">
         <div class="detect-header">
           <h3>Detect Recitation</h3>
-          <p>Recite an ayah and we'll identify it</p>
+          <p>Hold phone close and recite clearly for best results</p>
         </div>
 
         <!-- Search range pills -->
@@ -5081,6 +5089,8 @@ const detectResultConf   = document.getElementById('detectResultConfidence');
 /* ── State ──────────────────────────────────────────────────────── */
 let detectState    = 'idle'; // idle | listening | processing
 let detectRange    = 'juz30';
+let detectMatch    = null;   // stored result from last detection
+let detectAudio    = null;   // dedicated Audio element for detect playback
 let quranIndex     = {};     // { surahNum: [{ ayah, text, normalized }] }
 let quranIndexReady = false;
 let quranIndexLoading = false;
@@ -5148,37 +5158,87 @@ async function loadQuranIndex(fromSurah, toSurah) {
   }
 }
 
-/* ── Word-level similarity scoring ──────────────────────────────── */
+/* ── Word-level similarity scoring (improved) ─────────────────── */
+
+/** Build bigrams (word pairs) from a word array */
+function getBigrams(words) {
+  const bg = [];
+  for (let i = 0; i < words.length - 1; i++) {
+    bg.push(words[i] + ' ' + words[i + 1]);
+  }
+  return bg;
+}
+
+/** Longest common subsequence length for word arrays (order-aware) */
+function lcsLength(a, b) {
+  const m = a.length, n = b.length;
+  if (m === 0 || n === 0) return 0;
+  /* Space-optimized: only two rows */
+  let prev = new Array(n + 1).fill(0);
+  let curr = new Array(n + 1).fill(0);
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (a[i - 1] === b[j - 1]) {
+        curr[j] = prev[j - 1] + 1;
+      } else {
+        curr[j] = Math.max(prev[j], curr[j - 1]);
+      }
+    }
+    [prev, curr] = [curr, prev];
+    curr.fill(0);
+  }
+  return prev[n];
+}
+
 function wordSimilarity(transcriptNorm, ayahNorm) {
   const tWords = transcriptNorm.split(' ').filter(w => w.length > 1);
   const aWords = ayahNorm.split(' ').filter(w => w.length > 1);
 
   if (tWords.length === 0 || aWords.length === 0) return 0;
 
-  /* Count matching words (order-aware bonus) */
-  let matches = 0;
-  let consecutiveBonus = 0;
-  let lastFoundIdx = -2;
+  /* 1. Word overlap (handles duplicates via multiset) */
+  const aWordBag = {};
+  aWords.forEach(w => { aWordBag[w] = (aWordBag[w] || 0) + 1; });
+  const tWordBag = {};
+  tWords.forEach(w => { tWordBag[w] = (tWordBag[w] || 0) + 1; });
 
-  for (const tw of tWords) {
-    const idx = aWords.indexOf(tw);
+  let matchCount = 0;
+  for (const w of Object.keys(tWordBag)) {
+    if (aWordBag[w]) matchCount += Math.min(tWordBag[w], aWordBag[w]);
+  }
+
+  /* Coverage: what fraction of the transcript words appear in the ayah */
+  const coverage = matchCount / tWords.length;
+  /* Precision: penalize if ayah is much longer than transcript */
+  const precision = matchCount / Math.max(tWords.length, aWords.length);
+
+  /* 2. Bigram overlap (consecutive word pairs) */
+  const tBigrams = getBigrams(tWords);
+  const aBigrams = getBigrams(aWords);
+  let bigramMatches = 0;
+  const usedBigrams = {};
+  for (const tb of tBigrams) {
+    const idx = aBigrams.findIndex((b, i) => b === tb && !usedBigrams[i]);
     if (idx !== -1) {
-      matches++;
-      if (idx === lastFoundIdx + 1) consecutiveBonus += 0.5;
-      lastFoundIdx = idx;
+      bigramMatches++;
+      usedBigrams[idx] = true;
     }
   }
+  const bigramScore = tBigrams.length > 0 ? bigramMatches / tBigrams.length : 0;
 
-  /* Jaccard-like: matches / union, with consecutive bonus */
-  const union = new Set([...tWords, ...aWords]).size;
-  const score = (matches + consecutiveBonus) / union;
+  /* 3. Longest common subsequence (order preservation) */
+  const lcs = lcsLength(tWords, aWords);
+  const lcsScore = lcs / Math.max(tWords.length, aWords.length);
 
-  /* Bonus for substring containment */
-  if (ayahNorm.includes(transcriptNorm) || transcriptNorm.includes(ayahNorm)) {
-    return Math.min(1, score + 0.3);
-  }
+  /* 4. Substring containment bonus */
+  let substringBonus = 0;
+  if (ayahNorm.includes(transcriptNorm)) substringBonus = 0.25;
+  else if (transcriptNorm.includes(ayahNorm)) substringBonus = 0.2;
 
-  return score;
+  /* Weighted combination */
+  const score = (coverage * 0.3) + (precision * 0.15) + (bigramScore * 0.3) + (lcsScore * 0.25) + substringBonus;
+
+  return Math.min(1, score);
 }
 
 /* ── Find best matching ayah ────────────────────────────────────── */
@@ -5230,6 +5290,8 @@ function showDetectResult(result) {
     return;
   }
 
+  /* Store the match so "Play This Ayah" uses exact same data */
+  detectMatch = result.match;
   const m = result.match;
   const confPct = Math.round(result.confidence * 100);
 
@@ -5237,10 +5299,31 @@ function showDetectResult(result) {
   detectResultArabic.textContent = m.text;
   detectResultTrans.textContent = `"${m.translation}"`;
   detectResultRefTx.textContent = `${m.surahNumber}:${m.ayahNum}`;
-  detectResultConf.textContent = confPct + '% match';
+
+  /* Confidence tier labels */
+  let confLabel, confClass;
+  if (result.confidence >= 0.5) {
+    confLabel = 'High confidence';
+    confClass = '';
+  } else if (result.confidence >= 0.25) {
+    confLabel = 'Possible match';
+    confClass = 'possible';
+  } else {
+    confLabel = 'Low confidence';
+    confClass = 'low';
+  }
+  detectResultConf.textContent = confLabel + ' · ' + confPct + '%';
+  detectResultConf.className = 'detect-result-confidence' + (confClass ? ' conf-' + confClass : '');
 
   detectResultEl.style.display = 'block';
-  setDetectState('idle', 'Match found!', 'success');
+
+  console.log('[Detect] Stored match:', m.surahNumber + ':' + m.ayahNum, 'absAyah:', m.absAyah);
+
+  if (result.confidence >= 0.25) {
+    setDetectState('idle', 'Match found!', 'success');
+  } else {
+    setDetectState('idle', 'Possible match — try again in a quieter environment', 'success');
+  }
 }
 
 /* ── Speech Recognition ─────────────────────────────────────────── */
@@ -5254,16 +5337,15 @@ function startDetection() {
 
   const recognition = new SpeechRecognition();
   recognition.lang = 'ar-SA';
-  recognition.continuous = false;
+  recognition.continuous = true;      // keep listening for full recitation
   recognition.interimResults = true;
-  recognition.maxAlternatives = 1;
+  recognition.maxAlternatives = 3;    // get alternative transcriptions
 
   let finalTranscript = '';
   let interimTranscript = '';
 
   recognition.onstart = () => {
-    setDetectState('listening', 'Listening... recite an ayah');
-    /* Show mic icon change */
+    setDetectState('listening', 'Listening... recite clearly for 7–10 seconds');
     if (detectMicBtn) detectMicBtn.textContent = '🔴';
   };
 
@@ -5311,11 +5393,11 @@ function startDetection() {
     console.log('[Detect] Transcript:', transcript);
     console.log('[Detect] Best match:', result.match?.surahNumber + ':' + result.match?.ayahNum, 'confidence:', result.confidence);
 
-    /* Show result (require minimum confidence) */
-    if (result.confidence >= 0.15) {
+    /* Show result — show even low confidence (UI labels indicate certainty) */
+    if (result.confidence >= 0.12) {
       showDetectResult(result);
     } else {
-      setDetectState('idle', 'Could not identify recitation. Try again with a clearer voice.', 'error');
+      setDetectState('idle', 'Could not identify recitation. Try again in a quieter environment.', 'error');
     }
 
     if (detectMicBtn) detectMicBtn.textContent = '🎙️';
@@ -5333,10 +5415,10 @@ function startDetection() {
     if (detectMicBtn) detectMicBtn.textContent = '🎙️';
   };
 
-  /* Auto-stop after 8 seconds */
+  /* Auto-stop after 10 seconds */
   setTimeout(() => {
     try { recognition.stop(); } catch (e) {}
-  }, 8000);
+  }, 10000);
 
   recognition.start();
 }
@@ -5358,30 +5440,85 @@ if (detectRangeEl) {
   });
 }
 
-/* ── "Play This Ayah" button — plays in station mode ────────────── */
+/* ── "Play This Ayah" button — plays DIRECTLY using stored match ──── */
 const detectPlayBtn = document.getElementById('detectPlayResult');
 if (detectPlayBtn) {
   detectPlayBtn.addEventListener('click', () => {
-    const refText = detectResultRefTx.textContent;
-    const parts = refText.split(':');
-    if (parts.length === 2) {
-      const surahNum = parseInt(parts[0], 10);
-      const ayahNum  = parseInt(parts[1], 10);
+    if (!detectMatch) return;
 
-      /* Set station to this surah/ayah and start playing */
-      stationSurahSelect.value = surahNum;
-      stationSurahSelect.dispatchEvent(new Event('change'));
-      stationAyahInput.value = ayahNum;
-      stationAyahInput.dispatchEvent(new Event('change'));
-
-      /* Scroll to top of stations screen */
-      document.getElementById('screen-stations').scrollTop = 0;
-
-      /* Click play if not already playing */
-      if (!stationPlaying) {
-        stationPlayBtn.click();
-      }
+    /* If currently playing — pause it */
+    if (detectAudio && !detectAudio.paused) {
+      detectAudio.pause();
+      detectPlayBtn.textContent = '▶ Resume';
+      return;
     }
+
+    /* If paused — resume it */
+    if (detectAudio && detectAudio.paused && detectAudio.src && detectAudio.currentTime > 0) {
+      detectAudio.play().then(() => {
+        detectPlayBtn.textContent = '⏸ Playing';
+      }).catch(() => {});
+      return;
+    }
+
+    const m = detectMatch;
+    console.log('[Detect Play] Playing surah', m.surahNumber, 'ayah', m.ayahNum, 'absAyah', m.absAyah);
+
+    /* Stop any currently playing audio */
+    if (detectAudio) {
+      detectAudio.pause();
+      detectAudio.removeAttribute('src');
+      detectAudio.load();
+    }
+    if (stationPlaying) stationStop();
+    if (typeof stopRecitation === 'function') stopRecitation();
+    if (typeof stopAmbientAudio === 'function') stopAmbientAudio();
+
+    /* Build URL using the EXACT absAyah from the stored match */
+    const bitrate = RECITERS[stationReciter]?.bitrate || 128;
+    const url = `https://cdn.islamic.network/quran/audio/${bitrate}/${stationReciter}/${m.absAyah}.mp3`;
+    console.log('[Detect Play] Audio URL:', url);
+
+    /* Create audio and play (user gesture context — inside click handler) */
+    detectAudio = new Audio();
+    detectAudio.setAttribute('playsinline', '');
+    detectAudio.src = url;
+    detectAudio.volume = 0;
+    detectAudio.load();
+
+    /* Update button to show loading state */
+    detectPlayBtn.textContent = '⏳ Loading...';
+    detectPlayBtn.disabled = true;
+
+    const onCanPlay = () => {
+      detectAudio.removeEventListener('canplaythrough', onCanPlay);
+      detectAudio.removeEventListener('error', onError);
+      detectAudio.play().then(() => {
+        detectPlayBtn.textContent = '⏸ Playing';
+        detectPlayBtn.disabled = false;
+        fadeAudioTo(detectAudio, 0.8, 500);
+      }).catch(() => {
+        detectPlayBtn.textContent = 'Play This Ayah';
+        detectPlayBtn.disabled = false;
+      });
+    };
+
+    const onError = () => {
+      detectAudio.removeEventListener('canplaythrough', onCanPlay);
+      detectAudio.removeEventListener('error', onError);
+      detectPlayBtn.textContent = 'Play This Ayah';
+      detectPlayBtn.disabled = false;
+    };
+
+    detectAudio.addEventListener('canplaythrough', onCanPlay);
+    detectAudio.addEventListener('error', onError);
+
+    /* When finished — do NOT auto-continue, just reset button */
+    detectAudio.onended = () => {
+      detectPlayBtn.textContent = 'Play This Ayah';
+      detectPlayBtn.disabled = false;
+      detectAudio = null;
+    };
   });
 }
 
@@ -5389,6 +5526,16 @@ if (detectPlayBtn) {
 const detectTryAgainBtn = document.getElementById('detectTryAgain');
 if (detectTryAgainBtn) {
   detectTryAgainBtn.addEventListener('click', () => {
+    /* Stop any playing detect audio */
+    if (detectAudio) {
+      detectAudio.pause();
+      detectAudio.removeAttribute('src');
+      detectAudio.load();
+      detectAudio = null;
+    }
+    detectMatch = null;
+    detectPlayBtn.textContent = 'Play This Ayah';
+    detectPlayBtn.disabled = false;
     detectResultEl.style.display = 'none';
     detectTranscriptEl.style.display = 'none';
     setDetectState('idle', 'Tap the mic to begin');
