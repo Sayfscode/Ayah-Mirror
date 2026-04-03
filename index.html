@@ -1471,6 +1471,224 @@
       margin-top: 2px;
     }
 
+    /* ── QUR'AN DETECTION MODE ───────────────────────────────── */
+    .detect-section {
+      margin-top: 28px;
+      padding-top: 22px;
+      border-top: 1px solid var(--glass-border);
+    }
+    .detect-header {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+    .detect-header h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .detect-header p {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Mic button */
+    .detect-mic-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .detect-mic {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 2px solid var(--glass-border);
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      cursor: pointer;
+      transition: all var(--transition);
+      position: relative;
+    }
+    .detect-mic:hover {
+      border-color: var(--green);
+      box-shadow: 0 0 20px var(--glow-color);
+    }
+    .detect-mic:active { transform: scale(0.93); }
+    .detect-mic.listening {
+      border-color: var(--green);
+      background: var(--green-soft);
+      animation: micPulse 1.5s ease-in-out infinite;
+    }
+    .detect-mic.processing {
+      border-color: var(--text-dim);
+      opacity: 0.7;
+      cursor: default;
+    }
+    @keyframes micPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(76,175,80,0.3); }
+      50% { box-shadow: 0 0 0 14px rgba(76,175,80,0); }
+    }
+
+    /* Sound wave visualizer */
+    .detect-wave {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      height: 24px;
+    }
+    .detect-wave-bar {
+      width: 3px;
+      background: var(--green);
+      border-radius: 2px;
+      animation: waveBar 0.8s ease-in-out infinite alternate;
+    }
+    .detect-wave-bar:nth-child(1) { height: 8px;  animation-delay: 0s; }
+    .detect-wave-bar:nth-child(2) { height: 16px; animation-delay: 0.1s; }
+    .detect-wave-bar:nth-child(3) { height: 22px; animation-delay: 0.2s; }
+    .detect-wave-bar:nth-child(4) { height: 16px; animation-delay: 0.3s; }
+    .detect-wave-bar:nth-child(5) { height: 8px;  animation-delay: 0.4s; }
+    @keyframes waveBar {
+      0% { transform: scaleY(0.4); }
+      100% { transform: scaleY(1); }
+    }
+
+    .detect-status {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      min-height: 18px;
+    }
+    .detect-status.success { color: var(--green); font-weight: 600; }
+    .detect-status.error { color: var(--danger); }
+
+    /* Transcript display */
+    .detect-transcript {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      display: none;
+    }
+    .detect-transcript-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-dim);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .detect-transcript-text {
+      font-family: var(--font-arabic);
+      font-size: 17px;
+      line-height: 1.8;
+      color: var(--text);
+      direction: rtl;
+      text-align: right;
+    }
+
+    /* Result card */
+    .detect-result {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      border-left: 4px solid var(--green);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: none;
+      animation: fadeUp 0.4s ease;
+    }
+    .detect-result-surah {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--green);
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .detect-result-arabic {
+      font-family: var(--font-arabic);
+      font-size: 22px;
+      line-height: 2;
+      color: var(--text);
+      direction: rtl;
+      text-align: right;
+      margin-bottom: 10px;
+      text-shadow: 0 0 20px var(--glow-color);
+    }
+    .detect-result-translation {
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-bottom: 8px;
+    }
+    .detect-result-ref {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+    .detect-result-confidence {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    .detect-result-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    /* Surah range selector */
+    .detect-range {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .detect-range-pill {
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1.5px solid var(--glass-border);
+      background: var(--bg-card);
+      font-size: 11px;
+      font-family: var(--font);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .detect-range-pill:hover { border-color: var(--green); color: var(--text); }
+    .detect-range-pill.selected {
+      border-color: var(--green);
+      background: var(--green-soft);
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    .detect-unsupported {
+      text-align: center;
+      padding: 20px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
     /* ── Journal tabs ─────────────────────────────────────────── */
     .journal-tabs {
       display: flex;
@@ -2026,6 +2244,56 @@
           <button class="btn-ghost" id="stationStopBtn" style="font-size:12px;">Stop Station</button>
         </div>
       </div>
+      <!-- ─── QUR'AN DETECTION MODE ────────────────────────── -->
+      <div class="detect-section" id="detectSection">
+        <div class="detect-header">
+          <h3>Detect Recitation</h3>
+          <p>Recite an ayah and we'll identify it</p>
+        </div>
+
+        <!-- Search range pills -->
+        <div class="detect-range" id="detectRange">
+          <button class="detect-range-pill selected" data-range="juz30">Juz 30</button>
+          <button class="detect-range-pill" data-range="juz29">Juz 29</button>
+          <button class="detect-range-pill" data-range="short">Short Surahs</button>
+          <button class="detect-range-pill" data-range="all">Full Qur'an</button>
+        </div>
+
+        <!-- Mic button + status -->
+        <div class="detect-mic-wrap">
+          <button class="detect-mic" id="detectMicBtn" title="Tap to start listening">🎙️</button>
+          <div class="detect-wave" id="detectWave" style="display:none;">
+            <div class="detect-wave-bar"></div>
+            <div class="detect-wave-bar"></div>
+            <div class="detect-wave-bar"></div>
+            <div class="detect-wave-bar"></div>
+            <div class="detect-wave-bar"></div>
+          </div>
+          <div class="detect-status" id="detectStatus">Tap the mic to begin</div>
+        </div>
+
+        <!-- Transcript -->
+        <div class="detect-transcript" id="detectTranscript">
+          <div class="detect-transcript-label">What we heard</div>
+          <div class="detect-transcript-text" id="detectTranscriptText"></div>
+        </div>
+
+        <!-- Result -->
+        <div class="detect-result" id="detectResult">
+          <div class="detect-result-surah" id="detectResultSurah"></div>
+          <div class="detect-result-arabic" id="detectResultArabic"></div>
+          <div class="detect-result-translation" id="detectResultTranslation"></div>
+          <div class="detect-result-ref" id="detectResultRef">
+            <span id="detectResultRefText"></span>
+            <span class="detect-result-confidence" id="detectResultConfidence"></span>
+          </div>
+          <div class="detect-result-actions">
+            <button class="btn-ghost" id="detectPlayResult" style="font-size:12px;">Play This Ayah</button>
+            <button class="btn-ghost" id="detectTryAgain" style="font-size:12px;">Try Again</button>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- ─── JOURNAL SCREEN (History + Notes) ─────────────────── -->
@@ -4778,7 +5046,368 @@ navigateTo = function(screenName) {
 
 
 /* ────────────────────────────────────────────────────────────────
-   17. INITIALISATION
+   17. QUR'AN DETECTION MODE
+   Uses Web Speech API for Arabic speech-to-text, then matches
+   against Qur'an ayahs fetched from AlQuran Cloud API.
+   ──────────────────────────────────────────────────────────────── */
+
+/* ── Check browser support ──────────────────────────────────────── */
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (!SpeechRecognition) {
+  document.getElementById('detectSection').innerHTML = `
+    <div class="detect-header">
+      <h3>Detect Recitation</h3>
+    </div>
+    <div class="detect-unsupported">
+      <p>Speech recognition is not supported in this browser.</p>
+      <p style="margin-top:6px;font-size:11px;">Please use Chrome, Edge, or Samsung Internet.</p>
+    </div>`;
+}
+
+/* ── DOM refs ───────────────────────────────────────────────────── */
+const detectMicBtn       = document.getElementById('detectMicBtn');
+const detectWave         = document.getElementById('detectWave');
+const detectStatusEl     = document.getElementById('detectStatus');
+const detectTranscriptEl = document.getElementById('detectTranscript');
+const detectTranscriptTx = document.getElementById('detectTranscriptText');
+const detectResultEl     = document.getElementById('detectResult');
+const detectResultSurah  = document.getElementById('detectResultSurah');
+const detectResultArabic = document.getElementById('detectResultArabic');
+const detectResultTrans  = document.getElementById('detectResultTranslation');
+const detectResultRefTx  = document.getElementById('detectResultRefText');
+const detectResultConf   = document.getElementById('detectResultConfidence');
+
+/* ── State ──────────────────────────────────────────────────────── */
+let detectState    = 'idle'; // idle | listening | processing
+let detectRange    = 'juz30';
+let quranIndex     = {};     // { surahNum: [{ ayah, text, normalized }] }
+let quranIndexReady = false;
+let quranIndexLoading = false;
+
+/* ── Surah ranges for each search scope ─────────────────────────── */
+const DETECT_RANGES = {
+  juz30:  { from: 78, to: 114, label: 'Juz 30' },
+  juz29:  { from: 67, to: 77,  label: 'Juz 29' },
+  short:  { from: 93, to: 114, label: 'Short Surahs' },
+  all:    { from: 1,  to: 114, label: 'Full Qur\'an' }
+};
+
+/* ── Arabic text normalization ──────────────────────────────────── */
+function normalizeArabic(text) {
+  return text
+    /* Remove tashkeel (diacritics) */
+    .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '')
+    /* Normalize alef variants → bare alef */
+    .replace(/[\u0622\u0623\u0625\u0671]/g, '\u0627')
+    /* Normalize taa marbuta → haa */
+    .replace(/\u0629/g, '\u0647')
+    /* Remove tatweel */
+    .replace(/\u0640/g, '')
+    /* Collapse whitespace */
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/* ── Fetch Qur'an index for a surah range ───────────────────────── */
+async function loadQuranIndex(fromSurah, toSurah) {
+  const needed = [];
+  for (let s = fromSurah; s <= toSurah; s++) {
+    if (!quranIndex[s]) needed.push(s);
+  }
+  if (needed.length === 0) return;
+
+  /* Fetch surahs in parallel batches of 10 */
+  for (let i = 0; i < needed.length; i += 10) {
+    const batch = needed.slice(i, i + 10);
+    const results = await Promise.all(
+      batch.map(s =>
+        fetch(`https://api.alquran.cloud/v1/surah/${s}/editions/quran-uthmani,en.sahih`)
+          .then(r => r.ok ? r.json() : null)
+          .catch(() => null)
+      )
+    );
+
+    results.forEach((json, idx) => {
+      if (!json || json.code !== 200) return;
+      const arabicData  = json.data[0];
+      const englishData = json.data[1];
+      const surahNum    = batch[idx];
+
+      quranIndex[surahNum] = arabicData.ayahs.map((a, ai) => ({
+        ayahNum:     a.numberInSurah,
+        absAyah:     a.number,
+        text:        a.text,
+        normalized:  normalizeArabic(a.text),
+        translation: englishData.ayahs[ai]?.text || '',
+        surahName:   arabicData.englishName,
+        surahArabic: arabicData.name,
+        surahNumber: surahNum
+      }));
+    });
+  }
+}
+
+/* ── Word-level similarity scoring ──────────────────────────────── */
+function wordSimilarity(transcriptNorm, ayahNorm) {
+  const tWords = transcriptNorm.split(' ').filter(w => w.length > 1);
+  const aWords = ayahNorm.split(' ').filter(w => w.length > 1);
+
+  if (tWords.length === 0 || aWords.length === 0) return 0;
+
+  /* Count matching words (order-aware bonus) */
+  let matches = 0;
+  let consecutiveBonus = 0;
+  let lastFoundIdx = -2;
+
+  for (const tw of tWords) {
+    const idx = aWords.indexOf(tw);
+    if (idx !== -1) {
+      matches++;
+      if (idx === lastFoundIdx + 1) consecutiveBonus += 0.5;
+      lastFoundIdx = idx;
+    }
+  }
+
+  /* Jaccard-like: matches / union, with consecutive bonus */
+  const union = new Set([...tWords, ...aWords]).size;
+  const score = (matches + consecutiveBonus) / union;
+
+  /* Bonus for substring containment */
+  if (ayahNorm.includes(transcriptNorm) || transcriptNorm.includes(ayahNorm)) {
+    return Math.min(1, score + 0.3);
+  }
+
+  return score;
+}
+
+/* ── Find best matching ayah ────────────────────────────────────── */
+function findBestMatch(transcript) {
+  const transcriptNorm = normalizeArabic(transcript);
+  const range = DETECT_RANGES[detectRange];
+  let bestScore = 0;
+  let bestMatch = null;
+
+  for (let s = range.from; s <= range.to; s++) {
+    const ayahs = quranIndex[s];
+    if (!ayahs) continue;
+
+    for (const ayah of ayahs) {
+      const score = wordSimilarity(transcriptNorm, ayah.normalized);
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = ayah;
+      }
+    }
+  }
+
+  return { match: bestMatch, confidence: bestScore };
+}
+
+/* ── UI state management ────────────────────────────────────────── */
+function setDetectState(state, statusText, statusClass) {
+  detectState = state;
+
+  if (detectMicBtn) {
+    detectMicBtn.classList.remove('listening', 'processing');
+    if (state === 'listening')  detectMicBtn.classList.add('listening');
+    if (state === 'processing') detectMicBtn.classList.add('processing');
+  }
+
+  if (detectWave) {
+    detectWave.style.display = state === 'listening' ? 'flex' : 'none';
+  }
+
+  if (detectStatusEl) {
+    detectStatusEl.textContent = statusText || '';
+    detectStatusEl.className = 'detect-status' + (statusClass ? ' ' + statusClass : '');
+  }
+}
+
+function showDetectResult(result) {
+  if (!result.match) {
+    setDetectState('idle', 'Could not identify recitation. Try again.', 'error');
+    return;
+  }
+
+  const m = result.match;
+  const confPct = Math.round(result.confidence * 100);
+
+  detectResultSurah.textContent = `${m.surahName} (${m.surahArabic})`;
+  detectResultArabic.textContent = m.text;
+  detectResultTrans.textContent = `"${m.translation}"`;
+  detectResultRefTx.textContent = `${m.surahNumber}:${m.ayahNum}`;
+  detectResultConf.textContent = confPct + '% match';
+
+  detectResultEl.style.display = 'block';
+  setDetectState('idle', 'Match found!', 'success');
+}
+
+/* ── Speech Recognition ─────────────────────────────────────────── */
+function startDetection() {
+  if (!SpeechRecognition) return;
+  if (detectState !== 'idle') return;
+
+  /* Hide previous results */
+  detectResultEl.style.display = 'none';
+  detectTranscriptEl.style.display = 'none';
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'ar-SA';
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+
+  let finalTranscript = '';
+  let interimTranscript = '';
+
+  recognition.onstart = () => {
+    setDetectState('listening', 'Listening... recite an ayah');
+    /* Show mic icon change */
+    if (detectMicBtn) detectMicBtn.textContent = '🔴';
+  };
+
+  recognition.onresult = (event) => {
+    interimTranscript = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (event.results[i].isFinal) {
+        finalTranscript += event.results[i][0].transcript + ' ';
+      } else {
+        interimTranscript += event.results[i][0].transcript;
+      }
+    }
+
+    /* Show live transcript */
+    const liveText = (finalTranscript + interimTranscript).trim();
+    if (liveText) {
+      detectTranscriptEl.style.display = 'block';
+      detectTranscriptTx.textContent = liveText;
+    }
+  };
+
+  recognition.onend = async () => {
+    const transcript = finalTranscript.trim() || interimTranscript.trim();
+
+    if (!transcript) {
+      setDetectState('idle', 'No speech detected. Tap the mic to try again.', 'error');
+      if (detectMicBtn) detectMicBtn.textContent = '🎙️';
+      return;
+    }
+
+    /* Show what we heard */
+    detectTranscriptEl.style.display = 'block';
+    detectTranscriptTx.textContent = transcript;
+
+    /* Processing phase */
+    setDetectState('processing', 'Analyzing...');
+    if (detectMicBtn) detectMicBtn.textContent = '⏳';
+
+    /* Load Qur'an index if needed */
+    const range = DETECT_RANGES[detectRange];
+    await loadQuranIndex(range.from, range.to);
+
+    /* Find best match */
+    const result = findBestMatch(transcript);
+    console.log('[Detect] Transcript:', transcript);
+    console.log('[Detect] Best match:', result.match?.surahNumber + ':' + result.match?.ayahNum, 'confidence:', result.confidence);
+
+    /* Show result (require minimum confidence) */
+    if (result.confidence >= 0.15) {
+      showDetectResult(result);
+    } else {
+      setDetectState('idle', 'Could not identify recitation. Try again with a clearer voice.', 'error');
+    }
+
+    if (detectMicBtn) detectMicBtn.textContent = '🎙️';
+  };
+
+  recognition.onerror = (event) => {
+    console.warn('[Detect] Speech error:', event.error);
+    if (event.error === 'not-allowed') {
+      setDetectState('idle', 'Microphone access denied. Please allow mic access.', 'error');
+    } else if (event.error === 'no-speech') {
+      setDetectState('idle', 'No speech detected. Tap the mic to try again.', 'error');
+    } else {
+      setDetectState('idle', 'Error: ' + event.error + '. Try again.', 'error');
+    }
+    if (detectMicBtn) detectMicBtn.textContent = '🎙️';
+  };
+
+  /* Auto-stop after 8 seconds */
+  setTimeout(() => {
+    try { recognition.stop(); } catch (e) {}
+  }, 8000);
+
+  recognition.start();
+}
+
+/* ── Wire up mic button ─────────────────────────────────────────── */
+if (detectMicBtn && SpeechRecognition) {
+  detectMicBtn.addEventListener('click', startDetection);
+}
+
+/* ── Range pill selection ───────────────────────────────────────── */
+const detectRangeEl = document.getElementById('detectRange');
+if (detectRangeEl) {
+  detectRangeEl.addEventListener('click', (e) => {
+    const pill = e.target.closest('.detect-range-pill');
+    if (!pill) return;
+    detectRangeEl.querySelectorAll('.detect-range-pill').forEach(p => p.classList.remove('selected'));
+    pill.classList.add('selected');
+    detectRange = pill.dataset.range;
+  });
+}
+
+/* ── "Play This Ayah" button — plays in station mode ────────────── */
+const detectPlayBtn = document.getElementById('detectPlayResult');
+if (detectPlayBtn) {
+  detectPlayBtn.addEventListener('click', () => {
+    const refText = detectResultRefTx.textContent;
+    const parts = refText.split(':');
+    if (parts.length === 2) {
+      const surahNum = parseInt(parts[0], 10);
+      const ayahNum  = parseInt(parts[1], 10);
+
+      /* Set station to this surah/ayah and start playing */
+      stationSurahSelect.value = surahNum;
+      stationSurahSelect.dispatchEvent(new Event('change'));
+      stationAyahInput.value = ayahNum;
+      stationAyahInput.dispatchEvent(new Event('change'));
+
+      /* Scroll to top of stations screen */
+      document.getElementById('screen-stations').scrollTop = 0;
+
+      /* Click play if not already playing */
+      if (!stationPlaying) {
+        stationPlayBtn.click();
+      }
+    }
+  });
+}
+
+/* ── "Try Again" button ─────────────────────────────────────────── */
+const detectTryAgainBtn = document.getElementById('detectTryAgain');
+if (detectTryAgainBtn) {
+  detectTryAgainBtn.addEventListener('click', () => {
+    detectResultEl.style.display = 'none';
+    detectTranscriptEl.style.display = 'none';
+    setDetectState('idle', 'Tap the mic to begin');
+    startDetection();
+  });
+}
+
+/* ── Preload Juz 30 index in background when visiting stations ──── */
+const _origNavigateToV2 = navigateTo;
+navigateTo = function(screenName) {
+  _origNavigateToV2(screenName);
+  if (screenName === 'stations' && !quranIndex[78]) {
+    loadQuranIndex(78, 114);
+  }
+};
+
+
+/* ────────────────────────────────────────────────────────────────
+   18. INITIALISATION
    ──────────────────────────────────────────────────────────────── */
 
 renderStreak();
