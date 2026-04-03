@@ -1458,38 +1458,105 @@
       margin-top: 2px;
     }
 
-    /* ── QUR'AN DETECTION MODE ───────────────────────────────── */
+    /* ── QUR'AN DETECTION MODE — Premium Shazam-inspired ────── */
     .detect-section {
       margin-top: 28px;
       padding-top: 22px;
       border-top: 1px solid var(--glass-border);
     }
-    .detect-header {
-      text-align: center;
-      margin-bottom: 18px;
-    }
-    .detect-header h3 {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 4px;
-    }
-    .detect-header p {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
 
-    /* Mic button */
-    .detect-mic-wrap {
+    /* Stage — centered detection experience */
+    .detect-stage {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
+      justify-content: center;
+      position: relative;
+      min-height: 280px;
+      padding: 32px 0 16px;
     }
-    .detect-mic {
-      width: 72px;
-      height: 72px;
+
+    /* Ambient glow rings */
+    .detect-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -55%);
+      width: 200px;
+      height: 200px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+    .detect-stage.listening .detect-glow,
+    .detect-stage.processing .detect-glow { opacity: 1; }
+
+    .detect-glow-ring {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      border: 1px solid var(--green);
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.5);
+    }
+    .detect-stage.listening .detect-glow-ring {
+      animation: glowRingPulse 3s ease-out infinite;
+    }
+    .detect-glow-ring:nth-child(2) { animation-delay: 1s; }
+    .detect-glow-ring:nth-child(3) { animation-delay: 2s; }
+
+    @keyframes glowRingPulse {
+      0% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.6); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1.3); }
+    }
+
+    /* Circular waveform SVG */
+    .detect-circular-wave {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -55%);
+      width: 180px;
+      height: 180px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .detect-stage.listening .detect-circular-wave { opacity: 1; }
+    .detect-stage.processing .detect-circular-wave { opacity: 0.4; }
+
+    .detect-wave-svg {
+      width: 100%;
+      height: 100%;
+    }
+    .detect-wave-circle {
+      fill: none;
+      stroke: var(--green);
+      stroke-width: 0.8;
+      opacity: 0;
+      transform-origin: center;
+    }
+    .detect-stage.listening .detect-wave-circle {
+      animation: circleWave 2.4s ease-in-out infinite;
+    }
+    .detect-wave-circle:nth-child(1) { animation-delay: 0s; }
+    .detect-wave-circle:nth-child(2) { animation-delay: 0.4s; }
+    .detect-wave-circle:nth-child(3) { animation-delay: 0.8s; }
+
+    @keyframes circleWave {
+      0% { opacity: 0; stroke-width: 0.5; transform: scale(0.85); }
+      30% { opacity: 0.5; }
+      70% { opacity: 0.3; }
+      100% { opacity: 0; stroke-width: 2; transform: scale(1.15); }
+    }
+
+    /* Central detect button */
+    .detect-btn {
+      position: relative;
+      z-index: 2;
+      width: 96px;
+      height: 96px;
       border-radius: 50%;
       border: 2px solid var(--glass-border);
       background: var(--bg-card);
@@ -1498,63 +1565,124 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
       cursor: pointer;
-      transition: all var(--transition);
-      position: relative;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      color: var(--text-muted);
+      box-shadow: 0 0 0 0 transparent;
     }
-    .detect-mic:hover {
+    .detect-btn:hover {
       border-color: var(--green);
-      box-shadow: 0 0 20px var(--glow-color);
+      color: var(--green);
+      box-shadow: 0 0 30px var(--glow-color);
     }
-    .detect-mic:active { transform: scale(0.93); }
-    .detect-mic.listening {
-      border-color: var(--green);
-      background: var(--green-soft);
-      animation: micPulse 1.5s ease-in-out infinite;
+    .detect-btn:active {
+      transform: scale(0.92);
     }
-    .detect-mic.processing {
-      border-color: var(--text-dim);
-      opacity: 0.7;
-      cursor: default;
-    }
-    @keyframes micPulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(76,175,80,0.3); }
-      50% { box-shadow: 0 0 0 14px rgba(76,175,80,0); }
-    }
-
-    /* Sound wave visualizer */
-    .detect-wave {
+    .detect-btn-icon {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 3px;
-      height: 24px;
+      transition: opacity 0.3s ease, transform 0.3s ease;
     }
-    .detect-wave-bar {
-      width: 3px;
-      background: var(--green);
-      border-radius: 2px;
-      animation: waveBar 0.8s ease-in-out infinite alternate;
-    }
-    .detect-wave-bar:nth-child(1) { height: 8px;  animation-delay: 0s; }
-    .detect-wave-bar:nth-child(2) { height: 16px; animation-delay: 0.1s; }
-    .detect-wave-bar:nth-child(3) { height: 22px; animation-delay: 0.2s; }
-    .detect-wave-bar:nth-child(4) { height: 16px; animation-delay: 0.3s; }
-    .detect-wave-bar:nth-child(5) { height: 8px;  animation-delay: 0.4s; }
-    @keyframes waveBar {
-      0% { transform: scaleY(0.4); }
-      100% { transform: scaleY(1); }
+    .detect-btn-icon svg {
+      width: 32px;
+      height: 32px;
     }
 
-    .detect-status {
-      font-size: 12px;
-      color: var(--text-muted);
-      text-align: center;
-      min-height: 18px;
+    /* Listening state */
+    .detect-stage.listening .detect-btn {
+      border-color: var(--green);
+      color: var(--green);
+      background: var(--green-soft);
+      box-shadow: 0 0 40px var(--glow-color), inset 0 0 20px var(--green-glow);
+      animation: detectBtnPulse 2s ease-in-out infinite;
     }
-    .detect-status.success { color: var(--green); font-weight: 600; }
-    .detect-status.error { color: var(--danger); }
+    @keyframes detectBtnPulse {
+      0%, 100% { box-shadow: 0 0 30px var(--glow-color), inset 0 0 20px var(--green-glow); }
+      50% { box-shadow: 0 0 50px var(--glow-color), inset 0 0 30px var(--green-glow); }
+    }
+
+    /* Processing / analyzing state */
+    .detect-stage.processing .detect-btn {
+      border-color: var(--green);
+      color: var(--green);
+      cursor: default;
+    }
+    .detect-btn-spinner {
+      display: none;
+      width: 28px;
+      height: 28px;
+      border: 2px solid var(--glass-border);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: detectSpin 0.8s linear infinite;
+    }
+    .detect-stage.processing .detect-btn-icon { opacity: 0; position: absolute; }
+    .detect-stage.processing .detect-btn-spinner { display: block; }
+
+    @keyframes detectSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Status label */
+    .detect-label {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      margin-top: 24px;
+      transition: opacity 0.4s ease;
+    }
+    .detect-label-main {
+      display: block;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: 0.02em;
+      transition: all 0.3s ease;
+    }
+    .detect-label-sub {
+      display: block;
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 4px;
+      transition: all 0.3s ease;
+    }
+    .detect-label.success .detect-label-main { color: var(--green); }
+    .detect-label.error .detect-label-main { color: var(--danger); }
+
+    /* Search range pills */
+    .detect-range {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      transition: opacity 0.3s ease;
+    }
+    .detect-stage.listening .detect-range,
+    .detect-stage.processing .detect-range { opacity: 0.3; pointer-events: none; }
+
+    .detect-range-pill {
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1.5px solid var(--glass-border);
+      background: transparent;
+      font-size: 11px;
+      font-family: var(--font);
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .detect-range-pill:hover { border-color: var(--green); color: var(--text); }
+    .detect-range-pill.selected {
+      border-color: var(--green);
+      background: var(--green-soft);
+      color: var(--green);
+      font-weight: 600;
+    }
 
     /* Transcript display */
     .detect-transcript {
@@ -1563,14 +1691,15 @@
       -webkit-backdrop-filter: var(--glass-blur);
       border: 1px solid var(--glass-border);
       border-radius: var(--radius-sm);
-      padding: 12px 14px;
-      margin-bottom: 14px;
+      padding: 14px 16px;
+      margin-top: 8px;
       display: none;
+      animation: detectFadeIn 0.4s ease;
     }
     .detect-transcript-label {
       font-size: 9px;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
       color: var(--text-dim);
       font-weight: 600;
       margin-bottom: 6px;
@@ -1584,99 +1713,138 @@
       text-align: right;
     }
 
-    /* Result card */
+    /* Result card — cinematic slide-up */
     .detect-result {
       background: var(--bg-card);
       backdrop-filter: var(--glass-blur);
       -webkit-backdrop-filter: var(--glass-blur);
       border: 1px solid var(--glass-border);
-      border-left: 4px solid var(--green);
       border-radius: var(--radius);
-      padding: 20px;
+      padding: 24px 20px;
+      margin-top: 12px;
       display: none;
-      animation: fadeUp 0.4s ease;
+      animation: detectResultReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
-    .detect-result-surah {
+    @keyframes detectResultReveal {
+      0% { opacity: 0; transform: translateY(24px) scale(0.97); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes detectFadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    /* Confidence badge — top of result card */
+    .detect-result-badge {
+      display: inline-block;
       font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
+      padding: 3px 10px;
+      border-radius: 10px;
+      background: var(--green-soft);
       color: var(--green);
-      font-weight: 700;
-      margin-bottom: 10px;
+      font-weight: 600;
+      margin-bottom: 14px;
+      letter-spacing: 0.03em;
     }
+    .detect-result-badge.conf-possible {
+      background: rgba(255,193,7,0.12);
+      color: #f9a825;
+    }
+    .detect-result-badge.conf-low {
+      background: rgba(239,83,80,0.10);
+      color: var(--danger);
+    }
+
+    /* Surah name */
+    .detect-result-surah {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 2px;
+      letter-spacing: -0.01em;
+    }
+
+    /* Ayah number */
+    .detect-result-ayah-num {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 16px;
+    }
+    .detect-result-ayah-num span {
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    /* Arabic text */
     .detect-result-arabic {
       font-family: var(--font-arabic);
-      font-size: 22px;
+      font-size: 24px;
       line-height: 2;
       color: var(--text);
       direction: rtl;
       text-align: right;
-      margin-bottom: 10px;
-      text-shadow: 0 0 20px var(--glow-color);
+      margin-bottom: 14px;
+      text-shadow: 0 0 30px var(--glow-color);
     }
+
+    /* Divider */
+    .detect-result-divider {
+      width: 40px;
+      height: 1px;
+      background: var(--glass-border);
+      margin: 0 auto 14px;
+    }
+
+    /* Translation */
     .detect-result-translation {
       font-size: 13px;
       line-height: 1.7;
       color: var(--text-muted);
       font-style: italic;
-      margin-bottom: 8px;
-    }
-    .detect-result-ref {
-      font-size: 11px;
-      color: var(--text-dim);
-    }
-    .detect-result-confidence {
-      display: inline-block;
-      font-size: 10px;
-      padding: 2px 8px;
-      border-radius: 10px;
-      background: var(--green-soft);
-      color: var(--green);
-      font-weight: 600;
-      margin-left: 8px;
-    }
-    .detect-result-confidence.conf-possible {
-      background: rgba(255,193,7,0.12);
-      color: #f9a825;
-    }
-    .detect-result-confidence.conf-low {
-      background: rgba(239,83,80,0.10);
-      color: var(--danger);
-    }
-    .detect-result-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 14px;
+      text-align: center;
+      margin-bottom: 20px;
     }
 
-    /* Surah range selector */
-    .detect-range {
+    /* Action buttons */
+    .detect-result-actions {
       display: flex;
-      align-items: center;
+      gap: 10px;
       justify-content: center;
-      gap: 6px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
     }
-    .detect-range-pill {
-      padding: 6px 12px;
-      border-radius: 20px;
+    .detect-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      border-radius: 24px;
       border: 1.5px solid var(--glass-border);
-      background: var(--bg-card);
-      font-size: 11px;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 600;
       font-family: var(--font);
       color: var(--text-muted);
       cursor: pointer;
       transition: all var(--transition);
     }
-    .detect-range-pill:hover { border-color: var(--green); color: var(--text); }
-    .detect-range-pill.selected {
+    .detect-action-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+    .detect-action-btn:hover {
       border-color: var(--green);
+      color: var(--text);
+    }
+    .detect-action-play {
       background: var(--green-soft);
+      border-color: var(--green);
       color: var(--green);
-      font-weight: 600;
+    }
+    .detect-action-play:hover {
+      background: var(--green);
+      color: #fff;
     }
 
+    /* Unsupported browser fallback */
     .detect-unsupported {
       text-align: center;
       padding: 20px;

@@ -9,9 +9,6 @@ const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecogni
 
 if (!SpeechRecognition) {
   document.getElementById('detectSection').innerHTML = `
-    <div class="detect-header">
-      <h3>Detect Recitation</h3>
-    </div>
     <div class="detect-unsupported">
       <p>Speech recognition is not supported in this browser.</p>
       <p style="margin-top:6px;font-size:11px;">Please use Chrome, Edge, or Samsung Internet.</p>
@@ -19,8 +16,9 @@ if (!SpeechRecognition) {
 }
 
 /* ── DOM refs ───────────────────────────────────────────────────── */
+const detectStage        = document.getElementById('detectStage');
 const detectMicBtn       = document.getElementById('detectMicBtn');
-const detectWave         = document.getElementById('detectWave');
+const detectBtnIcon      = document.getElementById('detectBtnIcon');
 const detectStatusEl     = document.getElementById('detectStatus');
 const detectTranscriptEl = document.getElementById('detectTranscript');
 const detectTranscriptTx = document.getElementById('detectTranscriptText');
@@ -208,19 +206,33 @@ function findBestMatch(transcript) {
 function setDetectState(state, statusText, statusClass) {
   detectState = state;
 
-  if (detectMicBtn) {
-    detectMicBtn.classList.remove('listening', 'processing');
-    if (state === 'listening')  detectMicBtn.classList.add('listening');
-    if (state === 'processing') detectMicBtn.classList.add('processing');
+  /* Drive all animations from the stage class */
+  if (detectStage) {
+    detectStage.classList.remove('listening', 'processing');
+    if (state === 'listening')  detectStage.classList.add('listening');
+    if (state === 'processing') detectStage.classList.add('processing');
   }
 
-  if (detectWave) {
-    detectWave.style.display = state === 'listening' ? 'flex' : 'none';
-  }
-
+  /* Update label text */
   if (detectStatusEl) {
-    detectStatusEl.textContent = statusText || '';
-    detectStatusEl.className = 'detect-status' + (statusClass ? ' ' + statusClass : '');
+    const mainLabel = detectStatusEl.querySelector('.detect-label-main');
+    const subLabel  = detectStatusEl.querySelector('.detect-label-sub');
+
+    if (state === 'idle' && !statusText) {
+      if (mainLabel) mainLabel.textContent = 'Detect Recitation';
+      if (subLabel) { subLabel.textContent = 'Tap to begin'; subLabel.style.display = ''; }
+    } else if (state === 'listening') {
+      if (mainLabel) mainLabel.textContent = 'Listening...';
+      if (subLabel) { subLabel.textContent = 'Hold your phone closer'; subLabel.style.display = ''; }
+    } else if (state === 'processing') {
+      if (mainLabel) mainLabel.textContent = 'Analyzing...';
+      if (subLabel) { subLabel.textContent = ''; subLabel.style.display = 'none'; }
+    } else if (statusText) {
+      if (mainLabel) mainLabel.textContent = statusText;
+      if (subLabel) { subLabel.textContent = ''; subLabel.style.display = 'none'; }
+    }
+
+    detectStatusEl.className = 'detect-label' + (statusClass ? ' ' + statusClass : '');
   }
 }
 
@@ -243,17 +255,17 @@ function showDetectResult(result) {
   /* Confidence tier labels */
   let confLabel, confClass;
   if (result.confidence >= 0.5) {
-    confLabel = 'High confidence';
+    confLabel = 'High confidence · ' + confPct + '%';
     confClass = '';
   } else if (result.confidence >= 0.25) {
-    confLabel = 'Possible match';
+    confLabel = 'Possible match · ' + confPct + '%';
     confClass = 'possible';
   } else {
-    confLabel = 'Low confidence';
+    confLabel = 'Low confidence · ' + confPct + '%';
     confClass = 'low';
   }
-  detectResultConf.textContent = confLabel + ' · ' + confPct + '%';
-  detectResultConf.className = 'detect-result-confidence' + (confClass ? ' conf-' + confClass : '');
+  detectResultConf.textContent = confLabel;
+  detectResultConf.className = 'detect-result-badge' + (confClass ? ' conf-' + confClass : '');
 
   detectResultEl.style.display = 'block';
 
@@ -285,8 +297,7 @@ function startDetection() {
   let interimTranscript = '';
 
   recognition.onstart = () => {
-    setDetectState('listening', 'Listening... recite clearly for 7–10 seconds');
-    if (detectMicBtn) detectMicBtn.textContent = '🔴';
+    setDetectState('listening');
   };
 
   recognition.onresult = (event) => {
@@ -311,8 +322,7 @@ function startDetection() {
     const transcript = finalTranscript.trim() || interimTranscript.trim();
 
     if (!transcript) {
-      setDetectState('idle', 'No speech detected. Tap the mic to try again.', 'error');
-      if (detectMicBtn) detectMicBtn.textContent = '🎙️';
+      setDetectState('idle', 'No speech detected. Tap to try again.', 'error');
       return;
     }
 
@@ -321,8 +331,7 @@ function startDetection() {
     detectTranscriptTx.textContent = transcript;
 
     /* Processing phase */
-    setDetectState('processing', 'Analyzing...');
-    if (detectMicBtn) detectMicBtn.textContent = '⏳';
+    setDetectState('processing');
 
     /* Load Qur'an index if needed */
     const range = DETECT_RANGES[detectRange];
@@ -340,19 +349,17 @@ function startDetection() {
       setDetectState('idle', 'Could not identify recitation. Try again in a quieter environment.', 'error');
     }
 
-    if (detectMicBtn) detectMicBtn.textContent = '🎙️';
   };
 
   recognition.onerror = (event) => {
     console.warn('[Detect] Speech error:', event.error);
     if (event.error === 'not-allowed') {
-      setDetectState('idle', 'Microphone access denied. Please allow mic access.', 'error');
+      setDetectState('idle', 'Microphone access denied', 'error');
     } else if (event.error === 'no-speech') {
-      setDetectState('idle', 'No speech detected. Tap the mic to try again.', 'error');
+      setDetectState('idle', 'No speech detected. Tap to try again.', 'error');
     } else {
-      setDetectState('idle', 'Error: ' + event.error + '. Try again.', 'error');
+      setDetectState('idle', 'Error — try again', 'error');
     }
-    if (detectMicBtn) detectMicBtn.textContent = '🎙️';
   };
 
   /* Auto-stop after 10 seconds */
@@ -380,6 +387,15 @@ if (detectRangeEl) {
   });
 }
 
+/* ── Play button icon helpers ──────────────────────────────────── */
+const _playIcon  = '<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><polygon points="5,3 19,12 5,21"/></svg>';
+const _pauseIcon = '<svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>';
+
+function setPlayBtnLabel(label, icon) {
+  if (!detectPlayBtn) return;
+  detectPlayBtn.innerHTML = (icon || _playIcon) + ' ' + label;
+}
+
 /* ── "Play This Ayah" button — plays DIRECTLY using stored match ──── */
 const detectPlayBtn = document.getElementById('detectPlayResult');
 if (detectPlayBtn) {
@@ -389,14 +405,14 @@ if (detectPlayBtn) {
     /* If currently playing — pause it */
     if (detectAudio && !detectAudio.paused) {
       detectAudio.pause();
-      detectPlayBtn.textContent = '▶ Resume';
+      setPlayBtnLabel('Resume', _playIcon);
       return;
     }
 
     /* If paused — resume it */
     if (detectAudio && detectAudio.paused && detectAudio.src && detectAudio.currentTime > 0) {
       detectAudio.play().then(() => {
-        detectPlayBtn.textContent = '⏸ Playing';
+        setPlayBtnLabel('Playing', _pauseIcon);
       }).catch(() => {});
       return;
     }
@@ -427,18 +443,18 @@ if (detectPlayBtn) {
     detectAudio.load();
 
     /* Update button to show loading state */
-    detectPlayBtn.textContent = '⏳ Loading...';
+    setPlayBtnLabel('Loading...');
     detectPlayBtn.disabled = true;
 
     const onCanPlay = () => {
       detectAudio.removeEventListener('canplaythrough', onCanPlay);
       detectAudio.removeEventListener('error', onError);
       detectAudio.play().then(() => {
-        detectPlayBtn.textContent = '⏸ Playing';
+        setPlayBtnLabel('Playing', _pauseIcon);
         detectPlayBtn.disabled = false;
         fadeAudioTo(detectAudio, 0.8, 500);
       }).catch(() => {
-        detectPlayBtn.textContent = 'Play This Ayah';
+        setPlayBtnLabel('Play Ayah');
         detectPlayBtn.disabled = false;
       });
     };
@@ -446,7 +462,7 @@ if (detectPlayBtn) {
     const onError = () => {
       detectAudio.removeEventListener('canplaythrough', onCanPlay);
       detectAudio.removeEventListener('error', onError);
-      detectPlayBtn.textContent = 'Play This Ayah';
+      setPlayBtnLabel('Play Ayah');
       detectPlayBtn.disabled = false;
     };
 
@@ -455,7 +471,7 @@ if (detectPlayBtn) {
 
     /* When finished — do NOT auto-continue, just reset button */
     detectAudio.onended = () => {
-      detectPlayBtn.textContent = 'Play This Ayah';
+      setPlayBtnLabel('Play Ayah');
       detectPlayBtn.disabled = false;
       detectAudio = null;
     };
@@ -474,11 +490,11 @@ if (detectTryAgainBtn) {
       detectAudio = null;
     }
     detectMatch = null;
-    detectPlayBtn.textContent = 'Play This Ayah';
+    setPlayBtnLabel('Play Ayah');
     detectPlayBtn.disabled = false;
     detectResultEl.style.display = 'none';
     detectTranscriptEl.style.display = 'none';
-    setDetectState('idle', 'Tap the mic to begin');
+    setDetectState('idle');
     startDetection();
   });
 }

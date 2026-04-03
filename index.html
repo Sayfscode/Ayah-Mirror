@@ -226,54 +226,83 @@
           <button class="btn-ghost" id="stationStopBtn" style="font-size:12px;">Stop Station</button>
         </div>
       </div>
-      <!-- ─── QUR'AN DETECTION MODE ────────────────────────── -->
+      <!-- ─── QUR'AN DETECTION MODE (Shazam-inspired) ─────── -->
       <div class="detect-section" id="detectSection">
-        <div class="detect-header">
-          <h3>Detect Recitation</h3>
-          <p>Hold phone close and recite clearly for best results</p>
-        </div>
 
-        <!-- Search range pills -->
-        <div class="detect-range" id="detectRange">
-          <button class="detect-range-pill selected" data-range="juz30">Juz 30</button>
-          <button class="detect-range-pill" data-range="juz29">Juz 29</button>
-          <button class="detect-range-pill" data-range="short">Short Surahs</button>
-          <button class="detect-range-pill" data-range="all">Full Qur'an</button>
-        </div>
+        <!-- ── Fullscreen detection experience ── -->
+        <div class="detect-stage" id="detectStage">
 
-        <!-- Mic button + status -->
-        <div class="detect-mic-wrap">
-          <button class="detect-mic" id="detectMicBtn" title="Tap to start listening">🎙️</button>
-          <div class="detect-wave" id="detectWave" style="display:none;">
-            <div class="detect-wave-bar"></div>
-            <div class="detect-wave-bar"></div>
-            <div class="detect-wave-bar"></div>
-            <div class="detect-wave-bar"></div>
-            <div class="detect-wave-bar"></div>
+          <!-- Ambient glow rings (behind button) -->
+          <div class="detect-glow" id="detectGlow">
+            <div class="detect-glow-ring"></div>
+            <div class="detect-glow-ring"></div>
+            <div class="detect-glow-ring"></div>
           </div>
-          <div class="detect-status" id="detectStatus">Tap the mic to begin</div>
+
+          <!-- Circular waveform (visible when listening) -->
+          <div class="detect-circular-wave" id="detectCircularWave">
+            <svg viewBox="0 0 200 200" class="detect-wave-svg">
+              <circle class="detect-wave-circle" cx="100" cy="100" r="88" />
+              <circle class="detect-wave-circle" cx="100" cy="100" r="80" />
+              <circle class="detect-wave-circle" cx="100" cy="100" r="72" />
+            </svg>
+          </div>
+
+          <!-- Central detect button -->
+          <button class="detect-btn" id="detectMicBtn" title="Tap to detect recitation">
+            <span class="detect-btn-icon" id="detectBtnIcon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                <line x1="12" y1="19" x2="12" y2="22"/>
+              </svg>
+            </span>
+            <span class="detect-btn-spinner" id="detectBtnSpinner"></span>
+          </button>
+
+          <!-- Status text -->
+          <div class="detect-label" id="detectStatus">
+            <span class="detect-label-main">Detect Recitation</span>
+            <span class="detect-label-sub">Tap to begin</span>
+          </div>
+
+          <!-- Search range (compact) -->
+          <div class="detect-range" id="detectRange">
+            <button class="detect-range-pill selected" data-range="juz30">Juz 30</button>
+            <button class="detect-range-pill" data-range="juz29">Juz 29</button>
+            <button class="detect-range-pill" data-range="short">Short</button>
+            <button class="detect-range-pill" data-range="all">Full Qur'an</button>
+          </div>
         </div>
 
-        <!-- Transcript -->
+        <!-- ── Transcript (shown during/after listening) ── -->
         <div class="detect-transcript" id="detectTranscript">
           <div class="detect-transcript-label">What we heard</div>
           <div class="detect-transcript-text" id="detectTranscriptText"></div>
         </div>
 
-        <!-- Result -->
+        <!-- ── Result card (slides up after match) ── -->
         <div class="detect-result" id="detectResult">
+          <div class="detect-result-badge" id="detectResultConfidence"></div>
           <div class="detect-result-surah" id="detectResultSurah"></div>
-          <div class="detect-result-arabic" id="detectResultArabic"></div>
-          <div class="detect-result-translation" id="detectResultTranslation"></div>
-          <div class="detect-result-ref" id="detectResultRef">
-            <span id="detectResultRefText"></span>
-            <span class="detect-result-confidence" id="detectResultConfidence"></span>
+          <div class="detect-result-ayah-num" id="detectResultRef">
+            Ayah <span id="detectResultRefText"></span>
           </div>
+          <div class="detect-result-arabic" id="detectResultArabic"></div>
+          <div class="detect-result-divider"></div>
+          <div class="detect-result-translation" id="detectResultTranslation"></div>
           <div class="detect-result-actions">
-            <button class="btn-ghost" id="detectPlayResult" style="font-size:12px;">Play This Ayah</button>
-            <button class="btn-ghost" id="detectTryAgain" style="font-size:12px;">Try Again</button>
+            <button class="detect-action-btn detect-action-play" id="detectPlayResult">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><polygon points="5,3 19,12 5,21"/></svg>
+              Play Ayah
+            </button>
+            <button class="detect-action-btn detect-action-retry" id="detectTryAgain">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+              Try Again
+            </button>
           </div>
         </div>
+
       </div>
 
     </div>
