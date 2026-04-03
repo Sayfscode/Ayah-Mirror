@@ -4,10 +4,21 @@
    and mobile audio priming.
    ═══════════════════════════════════════════════════════════════════ */
 
-/* Shared audio state (used by cinematic.js and other modules) */
-let ambientAudio    = null;
-let recitationAudio = null;
-let isMuted         = false;
+/* Shared audio state (used by cinematic.js, stations.js, detect.js)
+   Using var for true globals accessible across all script files. */
+var ambientAudio    = null;
+var recitationAudio = null;
+var isMuted         = false;
+
+/* Shared DOM refs used by audio functions — declared here (loads first),
+   populated by cinematic.js but referenced in audio callbacks at runtime. */
+var cinematicVolumeEl = null; // set by cinematic.js on load
+var cinReciteBtn      = null; // set by cinematic.js on load
+var cinReciteIcon     = null; // set by cinematic.js on load
+var cinReciteSpinner  = null; // set by cinematic.js on load
+
+/* Default ambient volume (0–1 scale). Used when cinematicVolumeEl not ready. */
+var AMBIENT_BASE_VOLUME = 0.20;
 
 
 /* ════════════════════════════════════════════════════════════════
@@ -20,53 +31,57 @@ let isMuted         = false;
  * For range references like "Surah Al-Baqarah (2:155-156)", uses the FIRST ayah.
  */
 function refToAbsoluteAyah(ref) {
-  /* Match both single (13:28) and range (2:155-156) formats */
-  const m = ref.match(/\((\d+):(\d+)(?:-\d+)?\)$/);
+  var m = ref.match(/\((\d+):(\d+)(?:-\d+)?\)$/);
   if (!m) return null;
-  const surah = parseInt(m[1], 10);
-  const verse = parseInt(m[2], 10);
+  var surah = parseInt(m[1], 10);
+  var verse = parseInt(m[2], 10);
   if (surah < 1 || surah > 114 || !SURAH_VERSES[surah]) return null;
-  /* Sum all verses in preceding surahs */
-  let abs = 0;
-  for (let i = 1; i < surah; i++) abs += SURAH_VERSES[i];
+  var abs = 0;
+  for (var i = 1; i < surah; i++) abs += SURAH_VERSES[i];
   return abs + verse;
 }
 
 /** Convert surah number + ayah-in-surah to absolute ayah number (1–6236) */
 function surahAyahToAbsolute(surah, ayah) {
-  let abs = 0;
-  for (let i = 1; i < surah; i++) abs += SURAH_VERSES[i];
+  var abs = 0;
+  for (var i = 1; i < surah; i++) abs += SURAH_VERSES[i];
   return abs + ayah;
 }
 
 
 /* ════════════════════════════════════════════════════════════════
-   10a. AMBIENT AUDIO — REAL HIGH-QUALITY FILES
-   Uses HTML5 Audio with smooth fade-in/out and looping.
+   AMBIENT AUDIO — Smooth fade-in/out with looping
    ════════════════════════════════════════════════════════════════ */
+
+/** Get the current base ambient volume from slider or default */
+function getAmbientBaseVolume() {
+  if (cinematicVolumeEl) {
+    return (cinematicVolumeEl.value / 100) * 0.5;
+  }
+  return AMBIENT_BASE_VOLUME;
+}
 
 /** Start ambient audio with a gentle 1.5s fade-in */
 function startAmbientAudio(type) {
   stopAmbientAudio();
-  const src = SOUND_SOURCES[type];
-  if (!src) return; // silence
+  var src = SOUND_SOURCES[type];
+  if (!src) return;
 
   ambientAudio = new Audio(src);
   ambientAudio.loop = true;
-  ambientAudio.volume = 0; // start silent, fade in
-  ambientAudio.play().catch(() => {}); // may need user gesture
+  ambientAudio.volume = 0;
+  ambientAudio.play().catch(function() {});
 
-  /* Smooth fade in over 1.5s */
-  const targetVol = (cinematicVolumeEl.value / 100) * 0.5;
+  var targetVol = getAmbientBaseVolume();
   fadeAudioTo(ambientAudio, isMuted ? 0 : targetVol, 1500);
 }
 
 /** Stop ambient audio with a gentle 1s fade-out */
 function stopAmbientAudio() {
   if (!ambientAudio) return;
-  const audio = ambientAudio;
+  var audio = ambientAudio;
   ambientAudio = null;
-  fadeAudioTo(audio, 0, 1000, () => {
+  fadeAudioTo(audio, 0, 1000, function() {
     audio.pause();
     audio.src = '';
   });
@@ -74,16 +89,19 @@ function stopAmbientAudio() {
 
 /** Smoothly fade an Audio element's volume */
 function fadeAudioTo(audio, target, durationMs, onDone) {
-  const start = audio.volume;
-  const diff  = target - start;
-  const steps = Math.max(1, Math.round(durationMs / 50));
-  let step = 0;
-  const interval = setInterval(() => {
+  if (!audio) return;
+  var start = audio.volume;
+  var diff  = target - start;
+  var steps = Math.max(1, Math.round(durationMs / 50));
+  var step = 0;
+  var interval = setInterval(function() {
     step++;
-    audio.volume = Math.max(0, Math.min(1, start + diff * (step / steps)));
+    try {
+      audio.volume = Math.max(0, Math.min(1, start + diff * (step / steps)));
+    } catch(e) { clearInterval(interval); return; }
     if (step >= steps) {
       clearInterval(interval);
-      audio.volume = Math.max(0, Math.min(1, target));
+      try { audio.volume = Math.max(0, Math.min(1, target)); } catch(e) {}
       if (onDone) onDone();
     }
   }, 50);
@@ -92,24 +110,24 @@ function fadeAudioTo(audio, target, durationMs, onDone) {
 /** Update ambient volume when slider moves */
 function updateAmbientVolume() {
   if (!ambientAudio) return;
-  const vol = (cinematicVolumeEl.value / 100) * 0.5;
+  var vol = getAmbientBaseVolume();
   ambientAudio.volume = isMuted ? 0 : vol;
 }
 
 
 /* ════════════════════════════════════════════════════════════════
-   10b. QURAN RECITATION AUDIO
-   Uses cdn.islamic.network for Mishary Alafasy recitation.
+   QURAN RECITATION AUDIO
+   Uses cdn.islamic.network for recitation.
    Mobile-safe: Audio element is pre-created during user gesture.
    Ambient audio ducks when recitation plays.
    ════════════════════════════════════════════════════════════════ */
 
-const cinReciteIcon    = document.getElementById('cinReciteIcon');
-const cinReciteSpinner = document.getElementById('cinReciteSpinner');
-let recitationState = 'idle'; // idle | loading | playing | paused
+var recitationState = 'idle'; // idle | loading | playing | paused
 
 function setReciteUI(state) {
   recitationState = state;
+  if (!cinReciteIcon || !cinReciteSpinner || !cinReciteBtn) return;
+
   cinReciteIcon.style.display    = state === 'loading' ? 'none' : '';
   cinReciteSpinner.style.display = state === 'loading' ? '' : 'none';
 
@@ -124,8 +142,9 @@ function setReciteUI(state) {
 /** Duck ambient volume when recitation plays, restore when it stops */
 function duckAmbient(duck) {
   if (!ambientAudio) return;
-  const baseVol = (cinematicVolumeEl.value / 100) * 0.5;
-  const target  = duck ? baseVol * 0.2 : baseVol; // duck to 20%
+  var baseVol = getAmbientBaseVolume();
+  /* Duck to 5% of base when recitation plays (was 20%, now calmer) */
+  var target  = duck ? baseVol * 0.05 : baseVol;
   fadeAudioTo(ambientAudio, isMuted ? 0 : target, 600);
 }
 
@@ -143,51 +162,42 @@ function primeRecitationAudio() {
   recitationAudio = new Audio();
   recitationAudio.setAttribute('playsinline', '');
   recitationAudio.volume = 0;
-  /* Unlock on iOS by calling play() with an empty src, then catching the error */
-  recitationAudio.play().catch(() => {});
+  recitationAudio.play().catch(function() {});
 }
 
-/** Start Quran recitation for a given ayah reference (must be called after primeRecitationAudio) */
+/** Start Quran recitation for a given ayah reference */
 function startRecitation(ref) {
-  const absAyah = refToAbsoluteAyah(ref);
-  console.log('[Recitation] Display ref:', ref, '→ absolute ayah:', absAyah);
-  if (!absAyah) {
-    console.warn('[Recitation] Could not map reference to ayah number:', ref);
-    return;
-  }
+  var absAyah = refToAbsoluteAyah(ref);
+  if (!absAyah) return;
 
-  /* Stop any currently playing recitation first */
   if (recitationAudio && !recitationAudio.paused) {
     recitationAudio.pause();
     recitationAudio.removeAttribute('src');
     recitationAudio.load();
   }
 
-  /* If no primed audio, create one (won't work on mobile without gesture, but try) */
   if (!recitationAudio) primeRecitationAudio();
 
-  const url = `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${absAyah}.mp3`;
-  console.log('[Recitation] Playing URL:', url);
+  var url = 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/' + absAyah + '.mp3';
   setReciteUI('loading');
 
   recitationAudio.src = url;
   recitationAudio.volume = 0;
   recitationAudio.load();
 
-  /* Once enough data is buffered, start playback */
-  const onCanPlay = () => {
+  var onCanPlay = function() {
     recitationAudio.removeEventListener('canplaythrough', onCanPlay);
     recitationAudio.removeEventListener('error', onError);
-    recitationAudio.play().then(() => {
+    recitationAudio.play().then(function() {
       setReciteUI('playing');
       duckAmbient(true);
       fadeAudioTo(recitationAudio, isMuted ? 0 : 0.7, 800);
-    }).catch(() => {
+    }).catch(function() {
       setReciteUI('idle');
     });
   };
 
-  const onError = () => {
+  var onError = function() {
     recitationAudio.removeEventListener('canplaythrough', onCanPlay);
     recitationAudio.removeEventListener('error', onError);
     setReciteUI('idle');
@@ -196,9 +206,7 @@ function startRecitation(ref) {
   recitationAudio.addEventListener('canplaythrough', onCanPlay);
   recitationAudio.addEventListener('error', onError);
 
-  /* When recitation ends naturally — stop, do NOT auto-continue to next ayah */
-  recitationAudio.onended = () => {
-    console.log('[Recitation] Finished playing ayah', absAyah);
+  recitationAudio.onended = function() {
     setReciteUI('idle');
     duckAmbient(false);
   };
@@ -207,11 +215,11 @@ function startRecitation(ref) {
 /** Stop recitation with fade-out and restore ambient */
 function stopRecitation() {
   if (!recitationAudio) return;
-  const audio = recitationAudio;
+  var audio = recitationAudio;
   recitationAudio = null;
   setReciteUI('idle');
   duckAmbient(false);
-  fadeAudioTo(audio, 0, 800, () => {
+  fadeAudioTo(audio, 0, 800, function() {
     audio.pause();
     audio.removeAttribute('src');
     audio.load();
@@ -230,10 +238,10 @@ function pauseRecitation() {
 function resumeRecitation() {
   if (!recitationAudio) return;
   setReciteUI('loading');
-  recitationAudio.play().then(() => {
+  recitationAudio.play().then(function() {
     setReciteUI('playing');
     duckAmbient(true);
-  }).catch(() => {
+  }).catch(function() {
     setReciteUI('idle');
   });
 }
@@ -247,5 +255,4 @@ function toggleRecitation(ref) {
   } else if (recitationState === 'idle') {
     startRecitation(ref);
   }
-  /* If loading, ignore tap */
 }

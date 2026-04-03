@@ -89,8 +89,8 @@ function applyTheme(theme) {
   localStorage.setItem(THEME_KEY, theme);
 }
 
-/* Load saved theme on startup */
-const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
+/* Load saved theme on startup — default to dark */
+const savedTheme = localStorage.getItem(THEME_KEY) || 'dark';
 applyTheme(savedTheme);
 
 themeToggleBtn.addEventListener('click', () => {
@@ -598,6 +598,56 @@ customInput.addEventListener('keydown', (e) => {
     showResult(customInput.value.trim());
   }
 });
+
+/* Quick Ayah — instant random ayah */
+const quickAyahBtn = document.getElementById('quickAyahBtn');
+if (quickAyahBtn) {
+  quickAyahBtn.addEventListener('click', () => {
+    const randomGroup = AYAH_DATA[Math.floor(Math.random() * AYAH_DATA.length)];
+    showResult(randomGroup.emotion);
+  });
+}
+
+/* ────────────────────────────────────────────────────────────────
+   SILENCE MODE
+   Ayah-only display with breathing animation, no audio.
+   ──────────────────────────────────────────────────────────────── */
+
+const silenceOverlay = document.getElementById('silenceOverlay');
+const silenceContent = document.getElementById('silenceContent');
+const silenceCloseBtn = document.getElementById('silenceClose');
+const silenceModeBtn = document.getElementById('silenceModeBtn');
+
+function startSilenceMode(entry) {
+  if (!entry) {
+    const group = AYAH_DATA[Math.floor(Math.random() * AYAH_DATA.length)];
+    entry = group.entries[Math.floor(Math.random() * group.entries.length)];
+  }
+
+  silenceContent.innerHTML =
+    '<div class="arabic">' + entry.ayah + '</div>' +
+    '<div class="verse-ref" style="margin-top:8px;">' + entry.reference + '</div>' +
+    '<p class="translation">"' + entry.translation + '"</p>';
+
+  silenceOverlay.classList.remove('fade-exit');
+  silenceOverlay.classList.add('active');
+}
+
+function endSilenceMode() {
+  silenceOverlay.classList.add('fade-exit');
+  setTimeout(() => {
+    silenceOverlay.classList.remove('active', 'fade-exit');
+    silenceContent.innerHTML = '';
+  }, 2000);
+}
+
+if (silenceModeBtn) {
+  silenceModeBtn.addEventListener('click', () => startSilenceMode(null));
+}
+
+if (silenceCloseBtn) {
+  silenceCloseBtn.addEventListener('click', endSilenceMode);
+}
 
 
 /* ────────────────────────────────────────────────────────────────

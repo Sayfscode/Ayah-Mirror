@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr" data-theme="light">
+<html lang="en" dir="ltr" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Ayah Mirror — Find Quran Verses for Your Heart</title>
   <meta name="description" content="An Islamic reflection app that matches Quran verses to your emotional state." />
-  <meta name="theme-color" content="#f0f7f2" />
+  <meta name="theme-color" content="#0B0F0C" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -30,8 +30,13 @@
 
       <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
 
-      <!-- Streak display — filled dynamically -->
+      <!-- Streak display -->
       <div id="streakDisplay"></div>
+
+      <!-- Quick Ayah — instant random ayah -->
+      <button class="quick-ayah-btn" id="quickAyahBtn">
+        ✨ Just show me something
+      </button>
 
       <p class="intro-text">
         How are you feeling right now?<br />
@@ -41,7 +46,7 @@
       <div class="section-title">Choose your feeling</div>
       <div class="emotion-grid" id="emotionGrid"></div>
 
-      <div style="margin-top:16px;">
+      <div style="margin-top:14px;">
         <input
           type="text"
           class="text-input"
@@ -51,7 +56,7 @@
         />
       </div>
 
-      <div style="margin-top:20px;">
+      <div style="margin-top:18px;">
         <button class="btn-primary" id="findAyahBtn" disabled>
           Find My Ayah
         </button>
@@ -135,6 +140,13 @@
         <button class="btn-primary" id="startFocusBtn" style="max-width:280px;margin:0 auto;">
           Enter Experience
         </button>
+
+        <!-- Silence mode button -->
+        <div style="text-align:center;margin-top:12px;">
+          <button class="btn-ghost" id="silenceModeBtn">
+            🤫 Silence Mode — just the ayah
+          </button>
+        </div>
       </div>
     </div>
 
@@ -145,24 +157,31 @@
         <p>Continuous recitation — pick a reciter and listen</p>
       </div>
 
+      <!-- Continue Listening -->
+      <div id="continueListening" style="display:none;margin-bottom:16px;">
+        <button class="btn-ghost" id="continueBtn" style="width:100%;justify-content:center;">
+          ▶ Continue Listening
+        </button>
+      </div>
+
       <!-- Reciter selection -->
       <div class="reciter-grid" id="reciterGrid">
         <button class="reciter-card selected" data-reciter="ar.alafasy" data-bitrate="128">
-          <img class="reciter-card-avatar" src="https://ui-avatars.com/api/?name=Mishary+Alafasy&background=1f7a4d&color=fff&size=72&font-size=0.38&bold=true" alt="MA" />
+          <img class="reciter-card-avatar" src="https://ui-avatars.com/api/?name=Mishary+Alafasy&background=16a34a&color=fff&size=72&font-size=0.38&bold=true" alt="MA" />
           <div class="reciter-card-info">
             <div class="reciter-card-name">Mishary Rashid Alafasy</div>
             <div class="reciter-card-sub">Kuwait · Renowned worldwide</div>
           </div>
         </button>
         <button class="reciter-card" data-reciter="ar.abdurrahmaansudais" data-bitrate="192">
-          <img class="reciter-card-avatar" src="https://ui-avatars.com/api/?name=Al+Sudais&background=2e7d32&color=fff&size=72&font-size=0.38&bold=true" alt="AS" />
+          <img class="reciter-card-avatar" src="https://ui-avatars.com/api/?name=Al+Sudais&background=15803d&color=fff&size=72&font-size=0.38&bold=true" alt="AS" />
           <div class="reciter-card-info">
             <div class="reciter-card-name">Abdul Rahman Al-Sudais</div>
             <div class="reciter-card-sub">Imam of Masjid al-Haram</div>
           </div>
         </button>
         <button class="reciter-card" data-reciter="ar.shaatree" data-bitrate="128">
-          <img class="reciter-card-avatar" src="https://ui-avatars.com/api/?name=Ash+Shatri&background=388e3c&color=fff&size=72&font-size=0.38&bold=true" alt="AS" />
+          <img class="reciter-card-avatar" src="https://ui-avatars.com/api/?name=Ash+Shatri&background=166534&color=fff&size=72&font-size=0.38&bold=true" alt="AS" />
           <div class="reciter-card-info">
             <div class="reciter-card-name">Abu Bakr Ash-Shatri</div>
             <div class="reciter-card-sub">Imam of Masjid al-Haram</div>
@@ -174,9 +193,7 @@
       <div class="station-picker">
         <div class="station-picker-group">
           <div class="station-picker-label">Surah</div>
-          <select class="station-select" id="stationSurahSelect">
-            <!-- Populated by JS -->
-          </select>
+          <select class="station-select" id="stationSurahSelect"></select>
         </div>
         <div class="station-picker-group ayah-group">
           <div class="station-picker-label">Start Ayah</div>
@@ -195,7 +212,7 @@
           </div>
         </div>
 
-        <!-- Now-playing state (hidden initially) -->
+        <!-- Now-playing state -->
         <div id="stationPlaying" style="display:none;">
           <div class="station-ayah-display">
             <div class="station-surah-label" id="stationSurah">—</div>
@@ -213,7 +230,7 @@
         </div>
 
         <!-- Controls -->
-        <div class="station-controls" style="margin-top:18px;">
+        <div class="station-controls" style="margin-top:16px;">
           <button class="station-ctrl" id="stationPrev" title="Previous ayah" disabled>⏮</button>
           <button class="station-ctrl station-ctrl-play" id="stationPlayBtn" title="Play">▶</button>
           <button class="station-ctrl" id="stationNext" title="Next ayah" disabled>⏭</button>
@@ -226,25 +243,32 @@
           <button class="btn-ghost" id="stationStopBtn" style="font-size:12px;">Stop Station</button>
         </div>
       </div>
-      <!-- ─── QUR'AN DETECTION MODE (Shazam-inspired) ─────── -->
+
+      <!-- ─── QUR'AN DETECTION MODE ─────────────────────────── -->
       <div class="detect-section" id="detectSection">
 
-        <!-- ── Fullscreen detection experience ── -->
         <div class="detect-stage" id="detectStage">
 
-          <!-- Ambient glow rings (behind button) -->
+          <!-- Ambient glow rings -->
           <div class="detect-glow" id="detectGlow">
             <div class="detect-glow-ring"></div>
             <div class="detect-glow-ring"></div>
             <div class="detect-glow-ring"></div>
           </div>
 
-          <!-- Circular waveform (visible when listening) -->
+          <!-- Circular waveform -->
           <div class="detect-circular-wave" id="detectCircularWave">
             <svg viewBox="0 0 200 200" class="detect-wave-svg">
               <circle class="detect-wave-circle" cx="100" cy="100" r="88" />
               <circle class="detect-wave-circle" cx="100" cy="100" r="80" />
               <circle class="detect-wave-circle" cx="100" cy="100" r="72" />
+            </svg>
+          </div>
+
+          <!-- Timer ring (countdown) -->
+          <div class="detect-timer" id="detectTimer">
+            <svg viewBox="0 0 116 116" class="detect-timer-svg">
+              <circle class="detect-timer-circle" id="detectTimerCircle" cx="58" cy="58" r="54" />
             </svg>
           </div>
 
@@ -263,10 +287,10 @@
           <!-- Status text -->
           <div class="detect-label" id="detectStatus">
             <span class="detect-label-main">Detect Recitation</span>
-            <span class="detect-label-sub">Tap to begin</span>
+            <span class="detect-label-sub">Tap to begin listening</span>
           </div>
 
-          <!-- Search range (compact) -->
+          <!-- Search range -->
           <div class="detect-range" id="detectRange">
             <button class="detect-range-pill selected" data-range="juz30">Juz 30</button>
             <button class="detect-range-pill" data-range="juz29">Juz 29</button>
@@ -275,13 +299,13 @@
           </div>
         </div>
 
-        <!-- ── Transcript (shown during/after listening) ── -->
+        <!-- Transcript -->
         <div class="detect-transcript" id="detectTranscript">
           <div class="detect-transcript-label">What we heard</div>
           <div class="detect-transcript-text" id="detectTranscriptText"></div>
         </div>
 
-        <!-- ── Result card (slides up after match) ── -->
+        <!-- Result card -->
         <div class="detect-result" id="detectResult">
           <div class="detect-result-badge" id="detectResultConfidence"></div>
           <div class="detect-result-surah" id="detectResultSurah"></div>
@@ -307,9 +331,8 @@
 
     </div>
 
-    <!-- ─── JOURNAL SCREEN (History + Notes) ─────────────────── -->
+    <!-- ─── JOURNAL SCREEN ───────────────────────────────────── -->
     <div class="screen" id="screen-journal">
-      <!-- Tabs to switch between History and Notes -->
       <div class="journal-tabs">
         <button class="journal-tab active" data-panel="history">History</button>
         <button class="journal-tab" data-panel="notes">Private Notes</button>
@@ -328,7 +351,6 @@
 
       <!-- Notes panel -->
       <div class="journal-panel" id="panel-notes">
-        <!-- Lock toggle -->
         <div class="card" style="margin-bottom:12px;">
           <div class="lock-row">
             <span>🔒 Lock notes with passcode</span>
@@ -336,7 +358,6 @@
           </div>
         </div>
 
-        <!-- New note input -->
         <div class="card">
           <div class="section-title">New Private Note</div>
           <textarea class="text-input" id="noteInput" placeholder="Write a private reflection..." rows="3"></textarea>
@@ -345,11 +366,20 @@
           </button>
         </div>
 
-        <!-- Notes list -->
         <div class="card" style="padding:0;overflow:hidden;margin-top:12px;" id="notesList"></div>
       </div>
     </div>
 
+  </div>
+
+  <!-- ═══ MINI PLAYER BAR ═══════════════════════════════════════ -->
+  <div class="mini-player" id="miniPlayer">
+    <div class="mini-player-info">
+      <div class="mini-player-surah" id="miniPlayerSurah">—</div>
+      <div class="mini-player-ref" id="miniPlayerRef">—</div>
+    </div>
+    <button class="mini-player-btn" id="miniPlayerBtn" title="Play/Pause">▶</button>
+    <button class="mini-player-close" id="miniPlayerClose" title="Close">&times;</button>
   </div>
 
   <!-- ═══ BOTTOM NAVIGATION ═════════════════════════════════════ -->
@@ -376,43 +406,36 @@
     </button>
   </nav>
 
-  <!-- Toast notification -->
+  <!-- Toast -->
   <div class="save-toast" id="toast">Saved!</div>
 
 </div>
 
 <!-- ═══ CINEMATIC AYAH EXPERIENCE OVERLAY ═════════════════════ -->
 <div class="cinematic-overlay" id="cinematicOverlay">
-
-  <!-- Layer 1: Nature video background -->
   <video class="cinematic-video" id="cinematicVideo"
          muted loop playsinline preload="none"></video>
-
-  <!-- Layer 2: Dark gradient overlay -->
   <div class="cinematic-dark-layer"></div>
-
-  <!-- X close button (top-left) -->
   <button class="cinematic-close" id="cinematicClose">&times;</button>
-
-  <!-- Controls (top-right): mute + volume + recitation -->
   <div class="cinematic-controls" id="cinematicControls">
     <button class="cinematic-ctrl-btn" id="cinReciteBtn" title="Toggle recitation" style="display:none;">
       <span id="cinReciteIcon">🎙️</span>
       <span id="cinReciteSpinner" style="display:none;" class="recite-spinner"></span>
     </button>
-    <input type="range" class="cinematic-vol-slider" id="cinematicVolume" min="0" max="100" value="25" title="Ambient volume" />
+    <input type="range" class="cinematic-vol-slider" id="cinematicVolume" min="0" max="100" value="20" title="Ambient volume" />
     <button class="cinematic-ctrl-btn" id="cinematicMuteBtn" title="Mute/unmute">🔊</button>
   </div>
-
-  <!-- Content layer — ayah + wisdom -->
-  <div class="cinematic-content" id="cinematicContent">
-    <!-- Filled dynamically by JS -->
-  </div>
-
-  <!-- Progress bar (bottom edge) -->
+  <div class="cinematic-content" id="cinematicContent"></div>
   <div class="cinematic-progress">
     <div class="cinematic-progress-fill" id="cinematicProgress"></div>
   </div>
+</div>
+
+<!-- ═══ SILENCE MODE OVERLAY ═════════════════════════════════ -->
+<div class="silence-overlay" id="silenceOverlay">
+  <button class="silence-close" id="silenceClose">&times;</button>
+  <div class="silence-ayah" id="silenceContent"></div>
+  <div class="silence-breath"></div>
 </div>
 
 <!-- ═══ PASSCODE OVERLAY ══════════════════════════════════════ -->
@@ -444,10 +467,7 @@
 
 <!-- ══════════════════════════════════════════════════════════════
      JAVASCRIPT
-     All app logic: data, navigation, matching, storage, themes,
-     focus mode, streak, notes, passcode.
      ══════════════════════════════════════════════════════════════ -->
-
 <script src="js/data.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/ui.js"></script>

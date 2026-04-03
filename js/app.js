@@ -6,3 +6,8 @@
 /* Render initial UI */
 renderStreak();
 renderDaily();
+
+/* Check for saved station position (Continue Listening) */
+if (typeof checkContinueListening === 'function') {
+  checkContinueListening();
+}
