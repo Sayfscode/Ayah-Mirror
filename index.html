@@ -1189,21 +1189,24 @@
 
     /* Reciter cards */
     .reciter-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
       margin-bottom: 22px;
     }
     .reciter-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
       background: var(--bg-card);
       backdrop-filter: var(--glass-blur);
       -webkit-backdrop-filter: var(--glass-blur);
       border: 1.5px solid var(--glass-border);
-      border-radius: var(--radius-sm);
-      padding: 14px 8px;
-      text-align: center;
+      border-radius: 28px;
+      padding: 8px 16px 8px 8px;
       cursor: pointer;
       transition: all var(--transition);
+      text-align: left;
     }
     .reciter-card:hover { background: var(--bg-hover); }
     .reciter-card.selected {
@@ -1211,8 +1214,35 @@
       background: var(--green-soft);
       box-shadow: 0 0 16px var(--glow-color);
     }
-    .reciter-card-icon { font-size: 28px; margin-bottom: 6px; }
-    .reciter-card-name { font-size: 11px; font-weight: 600; color: var(--text); line-height: 1.3; }
+    .reciter-card-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 2px solid var(--glass-border);
+      transition: border-color var(--transition);
+    }
+    .reciter-card.selected .reciter-card-avatar {
+      border-color: var(--green);
+    }
+    .reciter-card-info { display: flex; flex-direction: column; min-width: 0; }
+    .reciter-card-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .reciter-card-sub {
+      font-size: 10px;
+      color: var(--text-dim);
+      line-height: 1.3;
+      margin-top: 1px;
+    }
+    .reciter-card.selected .reciter-card-name { color: var(--green); }
 
     /* Station player */
     .station-player {
@@ -1841,16 +1871,25 @@
       <!-- Reciter selection -->
       <div class="reciter-grid" id="reciterGrid">
         <button class="reciter-card selected" data-reciter="ar.alafasy" data-bitrate="128">
-          <div class="reciter-card-icon">🕌</div>
-          <div class="reciter-card-name">Mishary Alafasy</div>
+          <img class="reciter-card-avatar" src="https://ui-avatars.com/api/?name=Mishary+Alafasy&background=1f7a4d&color=fff&size=72&font-size=0.38&bold=true" alt="MA" />
+          <div class="reciter-card-info">
+            <div class="reciter-card-name">Mishary Rashid Alafasy</div>
+            <div class="reciter-card-sub">Kuwait · Renowned worldwide</div>
+          </div>
         </button>
         <button class="reciter-card" data-reciter="ar.abdurrahmaansudais" data-bitrate="192">
-          <div class="reciter-card-icon">🌙</div>
-          <div class="reciter-card-name">Al-Sudais</div>
+          <img class="reciter-card-avatar" src="https://ui-avatars.com/api/?name=Al+Sudais&background=2e7d32&color=fff&size=72&font-size=0.38&bold=true" alt="AS" />
+          <div class="reciter-card-info">
+            <div class="reciter-card-name">Abdul Rahman Al-Sudais</div>
+            <div class="reciter-card-sub">Imam of Masjid al-Haram</div>
+          </div>
         </button>
         <button class="reciter-card" data-reciter="ar.shaatree" data-bitrate="128">
-          <div class="reciter-card-icon">📖</div>
-          <div class="reciter-card-name">Abu Bakr Ash-Shatri</div>
+          <img class="reciter-card-avatar" src="https://ui-avatars.com/api/?name=Ash+Shatri&background=388e3c&color=fff&size=72&font-size=0.38&bold=true" alt="AS" />
+          <div class="reciter-card-info">
+            <div class="reciter-card-name">Abu Bakr Ash-Shatri</div>
+            <div class="reciter-card-sub">Imam of Masjid al-Haram</div>
+          </div>
         </button>
       </div>
 
